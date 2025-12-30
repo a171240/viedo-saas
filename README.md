@@ -33,34 +33,39 @@ See more documentation at <https://document.saasfly.io>
 
 ## 🌟 Star History
 
-[![Star History Chart](https://api.star-history.com/svg?repos=saasfly/saasfly&type=Timeline)](https://star-history.com/#saasfly/saasfly&Timeline)
+[![Star History Chart](https://app.repohistory.com/api/svg?repo=saasfly/saasfly&type=Timeline)](https://repohistory.com)
 
 ## Sponsors
 
 <table>
-  <tr >
-    <td>
+  <tr>
+   <td style="width: 64px;">
+      <a href="https://libra.dev/">
+        <div style="width: 64px;">
+          <img alt="Libra AI" src="https://raw.githubusercontent.com/nextify-limited/libra/main/logo.svg">
+        </div>
+      </a>
+    </td>
+    <td style="width: 64px;">
       <a href="https://www.twillot.com/">
-        <picture>
+        <div style="width: 64px;">
           <img alt="Take Control of All Your Twitter Assets" src="/twillot.png">
-        </picture>
+        </div>
       </a>
     </td>
-    <td>
+    <td style="width: 64px;">
       <a href="https://www.setupyourpay.com/" title="如何注册美国公司进行收款">
-        <picture>
+        <div style="width: 64px;">
           <img alt="全球收款手册" src="/setupyourpay.png">
-        </picture>
-      </a>
-    </td>
-  <tr >
-    <td >
-      <a href="mailto:contact@nextify.ltd">
-        Add your logo here
+        </div>
       </a>
     </td>
   </tr>
 </table>
+
+<a href="mailto:contact@nextify.ltd">
+  Add your logo here
+</a>
 
 ## 🚀 Getting Started
 
