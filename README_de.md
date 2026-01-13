@@ -37,18 +37,18 @@ Weitere Dokumentation finden Sie unter <https://document.saasfly.io>.
 
 ### 🖱 One-Click-Vorlage
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fsaasfly%2Fsaasfly&env=NEXT_PUBLIC_APP_URL,NEXTAUTH_URL,NEXTAUTH_SECRET,STRIPE_API_KEY,STRIPE_WEBHOOK_SECRET,POSTGRES_URL,GITHUB_CLIENT_ID,GITHUB_CLIENT_SECRET,RESEND_API_KEY,RESEND_FROM&install-command=bun%20install&build-command=bun%20run%20build&root-directory=apps%2Fnextjs)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fsaasfly%2Fsaasfly&env=NEXT_PUBLIC_APP_URL,NEXTAUTH_URL,NEXTAUTH_SECRET,STRIPE_API_KEY,STRIPE_WEBHOOK_SECRET,POSTGRES_URL,GITHUB_CLIENT_ID,GITHUB_CLIENT_SECRET,RESEND_API_KEY,RESEND_FROM&install-command=pnpm%20install&build-command=pnpm%20run%20build&root-directory=apps%2Fnextjs)
 
 ### 📋 Voraussetzungen
 
 Stellen Sie vor dem Start sicher, dass Sie Folgendes installiert haben:
 
-1. [Bun](https://bun.sh/), [Node.js](https://nodejs.org/) und [Git](https://git-scm.com/)
+1. [pnpm](https://pnpm.io/), [Node.js](https://nodejs.org/) und [Git](https://git-scm.com/)
 
    1. Linux
 
     ```bash
-      curl -sL https://gist.github.com/tianzx/874662fb204d32390bc2f2e9e4d2df0a/raw -o ~/downloaded_script.sh && chmod +x ~/downloaded_script.sh && source ~/downloaded_script.sh
+      curl -fsSL https://get.pnpm.io/install.sh | sh -
     ```
 
    2. macOS
@@ -56,7 +56,7 @@ Stellen Sie vor dem Start sicher, dass Sie Folgendes installiert haben:
     ```bash
       /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
       brew install git
-      brew install oven-sh/bun/bun
+      brew install pnpm
       brew install nvm
     ```
 
@@ -70,10 +70,10 @@ Stellen Sie vor dem Start sicher, dass Sie Folgendes installiert haben:
 
 Für den Einstieg mit dieser Vorlage bieten wir zwei Möglichkeiten an:
 
-1. Verwenden Sie den Befehl `bun create` (🌟dringend empfohlen🌟):
+1. Verwenden Sie den Befehl `pnpm create` (🌟dringend empfohlen🌟):
 
 ```bash
-bun create saasfly 
+pnpm create saasfly
 ```
 
 2. Klonen Sie das Repository manuell:
@@ -81,7 +81,7 @@ bun create saasfly
 ```bash
 git clone https://github.com/saasfly/saasfly.git
 cd saasfly
-bun install
+pnpm install
 ```
 
 ### Einrichtung
@@ -93,13 +93,13 @@ Führen Sie die folgenden Schritte aus, um Ihr Projekt einzurichten:
 ```bash
 cp .env.example .env.local
 // (Sie müssen eine Datenbank vorbereitet haben, bevor Sie diesen Befehl ausführen)
-bun db:push
+pnpm db:push
 ```
 
 2. Starten Sie den Entwicklungsserver:
 
 ```bash
-bun run dev:web
+pnpm run dev:web
 ```
 
 5. Öffnen Sie [http://localhost:3000](http://localhost:3000) in Ihrem Browser, um das Ergebnis zu sehen.
@@ -163,7 +163,7 @@ bun run dev:web
 ### 🐑 Leistung
 
 - **[Vercel Analytics](https://vercel.com/analytics)** – Echtzeit-Leistungsmetriken für Ihre Next.js-App
-- **[bun.sh](https://bun.sh/)** – npm-Alternative für eine schnellere und zuverlässigere Paketverwaltung
+- **[pnpm](https://pnpm.io/)** – Schneller, platzsparender Paketmanager
 
 ### 🐘 Datenbank
 

@@ -1,9 +1,6 @@
-import { unstable_noStore as noStore } from "next/cache";
 import { TRPCError } from "@trpc/server";
-import { getServerSession } from "next-auth/next";
 import { z } from "zod";
 
-import { authOptions } from "@saasfly/auth";
 import { db, SubscriptionPlan } from "@saasfly/db";
 
 import { createTRPCRouter, protectedProcedure } from "../trpc";
@@ -19,30 +16,21 @@ const k8sClusterDeleteSchema = z.object({
 });
 
 export const k8sRouter = createTRPCRouter({
-  getClusters: protectedProcedure.query(async (opts) => {
-    const session = await getServerSession(authOptions);
-    const userId = opts.ctx.userId! as string;
-    if (!session) {
-      return;
-    }
+  getClusters: protectedProcedure.query(async ({ ctx }) => {
+    // Session is already verified by protectedProcedure
+    const userId = ctx.userId;
     return await db
       .selectFrom("K8sClusterConfig")
       .selectAll()
       .where("authUserId", "=", userId)
       .execute();
   }),
+
   createCluster: protectedProcedure
     .input(k8sClusterCreateSchema)
     .mutation(async ({ ctx, input }) => {
-      const userId = ctx.userId! as string;
+      const userId = ctx.userId;
 
-      const session = await getServerSession(authOptions);
-      if (!session) {
-        throw new TRPCError({
-          code: "UNAUTHORIZED",
-          message: "You must be logged in to create a cluster",
-        });
-      }
       try {
         const newCluster = await db
           .insertInto("K8sClusterConfig")
@@ -76,19 +64,21 @@ export const k8sRouter = createTRPCRouter({
         throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", cause: error });
       }
     }),
+
   updateCluster: protectedProcedure
     .input(k8sClusterCreateSchema)
-    .mutation(async (opts) => {
-      const id = opts.input.id!;
-      const userId = opts.ctx.userId!;
-      const newName = opts.input.name;
-      const newLocation = opts.input.location;
+    .mutation(async ({ ctx, input }) => {
+      const id = input.id!;
+      const userId = ctx.userId;
+      const newName = input.name;
+      const newLocation = input.location;
 
       const cluster = await db
         .selectFrom("K8sClusterConfig")
         .selectAll()
         .where("id", "=", id)
         .executeTakeFirst();
+
       if (!cluster) {
         throw new TRPCError({
           code: "NOT_FOUND",
@@ -102,6 +92,7 @@ export const k8sRouter = createTRPCRouter({
           message: "You don't have access to this cluster",
         });
       }
+
       if (newName || newLocation) {
         const updateData: Record<string, string> = {};
         if (newName) updateData.name = newName;
@@ -113,32 +104,38 @@ export const k8sRouter = createTRPCRouter({
           .set(updateData)
           .execute();
       }
+
       return {
         success: true,
       };
     }),
+
   deleteCluster: protectedProcedure
     .input(k8sClusterDeleteSchema)
-    .mutation(async (opts) => {
-      const id = opts.input.id;
-      const userId = opts.ctx.userId!;
+    .mutation(async ({ ctx, input }) => {
+      const id = input.id;
+      const userId = ctx.userId;
+
       const cluster = await db
         .selectFrom("K8sClusterConfig")
         .selectAll()
         .where("id", "=", id)
         .executeTakeFirst();
+
       if (!cluster) {
         throw new TRPCError({
           code: "NOT_FOUND",
           message: "Cluster not found",
         });
       }
+
       if (cluster.authUserId && cluster.authUserId !== userId) {
         throw new TRPCError({
           code: "FORBIDDEN",
           message: "You don't have access to this cluster",
         });
       }
+
       await db.deleteFrom("K8sClusterConfig").where("id", "=", id).execute();
       return { success: true };
     }),

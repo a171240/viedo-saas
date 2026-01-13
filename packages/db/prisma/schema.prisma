@@ -32,6 +32,76 @@ model Customer {
   @@index([authUserId])
 }
 
+// ============================================
+// Better Auth Tables (lowercase table names)
+// ============================================
+
+model BetterAuthUser {
+  id            String               @id @default(dbgenerated("gen_random_uuid()"))
+  name          String?
+  email         String               @unique
+  emailVerified Boolean              @default(false)
+  image         String?
+  createdAt     DateTime             @default(now())
+  updatedAt     DateTime             @default(now()) @updatedAt
+  isAdmin       Boolean              @default(false)
+  sessions      BetterAuthSession[]
+  accounts      BetterAuthAccount[]
+
+  @@map("user")
+}
+
+model BetterAuthSession {
+  id        String   @id @default(dbgenerated("gen_random_uuid()"))
+  userId    String
+  token     String   @unique
+  expiresAt DateTime
+  ipAddress String?
+  userAgent String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+  user      BetterAuthUser @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("session")
+}
+
+model BetterAuthAccount {
+  id                    String    @id @default(dbgenerated("gen_random_uuid()"))
+  userId                String
+  accountId             String
+  providerId            String
+  accessToken           String?   @db.Text
+  refreshToken          String?   @db.Text
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  idToken               String?   @db.Text
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @default(now()) @updatedAt
+  user                  BetterAuthUser @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([providerId, accountId])
+  @@index([userId])
+  @@map("account")
+}
+
+model BetterAuthVerification {
+  id         String   @id @default(dbgenerated("gen_random_uuid()"))
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @default(now()) @updatedAt
+
+  @@map("verification")
+}
+
+// ============================================
+// Legacy NextAuth Tables (for migration only)
+// ============================================
+
 model Account {
   id                String  @id @default(dbgenerated("gen_random_uuid()"))
   userId            String
@@ -49,6 +119,7 @@ model Account {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
+  @@map("Account")
 }
 
 model Session {
@@ -57,6 +128,8 @@ model Session {
   userId       String
   expires      DateTime
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("Session")
 }
 
 model User {
@@ -67,6 +140,8 @@ model User {
   image         String?
   accounts      Account[]
   sessions      Session[]
+
+  @@map("User")
 }
 
 model VerificationToken {
@@ -75,6 +150,7 @@ model VerificationToken {
   expires    DateTime
 
   @@unique([identifier, token])
+  @@map("VerificationToken")
 }
 
 model K8sClusterConfig {

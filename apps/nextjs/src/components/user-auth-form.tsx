@@ -3,10 +3,10 @@
 import * as React from "react";
 import { useSearchParams } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { signIn } from "next-auth/react";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 
+import { authClient } from "@saasfly/auth/client";
 import { cn } from "@saasfly/ui";
 import { buttonVariants } from "@saasfly/ui/button";
 import * as Icons from "@saasfly/ui/icons";
@@ -49,28 +49,26 @@ export function UserAuthForm({
   async function onSubmit(data: FormData) {
     setIsLoading(true);
 
-    const signInResult = await signIn("email", {
-      email: data.email.toLowerCase(),
-      redirect: false,
-      callbackUrl: searchParams?.get("from") ?? `/${lang}/dashboard`,
-    }).catch((error) => {
+    try {
+      await authClient.signIn.magicLink({
+        email: data.email.toLowerCase(),
+        callbackURL: searchParams?.get("from") ?? `/${lang}/dashboard`,
+      });
+
+      toast({
+        title: "Check your email",
+        description: "We sent you a login link. Be sure to check your spam too.",
+      });
+    } catch (error) {
       console.error("Error during sign in:", error);
-    });
-
-    setIsLoading(false);
-
-    if (!signInResult?.ok) {
-      return toast({
+      toast({
         title: "Something went wrong.",
         description: "Your sign in request failed. Please try again.",
         variant: "destructive",
       });
+    } finally {
+      setIsLoading(false);
     }
-
-    return toast({
-      title: "Check your email",
-      description: "We sent you a login link. Be sure to check your spam too.",
-    });
   }
 
   return (
@@ -102,7 +100,6 @@ export function UserAuthForm({
               <Icons.Spinner className="mr-2 h-4 w-4 animate-spin" />
             )}
             {dict.signin_email}
-            {/* Sign In with Email */}
           </button>
         </div>
       </form>
@@ -113,7 +110,6 @@ export function UserAuthForm({
         <div className="relative flex justify-center text-xs uppercase">
           <span className="bg-background px-2 text-muted-foreground">
             {dict.signin_others}
-            {/* Or continue with */}
           </span>
         </div>
       </div>
@@ -122,9 +118,15 @@ export function UserAuthForm({
         className={cn(buttonVariants({ variant: "outline" }))}
         onClick={() => {
           setIsGitHubLoading(true);
-          signIn("github").catch((error) => {
-            console.error("GitHub signIn error:", error);
-          });
+          authClient.signIn
+            .social({
+              provider: "github",
+              callbackURL: searchParams?.get("from") ?? `/${lang}/dashboard`,
+            })
+            .catch((error) => {
+              console.error("GitHub signIn error:", error);
+              setIsGitHubLoading(false);
+            });
         }}
         disabled={isLoading || isGitHubLoading}
       >

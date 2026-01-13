@@ -40,14 +40,20 @@ jobs:
         shell: bash
         run: cp .env.example .env.local
 
-      - name: Setup bun
-        uses: oven-sh/setup-bun@v1
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
 
       - name: Install lib
-        run: bun i
+        run: pnpm install
 
       - name: Build
-        run: bun run build
+        run: pnpm run build
         env:
           # The hostname used to communicate with the PostgreSQL service container
           POSTGRES_HOST: postgres
@@ -60,4 +66,4 @@ jobs:
 
 
       - name: lint and type-check
-        run: bun run build lint format typecheck
+        run: pnpm run lint && pnpm run typecheck

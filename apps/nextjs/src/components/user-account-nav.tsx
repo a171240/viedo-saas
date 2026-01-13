@@ -1,9 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import type { User } from "next-auth";
-import { signOut } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
+import { authClient, type User } from "@saasfly/auth/client";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -27,6 +27,8 @@ export function UserAccountNav({
   params: { lang },
   dict,
 }: UserAccountNavProps) {
+  const router = useRouter();
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger>
@@ -61,11 +63,17 @@ export function UserAccountNav({
           className="cursor-pointer"
           onSelect={(event) => {
             event.preventDefault();
-            signOut({
-              callbackUrl: `${window.location.origin}/${lang}/login`,
-            }).catch((error) => {
-              console.error("Error during sign out:", error);
-            });
+            authClient
+              .signOut({
+                fetchOptions: {
+                  onSuccess: () => {
+                    router.push(`/${lang}/login`);
+                  },
+                },
+              })
+              .catch((error) => {
+                console.error("Error during sign out:", error);
+              });
           }}
         >
           {dict.sign_out}

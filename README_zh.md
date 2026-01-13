@@ -64,26 +64,26 @@
 
 ### 🖱 一键模板
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fsaasfly%2Fsaasfly&env=NEXT_PUBLIC_APP_URL,NEXTAUTH_URL,NEXTAUTH_SECRET,STRIPE_API_KEY,STRIPE_WEBHOOK_SECRET,POSTGRES_URL,GITHUB_CLIENT_ID,GITHUB_CLIENT_SECRET,RESEND_API_KEY,RESEND_FROM&install-command=bun%20install&build-command=bun%20run%20build&root-directory=apps%2Fnextjs)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fsaasfly%2Fsaasfly&env=NEXT_PUBLIC_APP_URL,NEXTAUTH_URL,NEXTAUTH_SECRET,STRIPE_API_KEY,STRIPE_WEBHOOK_SECRET,POSTGRES_URL,GITHUB_CLIENT_ID,GITHUB_CLIENT_SECRET,RESEND_API_KEY,RESEND_FROM&install-command=pnpm%20install&build-command=pnpm%20run%20build&root-directory=apps%2Fnextjs)
 
 ### 📋 前提条件
 
 开始之前,请确保您已安装以下内容:
 
-1. [Bun](https://bun.sh/) & [Node.js](https://nodejs.org/) & [Git](https://git-scm.com/)
+1. [pnpm](https://pnpm.io/) & [Node.js](https://nodejs.org/) & [Git](https://git-scm.com/)
 
     1. Linux
 
     ```bash
-      curl -sL https://gist.github.com/tianzx/874662fb204d32390bc2f2e9e4d2df0a/raw -o ~/downloaded_script.sh && chmod +x ~/downloaded_script.sh && source ~/downloaded_script.sh 
+      curl -fsSL https://get.pnpm.io/install.sh | sh -
     ```
 
     2. MacOS
 
     ```bash
-      /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"  
+      /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
       brew install git
-      brew install oven-sh/bun/bun
+      brew install pnpm
       brew install nvm
     ```
 
@@ -97,18 +97,18 @@
 
 要开始使用此样板,我们提供两个选项:
 
-1. 使用`bun create`命令(🌟强烈推荐🌟):
+1. 使用`pnpm create`命令(🌟强烈推荐🌟):
 
 ```bash
-bun create saasfly
+pnpm create saasfly
 ```
 
 2. 手动克隆存储库:
 
 ```bash
 git clone https://github.com/saasfly/saasfly.git
-cd saasfly 
-bun install  
+cd saasfly
+pnpm install
 ```
 
 ### 设置
@@ -118,15 +118,15 @@ bun install
 1. 设置环境变量:
 
 ```bash
-cp .env.example .env.local 
+cp .env.example .env.local
 // (在运行此命令之前,您必须准备一个数据库)
-bun db:push  
+pnpm db:push
 ```
 
 2. 运行开发服务器:
 
 ```bash
-bun run dev:web
+pnpm run dev:web
 ```
 
 5. 在浏览器中打开[http://localhost:3000](http://localhost:3000)查看结果。
@@ -190,7 +190,7 @@ bun run dev:web
 ### 🐑 性能
 
 - **[Vercel Analytics](https://vercel.com/analytics)** – 用于Next.js应用的实时性能指标
-- **[bun.sh](https://bun.sh/)** – npm的替代品,用于更快、更可靠的包管理
+- **[pnpm](https://pnpm.io/)** – 快速、节省磁盘空间的包管理器
 
 ### 🐘 数据库
 

@@ -1,8 +1,6 @@
 import { unstable_noStore as noStore } from "next/cache";
-import { getServerSession } from "next-auth/next";
 import { z } from "zod";
 
-import { authOptions } from "@saasfly/auth";
 import { db, SubscriptionPlan } from "@saasfly/db";
 
 import { createTRPCRouter, protectedProcedure } from "../trpc";
@@ -11,23 +9,22 @@ const updateUserNameSchema = z.object({
   name: z.string(),
   userId: z.string(),
 });
+
 const insertCustomerSchema = z.object({
   userId: z.string(),
 });
-z.object({
-  userId: z.string(),
-});
+
 export const customerRouter = createTRPCRouter({
   updateUserName: protectedProcedure
     .input(updateUserNameSchema)
-    .mutation(async ({ input }) => {
+    .mutation(async ({ ctx, input }) => {
       const { userId } = input;
-      const session = await getServerSession(authOptions);
-      if (!session?.user || userId !== session?.user.id) {
+      // Use session from context (already verified by protectedProcedure)
+      if (userId !== ctx.userId) {
         return { success: false, reason: "no auth" };
       }
       await db
-        .updateTable("User")
+        .updateTable("user")
         .set({
           name: input.name,
         })

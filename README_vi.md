@@ -35,26 +35,26 @@ Máy chủ demo 2 (Địa điểm: Tokyo, Nhật Bản): <https://demo.saasfly.i
 
 ### 🖱 Mẫu một lần nhấp
 
-[![Triển khai với Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fsaasfly%2Fsaasfly&env=NEXT_PUBLIC_APP_URL,NEXTAUTH_URL,NEXTAUTH_SECRET,STRIPE_API_KEY,STRIPE_WEBHOOK_SECRET,POSTGRES_URL,GITHUB_CLIENT_ID,GITHUB_CLIENT_SECRET,RESEND_API_KEY,RESEND_FROM&install-command=bun%20install&build-command=bun%20run%20build&root-directory=apps%2Fnextjs)
+[![Triển khai với Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fsaasfly%2Fsaasfly&env=NEXT_PUBLIC_APP_URL,NEXTAUTH_URL,NEXTAUTH_SECRET,STRIPE_API_KEY,STRIPE_WEBHOOK_SECRET,POSTGRES_URL,GITHUB_CLIENT_ID,GITHUB_CLIENT_SECRET,RESEND_API_KEY,RESEND_FROM&install-command=pnpm%20install&build-command=pnpm%20run%20build&root-directory=apps%2Fnextjs)
 
 ### 📋 Điều kiện tiên quyết
 
 Trước khi bắt đầu, hãy đảm bảo bạn đã cài đặt các thành phần sau:
 
-1. [Bun](https://bun.sh/) & [Node.js](https://nodejs.org/) & [Git](https://git-scm.com/)
+1. [pnpm](https://pnpm.io/) & [Node.js](https://nodejs.org/) & [Git](https://git-scm.com/)
 
     1. Linux
 
     ```bash
-      curl -sL https://gist.github.com/tianzx/874662fb204d32390bc2f2e9e4d2df0a/raw -o ~/downloaded_script.sh && chmod +x ~/downloaded_script.sh && source ~/downloaded_script.sh 
+      curl -fsSL https://get.pnpm.io/install.sh | sh -
     ```
 
     2. MacOS
 
     ```bash
-      /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"  
+      /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
       brew install git
-      brew install oven-sh/bun/bun
+      brew install pnpm
       brew install nvm
     ```
 
@@ -68,18 +68,18 @@ Trước khi bắt đầu, hãy đảm bảo bạn đã cài đặt các thành 
 
 Để bắt đầu với boilerplate này, chúng tôi cung cấp hai tùy chọn:
 
-1. Sử dụng lệnh `bun create` (🌟Khuyến nghị cao🌟):
+1. Sử dụng lệnh `pnpm create` (🌟Khuyến nghị cao🌟):
 
 ```bash
-bun create saasfly
+pnpm create saasfly
 ```
 
 2. Tự sao chép kho lưu trữ:
 
 ```bash
 git clone https://github.com/saasfly/saasfly.git
-cd saasfly 
-bun install  
+cd saasfly
+pnpm install
 ```
 
 ### Thiết lập
@@ -89,15 +89,15 @@ Làm theo các bước sau để thiết lập dự án của bạn:
 1. Thiết lập các biến môi trường:
 
 ```bash
-cp .env.example .env.local 
+cp .env.example .env.local
 // (Bạn phải chuẩn bị một cơ sở dữ liệu trước khi chạy lệnh này)
-bun db:push  
+pnpm db:push
 ```
 
 2. Chạy máy chủ phát triển:
 
 ```bash
-bun run dev:web
+pnpm run dev:web
 ```
 
 5. Mở [http://localhost:3000](http://localhost:3000) trong trình duyệt để xem kết quả.
@@ -161,7 +161,7 @@ bun run dev:web
 ### 🐑 Hiệu suất
 
 - **[Vercel Analytics](https://vercel.com/analytics)** – Số liệu hiệu suất thời gian thực cho các ứng dụng Next.js
-- **[bun.sh](https://bun.sh/)** – Thay thế cho npm để quản lý gói nhanh hơn, đáng tin cậy hơn
+- **[pnpm](https://pnpm.io/)** – Trình quản lý gói nhanh, tiết kiệm dung lượng đĩa
 
 ### 🐘 Cơ sở dữ liệu
 

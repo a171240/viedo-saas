@@ -2,9 +2,9 @@
 
 import React from "react";
 import Link from "next/link";
-import type { User } from "next-auth";
 import { useSelectedLayoutSegment } from "next/navigation";
 
+import type { User } from "@saasfly/auth";
 import { cn } from "@saasfly/ui";
 import { Button } from "@saasfly/ui/button";
 

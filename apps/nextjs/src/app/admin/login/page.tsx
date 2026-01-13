@@ -3,31 +3,18 @@
 import React from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { signIn } from "next-auth/react";
 
+import { authClient } from "@saasfly/auth/client";
 import { cn } from "@saasfly/ui";
 import { CardBody, CardContainer, CardItem } from "@saasfly/ui/3d-card";
 import { buttonVariants } from "@saasfly/ui/button";
 import * as Icons from "@saasfly/ui/icons";
 
 export default function LoginPage() {
-  // const [isLoading, setIsLoading] = React.useState<boolean>(false);
   const [isGitHubLoading, setIsGitHubLoading] = React.useState<boolean>(false);
 
   return (
     <div className="container flex h-screen w-screen flex-col items-center justify-center">
-      {/*<Link*/}
-      {/*  href={`/${lang}`}*/}
-      {/*  className={cn(*/}
-      {/*    buttonVariants({ variant: "ghost" }),*/}
-      {/*    "absolute left-4 top-4 md:left-8 md:top-8",*/}
-      {/*  )}*/}
-      {/*>*/}
-      {/*  <>*/}
-      {/*    <Icons.ChevronLeft className="mr-2 h-4 w-4" />*/}
-      {/*    {dict.login.back}*/}
-      {/*  </>*/}
-      {/*</Link>*/}
       <CardContainer className="inter-var">
         <CardBody className="group/card relative h-auto  w-auto rounded-xl border border-black/[0.1] bg-gray-50 p-6 dark:border-white/[0.2] dark:bg-black dark:hover:shadow-2xl dark:hover:shadow-emerald-500/[0.1] sm:w-[30rem]  ">
           <CardItem
@@ -67,12 +54,15 @@ export default function LoginPage() {
               className={cn(buttonVariants({ variant: "outline" }))}
               onClick={() => {
                 setIsGitHubLoading(true);
-                signIn("github", {
-                  redirect: true,
-                  callbackUrl: "http://localhost:3000/admin/dashboard",
-                }).catch((error) => {
-                  console.error("GitHub signIn error:", error);
-                });
+                authClient.signIn
+                  .social({
+                    provider: "github",
+                    callbackURL: "/admin/dashboard",
+                  })
+                  .catch((error) => {
+                    console.error("GitHub signIn error:", error);
+                    setIsGitHubLoading(false);
+                  });
               }}
               disabled={isGitHubLoading}
             >

@@ -2,8 +2,8 @@
 
 import React, { useState } from "react";
 import Image from "next/image";
-import { signIn } from "next-auth/react";
 
+import { authClient } from "@saasfly/auth/client";
 import { Button } from "@saasfly/ui/button";
 import * as Icons from "@saasfly/ui/icons";
 
@@ -38,7 +38,11 @@ export const SignInModal = ({ dict }: { dict: Record<string, string> }) => {
             disabled={signInClicked}
             onClick={() => {
               setSignInClicked(true);
-              signIn("github", { redirect: false })
+              authClient.signIn
+                .social({
+                  provider: "github",
+                  callbackURL: "/dashboard",
+                })
                 .then(() =>
                   setTimeout(() => {
                     signInModal.onClose();
@@ -46,6 +50,7 @@ export const SignInModal = ({ dict }: { dict: Record<string, string> }) => {
                 )
                 .catch((error) => {
                   console.error("signUp failed:", error);
+                  setSignInClicked(false);
                 });
             }}
           >

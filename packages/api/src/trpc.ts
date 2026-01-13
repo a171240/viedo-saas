@@ -1,12 +1,14 @@
 import type { NextRequest } from "next/server";
-import { initTRPC } from "@trpc/server";
-import { getToken, type JWT } from "next-auth/jwt";
+import { initTRPC, TRPCError } from "@trpc/server";
 import { ZodError } from "zod";
+
+import { auth, type Session, type User } from "@saasfly/auth";
 
 import { transformer } from "./transformer";
 
 interface CreateContextOptions {
   req?: NextRequest;
+  session?: Session | null;
 }
 
 export const createInnerTRPCContext = (opts: CreateContextOptions) => {
@@ -15,9 +17,15 @@ export const createInnerTRPCContext = (opts: CreateContextOptions) => {
   };
 };
 
-export const createTRPCContext = (opts: { req: NextRequest }) => {
+export const createTRPCContext = async (opts: { req: NextRequest }) => {
+  // Get session from Better Auth
+  const session = await auth.api.getSession({
+    headers: opts.req.headers,
+  });
+
   return createInnerTRPCContext({
     req: opts.req,
+    session,
   });
 };
 
@@ -40,13 +48,28 @@ export const procedure = t.procedure;
 export const mergeRouters = t.mergeRouters;
 
 export const protectedProcedure = procedure.use(async (opts) => {
-  const { req } = opts.ctx;
-  const nreq = req!;
-  const jwt = await handler(nreq);
-  return opts.next({ ctx: { req, userId: jwt?.id } });
+  const { session } = opts.ctx;
+
+  if (!session?.user) {
+    throw new TRPCError({ code: "UNAUTHORIZED" });
+  }
+
+  return opts.next({
+    ctx: {
+      ...opts.ctx,
+      session,
+      userId: session.user.id,
+    },
+  });
 });
 
-async function handler(req: NextRequest): Promise<JWT | null> {
-  // if using `NEXTAUTH_SECRET` env variable, we detect it, and you won't actually need to `secret`
-  return await getToken({ req });
-}
+export const adminProcedure = protectedProcedure.use(async (opts) => {
+  const { session } = opts.ctx;
+  const user = session?.user as User | undefined;
+
+  if (!user?.isAdmin) {
+    throw new TRPCError({ code: "FORBIDDEN" });
+  }
+
+  return opts.next({ ctx: opts.ctx });
+});

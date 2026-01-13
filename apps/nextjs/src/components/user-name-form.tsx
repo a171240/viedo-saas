@@ -3,10 +3,10 @@
 import * as React from "react";
 import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
-import type { User } from "next-auth";
 import { useForm } from "react-hook-form";
 import type * as z from "zod";
 
+import type { User } from "@saasfly/auth";
 import { cn } from "@saasfly/ui";
 import { buttonVariants } from "@saasfly/ui/button";
 import {
