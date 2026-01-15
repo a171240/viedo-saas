@@ -1,5 +1,8 @@
 {
   "github": {
     "silent": true
-  }
+  },
+  "buildCommand": "cd ../.. && pnpm build --filter=@videofly/nextjs",
+  "installCommand": "cd ../.. && pnpm install",
+  "framework": "nextjs"
 }
