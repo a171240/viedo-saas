@@ -1,7 +1,7 @@
 import React from "react";
 import { redirect } from "next/navigation";
 
-import { authOptions, getCurrentUser } from "@videofly/auth";
+import { getCurrentUser } from "@videofly/auth";
 import {
   Table,
   TableCaption,
@@ -36,7 +36,7 @@ export default async function DashboardPage({
   //don't need to check auth here, because we have a global auth check in _app.tsx
   const user = await getCurrentUser();
   if (!user) {
-    redirect(authOptions?.pages?.signIn ?? "/login");
+    redirect(`/${lang}/signin`);
   }
   const customer = await trpc.customer.queryCustomer.query({
     userId: user.id,

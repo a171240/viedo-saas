@@ -20,6 +20,7 @@ const publicRoute = [
   "/(\\w{2}/)?demo(.*)",
   "^/\\w{2}$", // root with locale
   "/api/v1(.*)", // API v1 routes handle their own auth
+  "/api/auth(.*)", // Better Auth API routes
 ];
 
 function getLocale(request: NextRequest): string | undefined {

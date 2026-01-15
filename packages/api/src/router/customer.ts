@@ -51,22 +51,16 @@ export const customerRouter = createTRPCRouter({
     .query(async ({ input }) => {
       noStore();
       const { userId } = input;
-      console.log("userId:", userId);
       try {
-        console.log(
-          "result:",
-          await db
-            .selectFrom("Customer")
-            .where("authUserId", "=", userId)
-            .executeTakeFirst(),
-        );
+        return await db
+          .selectFrom("Customer")
+          .where("authUserId", "=", userId)
+          .executeTakeFirst();
       } catch (e) {
-        console.error("e:", e);
+        // Table might not exist or other database error
+        // Return null to allow dashboard to handle gracefully
+        console.error("Customer query error:", e);
+        return null;
       }
-
-      return await db
-        .selectFrom("Customer")
-        .where("authUserId", "=", userId)
-        .executeTakeFirst();
     }),
 });

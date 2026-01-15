@@ -16,10 +16,10 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@creem_io/better-auth": "latest",
+    "@creem_io/better-auth": "^0.0.12",
+    "@t3-oss/env-nextjs": "0.13.10",
     "@videofly/common": "workspace:*",
     "@videofly/db": "workspace:*",
-    "@t3-oss/env-nextjs": "0.13.10",
     "better-auth": "^1.2.5",
     "next": "15.1.6",
     "react": "19.0.0",
