@@ -3,7 +3,7 @@
 import React from "react";
 import Link from "next/link";
 
-import * as Icons from "@saasfly/ui/icons";
+import * as Icons from "@videofly/ui/icons";
 import { DocumentGuide } from "~/components/document-guide";
 import { MobileNav } from "~/components/mobile-nav";
 

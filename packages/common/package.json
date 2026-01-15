@@ -1,5 +1,5 @@
 {
-  "name": "@saasfly/common",
+  "name": "@videofly/common",
   "version": "0.1.0",
   "private": true,
   "exports": {
@@ -7,13 +7,21 @@
     "./resend": "./src/email.ts",
     "./MagicLinkEmail": "./src/emails/magic-link-email.tsx",
     "./subscriptions": "./src/subscriptions.ts",
+    "./storage": "./src/storage.ts",
+    "./config/credits": "./src/config/credits.ts",
+    "./services/credit": "./src/services/credit.ts",
+    "./services/video": "./src/services/video.ts",
+    "./ai": "./src/ai/index.ts",
+    "./utils/callback-signature": "./src/utils/callback-signature.ts",
     "./env": "./src/env.mjs"
   },
   "typesVersions": {
     "*": {
-      "*": [
-        "src/*"
-      ]
+      "config/*": ["src/config/*"],
+      "services/*": ["src/services/*"],
+      "ai": ["src/ai/index.ts"],
+      "utils/*": ["src/utils/*"],
+      "*": ["src/*"]
     }
   },
   "scripts": {
@@ -21,13 +29,17 @@
     "format": "prettier --check '**/*.{mjs,ts,json}' "
   },
   "dependencies": {
-    "@saasfly/ui": "workspace:*",
+    "@aws-sdk/client-s3": "^3.705.0",
+    "@aws-sdk/s3-request-presigner": "^3.705.0",
+    "@videofly/db": "workspace:*",
+    "@videofly/ui": "workspace:*",
+    "nanoid": "^5.0.7",
     "resend": "2.1.0"
   },
   "devDependencies": {
-    "@saasfly/eslint-config": "workspace:*",
-    "@saasfly/prettier-config": "workspace:*",
-    "@saasfly/typescript-config": "workspace:*",
+    "@videofly/eslint-config": "workspace:*",
+    "@videofly/prettier-config": "workspace:*",
+    "@videofly/typescript-config": "workspace:*",
     "eslint": "8.57.0",
     "prettier": "3.2.5",
     "typescript": "5.4.5"
@@ -35,8 +47,8 @@
   "eslintConfig": {
     "root": true,
     "extends": [
-      "@saasfly/eslint-config/base"
+      "@videofly/eslint-config/base"
     ]
   },
-  "prettier": "@saasfly/prettier-config"
+  "prettier": "@videofly/prettier-config"
 }

@@ -1,8 +1,8 @@
 // @ts-check
 import "./src/env.mjs";
-import "@saasfly/auth/env.mjs";
+import "@videofly/auth/env.mjs";
 
-// import "@saasfly/api/env"
+// import "@videofly/api/env"
 import withMDX from "@next/mdx";
 
 !process.env.SKIP_ENV_VALIDATION && (await import("./src/env.mjs"));
@@ -12,12 +12,12 @@ const config = {
   reactStrictMode: true,
   /** Enables hot reloading for local packages without a build step */
   transpilePackages: [
-    "@saasfly/api",
-    "@saasfly/auth",
-    "@saasfly/db",
-    "@saasfly/common",
-    "@saasfly/ui",
-    "@saasfly/stripe",
+    "@videofly/api",
+    "@videofly/auth",
+    "@videofly/db",
+    "@videofly/common",
+    "@videofly/ui",
+    "@videofly/stripe",
   ],
   pageExtensions: ["ts", "tsx", "mdx"],
   experimental: {

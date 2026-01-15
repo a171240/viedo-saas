@@ -123,5 +123,83 @@
     "settings": "设置",
     "sign_out": "登出",
     "": ""
+  },
+  "credits": {
+    "title": "积分",
+    "balance": "积分余额",
+    "available": "可用",
+    "frozen": "冻结中",
+    "used": "已使用",
+    "expiring_soon": "即将过期",
+    "buy_credits": "购买积分",
+    "history": "交易记录",
+    "no_history": "暂无交易记录",
+    "features": {
+      "100_per_month": "每月 100 积分",
+      "500_per_month": "每月 500 积分",
+      "2000_per_month": "每月 2000 积分",
+      "1200_per_year": "每年 1200 积分",
+      "6000_per_year": "每年 6000 积分",
+      "24000_per_year": "每年 24000 积分",
+      "10s_video": "支持 10 秒视频",
+      "15s_video": "支持 15 秒视频",
+      "standard_quality": "标准画质",
+      "high_quality": "高清画质可用",
+      "priority_queue": "优先处理队列",
+      "all_features": "全部功能",
+      "api_access": "API 访问权限",
+      "priority_support": "优先客服支持",
+      "50_credits": "50 积分",
+      "300_credits": "300 积分",
+      "1000_credits": "1000 积分",
+      "365_days_valid": "365 天有效期",
+      "all_models": "所有 AI 模型",
+      "best_value": "超值优选"
+    },
+    "packages": {
+      "basic": {
+        "name": "基础版",
+        "description": "适合入门体验"
+      },
+      "pro": {
+        "name": "专业版",
+        "description": "适合深度创作"
+      },
+      "team": {
+        "name": "团队版",
+        "description": "适合团队协作"
+      },
+      "starter": {
+        "name": "入门包",
+        "description": "体验尝鲜"
+      },
+      "standard": {
+        "name": "标准包",
+        "description": "热门之选"
+      },
+      "premium": {
+        "name": "尊享包",
+        "description": "重度用户首选"
+      }
+    },
+    "trans_types": {
+      "NEW_USER": "新用户赠送",
+      "ORDER_PAY": "购买",
+      "SUBSCRIPTION": "订阅充值",
+      "VIDEO_CONSUME": "视频生成消耗",
+      "REFUND": "退款返还",
+      "EXPIRED": "过期作废",
+      "SYSTEM_ADJUST": "系统调整"
+    }
+  },
+  "models": {
+    "sora2": {
+      "name": "Sora 2",
+      "description": "高质量视频生成，支持图片转视频"
+    },
+    "sora2pro": {
+      "name": "Sora 2 Pro",
+      "description": "专业级画质，多种质量选项"
+    }
   }
 }

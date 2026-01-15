@@ -16,13 +16,15 @@ import type { Metadata } from "next";
 import { env } from "~/env.mjs";
 import { absoluteUrl } from "~/lib/utils";
 
+type DocParams = {
+  slug?: string[];
+};
+
 interface DocPageProps {
-  params: {
-    slug: string[];
-  };
+  params: Promise<DocParams>;
 }
 
-function getDocFromParams(params: { slug: any }) {
+function getDocFromParams(params: DocParams) {
   const slug = params.slug?.join("/") || "";
   const doc = allDocs.find((doc) => doc.slugAsParams === slug);
   if (!doc) {
@@ -32,8 +34,11 @@ function getDocFromParams(params: { slug: any }) {
   return doc;
 }
 
-export function generateMetadata({ params }: DocPageProps): Metadata {
-  const doc = getDocFromParams(params);
+export async function generateMetadata({
+  params,
+}: DocPageProps): Promise<Metadata> {
+  const resolvedParams = await params;
+  const doc = getDocFromParams(resolvedParams);
 
   if (!doc) {
     return {};
@@ -72,16 +77,15 @@ export function generateMetadata({ params }: DocPageProps): Metadata {
   };
 }
 
-export function generateStaticParams(): {
-  slug: string[];
-}[] {
+export function generateStaticParams(): DocParams[] {
   return allDocs.map((doc) => ({
     slug: doc.slugAsParams.split("/"),
   }));
 }
 
 export default async function DocPage({ params }: DocPageProps) {
-  const doc = getDocFromParams(params);
+  const resolvedParams = await params;
+  const doc = getDocFromParams(resolvedParams);
 
   if (!doc) {
     notFound();

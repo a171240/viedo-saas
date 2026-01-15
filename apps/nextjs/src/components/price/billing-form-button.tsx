@@ -2,8 +2,8 @@
 
 import { useTransition } from "react";
 
-import { Button } from "@saasfly/ui/button";
-import * as Icons from "@saasfly/ui/icons";
+import { Button } from "@videofly/ui/button";
+import * as Icons from "@videofly/ui/icons";
 
 import { trpc } from "~/trpc/client";
 import type { SubscriptionPlan, UserSubscriptionPlan } from "~/types";

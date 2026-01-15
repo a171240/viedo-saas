@@ -7,8 +7,8 @@ import { NextDevtoolsProvider } from "@next-devtools/core";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 
-import { cn } from "@saasfly/ui";
-import { Toaster } from "@saasfly/ui/toaster";
+import { cn } from "@videofly/ui";
+import { Toaster } from "@videofly/ui/toaster";
 
 import { TailwindIndicator } from "~/components/tailwind-indicator";
 import { ThemeProvider } from "~/components/theme-provider";

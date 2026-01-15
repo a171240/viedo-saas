@@ -48,7 +48,32 @@ model BetterAuthUser {
   sessions      BetterAuthSession[]
   accounts      BetterAuthAccount[]
 
+  // Video 关联 (Phase 2)
+  videos              Video[]
+
+  // Credit 关联 (Phase 3)
+  creditPackages      CreditPackage[]
+  creditHolds         CreditHold[]
+  creditTransactions  CreditTransaction[]
+
   @@map("user")
+}
+
+// Creem 订阅记录（由 Better Auth Creem 插件管理）
+model CreemSubscription {
+  id               String         @id @default(dbgenerated("gen_random_uuid()"))
+  userId           String         @map("user_id")
+  productId        String         @map("product_id")
+  subscriptionId   String         @unique @map("subscription_id")
+  status           String
+  currentPeriodEnd DateTime?      @map("current_period_end")
+  createdAt        DateTime       @default(now()) @map("created_at")
+  updatedAt        DateTime       @updatedAt @map("updated_at")
+
+  user             BetterAuthUser @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("creem_subscriptions")
 }
 
 model BetterAuthSession {
@@ -176,4 +201,183 @@ enum Status {
   RUNNING
   STOPPED
   DELETED
+}
+
+// ============================================
+// Credit System - 积分系统
+// ============================================
+
+// 积分交易类型
+enum CreditTransType {
+  NEW_USER          // 新用户赠送
+  ORDER_PAY         // 订单购买
+  SUBSCRIPTION      // 订阅充值
+  VIDEO_CONSUME     // 视频生成消耗
+  REFUND            // 退款返还
+  EXPIRED           // 过期作废
+  SYSTEM_ADJUST     // 系统调整
+}
+
+// 积分包状态
+enum CreditPackageStatus {
+  ACTIVE            // 可用
+  DEPLETED          // 已用完
+  EXPIRED           // 已过期
+}
+
+// 积分包 - 每次充值/赠送创建一个包
+model CreditPackage {
+  id              Int                   @id @default(autoincrement())
+  userId          String                @map("user_id")
+
+  // 积分信息
+  initialCredits  Int                   @map("initial_credits")  // 初始积分
+  remainingCredits Int                  @map("remaining_credits") // 剩余可用
+  frozenCredits   Int                   @default(0) @map("frozen_credits") // 冻结中
+
+  // 来源
+  transType       CreditTransType       @map("trans_type")
+  orderNo         String?               @map("order_no")
+
+  // 状态与过期
+  status          CreditPackageStatus   @default(ACTIVE)
+  expiredAt       DateTime?             @map("expired_at")
+
+  // 时间戳
+  createdAt       DateTime              @default(now()) @map("created_at")
+  updatedAt       DateTime              @updatedAt @map("updated_at")
+
+  // 关联
+  user            BetterAuthUser        @relation(fields: [userId], references: [id])
+  holds           CreditHold[]
+
+  @@index([userId, status])
+  @@index([userId, expiredAt])
+  @@map("credit_packages")
+}
+
+// 积分冻结记录 - 任务进行中的积分锁定
+model CreditHold {
+  id              Int                   @id @default(autoincrement())
+
+  userId          String                @map("user_id")
+  videoUuid       String                @unique @map("video_uuid") // 唯一约束，防止重复冻结
+
+  // 冻结信息
+  credits         Int                   // 冻结积分数
+  status          String                @default("HOLDING") // HOLDING, SETTLED, RELEASED
+
+  // 关联的积分包分配（JSON 记录从哪些包扣除）
+  // 格式: [{packageId: number, credits: number}]
+  packageAllocation Json               @map("package_allocation")
+
+  // 积分包关联
+  packageId       Int?                  @map("package_id")
+  package         CreditPackage?        @relation(fields: [packageId], references: [id])
+
+  // 时间戳
+  createdAt       DateTime              @default(now()) @map("created_at")
+  settledAt       DateTime?             @map("settled_at")
+
+  // 关联
+  user            BetterAuthUser        @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([status])
+  @@index([packageId])
+  @@map("credit_holds")
+}
+
+// 积分流水记录 - 用于审计
+model CreditTransaction {
+  id              Int                   @id @default(autoincrement())
+  transNo         String                @unique @map("trans_no")
+
+  userId          String                @map("user_id")
+  transType       CreditTransType       @map("trans_type")
+
+  // 变动
+  credits         Int                   // 正数增加，负数减少
+  balanceAfter    Int                   @map("balance_after") // 变动后余额快照
+
+  // 关联
+  packageId       Int?                  @map("package_id")
+  videoUuid       String?               @map("video_uuid")
+  orderNo         String?               @map("order_no")
+  holdId          Int?                  @map("hold_id")
+
+  // 备注
+  remark          String?               @db.Text
+
+  // 时间戳
+  createdAt       DateTime              @default(now()) @map("created_at")
+
+  // 关联
+  user            BetterAuthUser        @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([transType])
+  @@index([createdAt])
+  @@map("credit_transactions")
+}
+
+// ============================================
+// Video Generation
+// ============================================
+
+enum VideoStatus {
+  PENDING      // 待处理
+  GENERATING   // 生成中
+  UPLOADING    // 上传中
+  COMPLETED    // 已完成
+  FAILED       // 失败
+}
+
+model Video {
+  id                    Int         @id @default(autoincrement())
+  uuid                  String      @unique @default(uuid())
+  userId                String      @map("user_id")
+
+  // 生成参数
+  prompt                String      @db.Text
+  model                 String      // 模型ID: sora-2, sora-2-pro 等
+  parameters            Json?       // 模型参数 JSON
+
+  // 状态追踪
+  status                VideoStatus @default(PENDING)
+  provider              String?     // evolink, kie
+  externalTaskId        String?     @map("external_task_id")  // AI 服务的任务 ID
+  errorMessage          String?     @map("error_message") @db.Text
+
+  // 文件信息
+  startImageUrl         String?     @map("start_image_url")
+  originalVideoUrl      String?     @map("original_video_url")  // AI 返回的原始 URL
+  videoUrl              String?     @map("video_url")           // R2 存储的 URL
+  thumbnailUrl          String?     @map("thumbnail_url")       // 首帧缩略图
+
+  // 视频元数据
+  duration              Int?        // 时长（秒）
+  resolution            String?     // 分辨率 720p, 1080p 等
+  aspectRatio           String?     @map("aspect_ratio")        // 16:9, 9:16 等
+  fileSize              Int?        @map("file_size")           // 文件大小（字节）
+
+  // 积分
+  creditsUsed           Int         @default(0) @map("credits_used")
+
+  // 时间戳
+  createdAt             DateTime    @default(now()) @map("created_at")
+  updatedAt             DateTime    @updatedAt @map("updated_at")
+  completedAt           DateTime?   @map("completed_at")
+  generationTime        Int?        @map("generation_time")     // 生成耗时（秒）
+
+  // 软删除
+  isDeleted             Boolean     @default(false) @map("is_deleted")
+
+  // 关联
+  user                  BetterAuthUser @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([status])
+  @@index([createdAt])
+  @@map("videos")
 }

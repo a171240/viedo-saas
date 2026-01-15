@@ -3,9 +3,9 @@
 import React, { useState } from "react";
 import Image from "next/image";
 
-import { authClient } from "@saasfly/auth/client";
-import { Button } from "@saasfly/ui/button";
-import * as Icons from "@saasfly/ui/icons";
+import { authClient } from "@videofly/auth/client";
+import { Button } from "@videofly/ui/button";
+import * as Icons from "@videofly/ui/icons";
 
 import { Modal } from "~/components/modal";
 import { siteConfig } from "~/config/site";

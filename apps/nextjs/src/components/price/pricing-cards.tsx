@@ -13,9 +13,9 @@ import {
 import Link from "next/link";
 import Balancer from "react-wrap-balancer";
 
-import { Button, buttonVariants } from "@saasfly/ui/button";
-import * as Icons from "@saasfly/ui/icons";
-import { Switch } from "@saasfly/ui/switch";
+import { Button, buttonVariants } from "@videofly/ui/button";
+import * as Icons from "@videofly/ui/icons";
+import { Switch } from "@videofly/ui/switch";
 
 import { BillingFormButton } from "~/components/price/billing-form-button";
 import { priceDataMap } from "~/config/price/price-data";
@@ -184,9 +184,9 @@ export function PricingCards({
           Email{" "}
           <a
             className="font-medium text-primary hover:underline"
-            href="mailto:support@saasfly.io"
+            href="mailto:support@videofly.io"
           >
-            support@saasfly.io
+            support@videofly.io
           </a>{" "}
           {dict.contact}
           <br />

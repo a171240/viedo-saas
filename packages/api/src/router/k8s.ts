@@ -1,7 +1,7 @@
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 
-import { db, SubscriptionPlan } from "@saasfly/db";
+import { db, SubscriptionPlan } from "@videofly/db";
 
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 

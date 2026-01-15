@@ -2,8 +2,8 @@
 
 import Link from "next/link";
 
-import { GlowingEffect } from "@saasfly/ui/glowing-effect";
-import * as Icons from "@saasfly/ui/icons";
+import { GlowingEffect } from "@videofly/ui/glowing-effect";
+import * as Icons from "@videofly/ui/icons";
 
 export function RightsideMarketing({ dict } : { dict: Record<string, string> | undefined }) {
   return (

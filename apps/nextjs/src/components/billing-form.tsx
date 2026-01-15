@@ -2,8 +2,8 @@
 
 import * as React from "react";
 
-import { cn } from "@saasfly/ui";
-import { buttonVariants } from "@saasfly/ui/button";
+import { cn } from "@videofly/ui";
+import { buttonVariants } from "@videofly/ui/button";
 import {
   Card,
   CardContent,
@@ -11,9 +11,9 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@saasfly/ui/card";
-import * as Icons from "@saasfly/ui/icons";
-import { toast } from "@saasfly/ui/use-toast";
+} from "@videofly/ui/card";
+import * as Icons from "@videofly/ui/icons";
+import { toast } from "@videofly/ui/use-toast";
 
 import { formatDate } from "~/lib/utils";
 import { UserSubscriptionPlan } from "~/types";

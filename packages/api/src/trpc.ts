@@ -2,7 +2,7 @@ import type { NextRequest } from "next/server";
 import { initTRPC, TRPCError } from "@trpc/server";
 import { ZodError } from "zod";
 
-import { auth, type Session, type User } from "@saasfly/auth";
+import { auth, type Session, type User } from "@videofly/auth";
 
 import { transformer } from "./transformer";
 

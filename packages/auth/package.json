@@ -1,5 +1,5 @@
 {
-  "name": "@saasfly/auth",
+  "name": "@videofly/auth",
   "version": "0.1.0",
   "private": true,
   "main": "./index.ts",
@@ -16,19 +16,20 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@saasfly/common": "workspace:*",
-    "@saasfly/db": "workspace:*",
-    "@t3-oss/env-nextjs": "0.8.0",
+    "@creem_io/better-auth": "latest",
+    "@videofly/common": "workspace:*",
+    "@videofly/db": "workspace:*",
+    "@t3-oss/env-nextjs": "0.13.10",
     "better-auth": "^1.2.5",
-    "next": "14.2.5",
-    "react": "18.3.1",
-    "react-dom": "18.3.1",
-    "zod": "3.22.4"
+    "next": "15.1.6",
+    "react": "19.0.0",
+    "react-dom": "19.0.0",
+    "zod": "^4.2.1"
   },
   "devDependencies": {
-    "@saasfly/eslint-config": "workspace:*",
-    "@saasfly/prettier-config": "workspace:*",
-    "@saasfly/typescript-config": "workspace:*",
+    "@videofly/eslint-config": "workspace:*",
+    "@videofly/prettier-config": "workspace:*",
+    "@videofly/typescript-config": "workspace:*",
     "eslint": "8.57.0",
     "prettier": "3.2.5",
     "typescript": "5.4.5"
@@ -36,8 +37,8 @@
   "eslintConfig": {
     "root": true,
     "extends": [
-      "@saasfly/eslint-config/base"
+      "@videofly/eslint-config/base"
     ]
   },
-  "prettier": "@saasfly/prettier-config"
+  "prettier": "@videofly/prettier-config"
 }

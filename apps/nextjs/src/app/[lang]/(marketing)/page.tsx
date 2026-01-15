@@ -7,11 +7,11 @@ import { Comments } from "~/components/comments";
 import { FeaturesGrid } from "~/components/features-grid";
 import { RightsideMarketing } from "~/components/rightside-marketing";
 
-import { AnimatedTooltip } from "@saasfly/ui/animated-tooltip";
-import { BackgroundLines } from "@saasfly/ui/background-lines";
-import { Button } from "@saasfly/ui/button";
-import { ColourfulText } from "@saasfly/ui/colorful-text";
-import * as Icons from "@saasfly/ui/icons";
+import { AnimatedTooltip } from "@videofly/ui/animated-tooltip";
+import { BackgroundLines } from "@videofly/ui/background-lines";
+import { Button } from "@videofly/ui/button";
+import { ColourfulText } from "@videofly/ui/colorful-text";
+import * as Icons from "@videofly/ui/icons";
 
 import type { Locale } from "~/config/i18n-config";
 import {VideoScroll} from "~/components/video-scroll";
@@ -58,12 +58,13 @@ const people = [
 ];
 
 export default async function IndexPage({
-  params: { lang },
+  params,
 }: {
-  params: {
+  params: Promise<{
     lang: Locale;
-  };
+  }>;
 }) {
+  const { lang } = await params;
   const dict = await getDictionary(lang);
 
   return (

@@ -11,7 +11,7 @@ import {
   Text,
 } from "@react-email/components";
 
-import * as Icons from "@saasfly/ui/icons";
+import * as Icons from "@videofly/ui/icons";
 
 interface MagicLinkEmailProps {
   actionUrl: string;

@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 
-import { getCurrentUser } from "@saasfly/auth";
+import { getCurrentUser } from "@videofly/auth";
 
 import { ModalProvider } from "~/components/modal-provider";
 import { NavBar } from "~/components/navbar";
@@ -11,13 +11,14 @@ import { getDictionary } from "~/lib/get-dictionary";
 
 export default async function MarketingLayout({
   children,
-  params: { lang },
+  params,
 }: {
   children: React.ReactNode;
-  params: {
+  params: Promise<{
     lang: Locale;
-  };
+  }>;
 }) {
+  const { lang } = await params;
   const dict = await getDictionary(lang);
   const user = await getCurrentUser();
   return (

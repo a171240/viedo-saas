@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { match as matchLocale } from "@formatjs/intl-localematcher";
 import Negotiator from "negotiator";
 
-import { auth } from "@saasfly/auth";
+import { auth } from "@videofly/auth";
 
 import { i18n } from "~/config/i18n-config";
 
@@ -17,7 +17,9 @@ const publicRoute = [
   "/(\\w{2}/)?docs(.*)",
   "/(\\w{2}/)?blog(.*)",
   "/(\\w{2}/)?pricing(.*)",
+  "/(\\w{2}/)?demo(.*)",
   "^/\\w{2}$", // root with locale
+  "/api/v1(.*)", // API v1 routes handle their own auth
 ];
 
 function getLocale(request: NextRequest): string | undefined {
@@ -123,5 +125,10 @@ export default async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!.*\\..*|_next).*)", "/", "/(api|trpc)(.*)"],
+  // Exclude api/v1 routes from middleware - they handle their own auth
+  matcher: [
+    "/((?!.*\\..*|_next|api/v1).*)",
+    "/",
+    "/(api/auth|api/trpc|api/webhooks)(.*)",
+  ],
 };

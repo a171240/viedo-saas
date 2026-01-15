@@ -6,7 +6,7 @@ import { cookies, headers } from "next/headers";
 import { loggerLink } from "@trpc/client";
 import { experimental_createTRPCNextAppDirServer } from "@trpc/next/app-dir/server";
 
-import type { AppRouter } from "@saasfly/api";
+import type { AppRouter } from "@videofly/api";
 
 import { endingLink, transformer } from "./shared";
 
@@ -25,12 +25,12 @@ export const trpc = experimental_createTRPCNextAppDirServer<AppRouter>({
           enabled: () => true,
         }),
         endingLink({
-          headers: () => {
-            const h = new Map(headers());
+          headers: async () => {
+            const h = new Map(await headers());
             h.delete("connection");
             h.delete("transfer-encoding");
             h.set("x-trpc-source", "server");
-            h.set("cookie", cookies().toString());
+            h.set("cookie", (await cookies()).toString());
             return Object.fromEntries(h.entries());
           },
         }),
@@ -39,4 +39,4 @@ export const trpc = experimental_createTRPCNextAppDirServer<AppRouter>({
   },
 });
 
-export { type RouterInputs, type RouterOutputs } from "@saasfly/api";
+export { type RouterInputs, type RouterOutputs } from "@videofly/api";

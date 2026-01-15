@@ -1,4 +1,4 @@
-import { FollowerPointerCard } from "@saasfly/ui/following-pointer";
+import { FollowerPointerCard } from "@videofly/ui/following-pointer";
 
 export function XBlogArticle() {
   return (

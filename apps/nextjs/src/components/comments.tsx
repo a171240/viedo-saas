@@ -1,5 +1,5 @@
-import { cn } from "@saasfly/ui";
-import Marquee from "@saasfly/ui/marquee";
+import { cn } from "@videofly/ui";
+import Marquee from "@videofly/ui/marquee";
 
 const reviews = [
   {

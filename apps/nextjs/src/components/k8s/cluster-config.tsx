@@ -7,7 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, useForm } from "react-hook-form";
 import * as z from "zod";
 
-import { Button } from "@saasfly/ui/button";
+import { Button } from "@videofly/ui/button";
 import {
   Card,
   CardContent,
@@ -15,7 +15,7 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@saasfly/ui/card";
+} from "@videofly/ui/card";
 import {
   Form,
   FormControl,
@@ -23,10 +23,10 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@saasfly/ui/form";
-import * as Icons from "@saasfly/ui/icons";
-import { Input } from "@saasfly/ui/input";
-import { Label } from "@saasfly/ui/label";
+} from "@videofly/ui/form";
+import * as Icons from "@videofly/ui/icons";
+import { Input } from "@videofly/ui/input";
+import { Label } from "@videofly/ui/label";
 import {
   Select,
   SelectContent,
@@ -35,9 +35,9 @@ import {
   SelectLabel,
   SelectTrigger,
   SelectValue,
-} from "@saasfly/ui/select";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@saasfly/ui/tabs";
-import { toast } from "@saasfly/ui/use-toast";
+} from "@videofly/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@videofly/ui/tabs";
+import { toast } from "@videofly/ui/use-toast";
 
 import { trpc } from "~/trpc/client";
 import type { Cluster } from "~/types/k8s";

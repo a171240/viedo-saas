@@ -1,7 +1,7 @@
 import Link from "next/link";
 
-import { cn } from "@saasfly/ui";
-import { buttonVariants } from "@saasfly/ui/button";
+import { cn } from "@videofly/ui";
+import { buttonVariants } from "@videofly/ui/button";
 
 import { UserAuthForm } from "~/components/user-auth-form";
 import type { Locale } from "~/config/i18n-config";
@@ -13,12 +13,13 @@ export const metadata = {
 };
 
 export default async function RegisterPage({
-  params: { lang },
+  params,
 }: {
-  params: {
+  params: Promise<{
     lang: Locale;
-  };
+  }>;
 }) {
+  const { lang } = await params;
   const dict = await getDictionary(lang);
 
   return (

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import * as Icons from "@saasfly/ui/icons";
+import * as Icons from "@videofly/ui/icons";
 
 export function GitHubStar() {
   return (

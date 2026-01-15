@@ -123,5 +123,83 @@
     "settings": "Settings",
     "sign_out": "Sign out",
     "": ""
+  },
+  "credits": {
+    "title": "Credits",
+    "balance": "Credit Balance",
+    "available": "Available",
+    "frozen": "Frozen",
+    "used": "Used",
+    "expiring_soon": "Expiring Soon",
+    "buy_credits": "Buy Credits",
+    "history": "Transaction History",
+    "no_history": "No transactions yet",
+    "features": {
+      "100_per_month": "100 credits per month",
+      "500_per_month": "500 credits per month",
+      "2000_per_month": "2000 credits per month",
+      "1200_per_year": "1200 credits per year",
+      "6000_per_year": "6000 credits per year",
+      "24000_per_year": "24000 credits per year",
+      "10s_video": "Up to 10s videos",
+      "15s_video": "Up to 15s videos",
+      "standard_quality": "Standard quality",
+      "high_quality": "HD quality available",
+      "priority_queue": "Priority processing queue",
+      "all_features": "All features included",
+      "api_access": "API access",
+      "priority_support": "Priority support",
+      "50_credits": "50 credits",
+      "300_credits": "300 credits",
+      "1000_credits": "1000 credits",
+      "365_days_valid": "Valid for 365 days",
+      "all_models": "Access to all AI models",
+      "best_value": "Best value"
+    },
+    "packages": {
+      "basic": {
+        "name": "Basic",
+        "description": "Great for getting started"
+      },
+      "pro": {
+        "name": "Pro",
+        "description": "For serious creators"
+      },
+      "team": {
+        "name": "Team",
+        "description": "For teams and businesses"
+      },
+      "starter": {
+        "name": "Starter Pack",
+        "description": "Try it out"
+      },
+      "standard": {
+        "name": "Standard Pack",
+        "description": "Most popular choice"
+      },
+      "premium": {
+        "name": "Premium Pack",
+        "description": "For power users"
+      }
+    },
+    "trans_types": {
+      "NEW_USER": "Welcome Bonus",
+      "ORDER_PAY": "Purchase",
+      "SUBSCRIPTION": "Subscription",
+      "VIDEO_CONSUME": "Video Generation",
+      "REFUND": "Refund",
+      "EXPIRED": "Expired",
+      "SYSTEM_ADJUST": "System Adjustment"
+    }
+  },
+  "models": {
+    "sora2": {
+      "name": "Sora 2",
+      "description": "High quality video generation with image support"
+    },
+    "sora2pro": {
+      "name": "Sora 2 Pro",
+      "description": "Professional grade with enhanced quality options"
+    }
   }
 }

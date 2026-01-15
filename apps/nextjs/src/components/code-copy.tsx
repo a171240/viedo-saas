@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import * as Icons from "@saasfly/ui/icons";
+import * as Icons from "@videofly/ui/icons";
 
 export function CodeCopy() {
   const [copied, setCopied] = useState(false)

@@ -2,7 +2,7 @@
 
 import React from "react";
 
-import { HoverEffect } from "@saasfly/ui/card-hover-effect";
+import { HoverEffect } from "@videofly/ui/card-hover-effect";
 
 export const projects = [
   {

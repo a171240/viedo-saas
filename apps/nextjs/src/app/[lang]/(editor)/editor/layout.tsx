@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 
-import { getCurrentUser } from "@saasfly/auth";
+import { getCurrentUser } from "@videofly/auth";
 
 import { MainNav } from "~/components/main-nav";
 import { DashboardNav } from "~/components/nav";
@@ -12,15 +12,16 @@ import { getDictionary } from "~/lib/get-dictionary";
 
 interface EditLayoutProps {
   children?: React.ReactNode;
-  params: {
+  params: Promise<{
     lang: Locale;
-  };
+  }>;
 }
 
 export default async function DashboardLayout({
   children,
-  params: { lang },
+  params,
 }: EditLayoutProps) {
+  const { lang } = await params;
   const user = await getCurrentUser();
   const dict = await getDictionary(lang);
 

@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-import { TableBody, TableCell, TableRow } from "@saasfly/ui/table";
+import { TableBody, TableCell, TableRow } from "@videofly/ui/table";
 
 import { ClusterOperations } from "~/components/k8s/cluster-operation";
 import { formatDate } from "~/lib/utils";

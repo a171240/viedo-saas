@@ -1,7 +1,7 @@
 import type { AvatarProps } from "@radix-ui/react-avatar";
 
-import { Avatar, AvatarFallback, AvatarImage } from "@saasfly/ui/avatar";
-import * as Icons from "@saasfly/ui/icons";
+import { Avatar, AvatarFallback, AvatarImage } from "@videofly/ui/avatar";
+import * as Icons from "@videofly/ui/icons";
 
 interface UserAvatarProps extends AvatarProps {
   user: {

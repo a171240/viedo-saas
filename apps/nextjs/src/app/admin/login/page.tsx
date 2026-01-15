@@ -4,11 +4,11 @@ import React from "react";
 import Image from "next/image";
 import Link from "next/link";
 
-import { authClient } from "@saasfly/auth/client";
-import { cn } from "@saasfly/ui";
-import { CardBody, CardContainer, CardItem } from "@saasfly/ui/3d-card";
-import { buttonVariants } from "@saasfly/ui/button";
-import * as Icons from "@saasfly/ui/icons";
+import { authClient } from "@videofly/auth/client";
+import { cn } from "@videofly/ui";
+import { CardBody, CardContainer, CardItem } from "@videofly/ui/3d-card";
+import { buttonVariants } from "@videofly/ui/button";
+import * as Icons from "@videofly/ui/icons";
 
 export default function LoginPage() {
   const [isGitHubLoading, setIsGitHubLoading] = React.useState<boolean>(false);

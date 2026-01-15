@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 
-import { getCurrentUser } from "@saasfly/auth";
+import { getCurrentUser } from "@videofly/auth";
 
 import { LocaleChange } from "~/components/locale-change";
 import { MainNav } from "~/components/main-nav";
@@ -13,9 +13,9 @@ import { getDictionary } from "~/lib/get-dictionary";
 
 interface DashboardLayoutProps {
   children?: React.ReactNode;
-  params: {
+  params: Promise<{
     lang: Locale;
-  };
+  }>;
 }
 
 export function generateStaticParams() {
@@ -24,8 +24,9 @@ export function generateStaticParams() {
 
 export default async function DashboardLayout({
   children,
-  params: { lang },
+  params,
 }: DashboardLayoutProps) {
+  const { lang } = await params;
   const user = await getCurrentUser();
   const dict = await getDictionary(lang);
   if (!user) {

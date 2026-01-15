@@ -1,7 +1,7 @@
 import * as React from "react";
 import Image from "next/image";
 
-import { cn } from "@saasfly/ui";
+import { cn } from "@videofly/ui";
 
 import { ModeToggle } from "~/components/mode-toggle";
 

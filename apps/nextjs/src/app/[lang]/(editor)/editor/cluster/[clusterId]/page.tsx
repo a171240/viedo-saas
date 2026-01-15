@@ -1,7 +1,7 @@
 import { notFound, redirect } from "next/navigation";
 
-import { getCurrentUser, type User } from "@saasfly/auth";
-import { db } from "@saasfly/db";
+import { getCurrentUser, type User } from "@videofly/auth";
+import { db } from "@videofly/db";
 
 import { ClusterConfig } from "~/components/k8s/cluster-config";
 import type { Cluster } from "~/types/k8s";
@@ -16,21 +16,22 @@ async function getClusterForUser(clusterId: Cluster["id"], userId: User["id"]) {
 }
 
 interface EditorClusterProps {
-  params: {
+  params: Promise<{
     clusterId: number;
     lang: string;
-  };
+  }>;
 }
 
 export default async function EditorClusterPage({
   params,
 }: EditorClusterProps) {
+  const resolvedParams = await params;
   const user = await getCurrentUser();
   if (!user) {
     redirect("/login");
   }
 
-  const cluster = await getClusterForUser(params.clusterId, user.id);
+  const cluster = await getClusterForUser(resolvedParams.clusterId, user.id);
 
   if (!cluster) {
     notFound();
@@ -42,7 +43,7 @@ export default async function EditorClusterPage({
         name: cluster.name,
         location: cluster.location,
       }}
-      params={{ lang: params.lang }}
+      params={{ lang: resolvedParams.lang }}
     />
   );
 }

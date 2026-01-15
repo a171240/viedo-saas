@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 
-import { handleEvent, stripe, type Stripe } from "@saasfly/stripe";
+import { handleEvent, stripe, type Stripe } from "@videofly/stripe";
 
 import { env } from "~/env.mjs";
 

@@ -6,13 +6,13 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 
-import { authClient } from "@saasfly/auth/client";
-import { cn } from "@saasfly/ui";
-import { buttonVariants } from "@saasfly/ui/button";
-import * as Icons from "@saasfly/ui/icons";
-import { Input } from "@saasfly/ui/input";
-import { Label } from "@saasfly/ui/label";
-import { toast } from "@saasfly/ui/use-toast";
+import { authClient } from "@videofly/auth/client";
+import { cn } from "@videofly/ui";
+import { buttonVariants } from "@videofly/ui/button";
+import * as Icons from "@videofly/ui/icons";
+import { Input } from "@videofly/ui/input";
+import { Label } from "@videofly/ui/label";
+import { toast } from "@videofly/ui/use-toast";
 
 type Dictionary = Record<string, string>;
 

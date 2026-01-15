@@ -4,9 +4,11 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@saasfly/ui/card";
+} from "@videofly/ui/card";
 
+import { CreemSubscriptionCard } from "~/components/price/creem-subscription-card";
 import { DashboardShell } from "~/components/shell";
+import { billingProvider } from "~/config/billing-provider";
 import type { Locale } from "~/config/i18n-config";
 import { getDictionary } from "~/lib/get-dictionary";
 import { trpc } from "~/trpc/server";
@@ -23,12 +25,13 @@ interface Subscription {
 }
 
 export default async function BillingPage({
-  params: { lang },
+  params,
 }: {
-  params: {
+  params: Promise<{
     lang: Locale;
-  };
+  }>;
 }) {
+  const { lang } = await params;
   const dict = await getDictionary(lang);
   return (
     <DashboardShell
@@ -57,6 +60,10 @@ function generateSubscriptionMessage(
 }
 
 async function SubscriptionCard({ dict }: { dict: Record<string, string> }) {
+  if (billingProvider === "creem") {
+    return <CreemSubscriptionCard dict={dict} />;
+  }
+
   const subscription = (await trpc.auth.mySubscription.query()) as Subscription;
   const content = generateSubscriptionMessage(dict, subscription);
   return (

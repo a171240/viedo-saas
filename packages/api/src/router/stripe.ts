@@ -1,9 +1,9 @@
 import { unstable_noStore as noStore } from "next/cache";
 import { z } from "zod";
 
-import { getCurrentUser } from "@saasfly/auth";
-import { Customer, db } from "@saasfly/db";
-import { stripe } from "@saasfly/stripe";
+import { getCurrentUser } from "@videofly/auth";
+import { Customer, db } from "@videofly/db";
+import { stripe } from "@videofly/stripe";
 
 import { pricingData } from "../../../common/src/subscriptions";
 import { env } from "../env.mjs";

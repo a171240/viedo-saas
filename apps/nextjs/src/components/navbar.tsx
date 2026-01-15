@@ -4,9 +4,9 @@ import React from "react";
 import Link from "next/link";
 import { useSelectedLayoutSegment } from "next/navigation";
 
-import type { User } from "@saasfly/auth";
-import { cn } from "@saasfly/ui";
-import { Button } from "@saasfly/ui/button";
+import type { User } from "@videofly/auth";
+import { cn } from "@videofly/ui";
+import { Button } from "@videofly/ui/button";
 
 import { MainNav } from "./main-nav";
 import { LocaleChange } from "~/components/locale-change";

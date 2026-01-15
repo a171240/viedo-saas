@@ -1,5 +1,5 @@
 // Server-only exports - these should only be imported in server components
-// For client components, import from "@saasfly/auth/client" instead
+// For client components, import from "@videofly/auth/client" instead
 
 // Re-export auth instance (server-only)
 export { auth, type Session, type User } from "./auth";

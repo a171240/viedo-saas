@@ -3,14 +3,14 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
-import { authClient, type User } from "@saasfly/auth/client";
+import { authClient, type User } from "@videofly/auth/client";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@saasfly/ui/dropdown-menu";
+} from "@videofly/ui/dropdown-menu";
 
 import { UserAvatar } from "~/components/user-avatar";
 

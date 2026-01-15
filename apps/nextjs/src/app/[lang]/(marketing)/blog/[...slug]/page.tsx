@@ -10,21 +10,23 @@ import Image from "next/image";
 import Link from "next/link";
 import Balancer from "react-wrap-balancer";
 
-import { cn } from "@saasfly/ui";
-import { buttonVariants } from "@saasfly/ui/button";
-import * as Icons from "@saasfly/ui/icons";
+import { cn } from "@videofly/ui";
+import { buttonVariants } from "@videofly/ui/button";
+import * as Icons from "@videofly/ui/icons";
 
 import { env } from "~/env.mjs";
 import { absoluteUrl, formatDate } from "~/lib/utils";
 
+type PostParams = {
+  slug?: string[];
+};
+
 interface PostPageProps {
-  params: {
-    slug: string[];
-  };
+  params: Promise<PostParams>;
 }
 
-function getPostFromParams(params: { slug?: string | string[] }) {
-  const slug = Array.isArray(params.slug) ? params.slug.join("/") : params.slug;
+function getPostFromParams(params: PostParams) {
+  const slug = params.slug?.join("/");
   const post = allPosts.find((post) => post.slugAsParams === slug);
 
   if (!post) {
@@ -34,8 +36,11 @@ function getPostFromParams(params: { slug?: string | string[] }) {
   return post;
 }
 
-export function generateMetadata({ params }: PostPageProps): Metadata {
-  const post = getPostFromParams(params);
+export async function generateMetadata({
+  params,
+}: PostPageProps): Promise<Metadata> {
+  const resolvedParams = await params;
+  const post = getPostFromParams(resolvedParams);
   if (!post) {
     return {};
   }
@@ -76,14 +81,15 @@ export function generateMetadata({ params }: PostPageProps): Metadata {
   };
 }
 
-export function generateStaticParams(): PostPageProps["params"][] {
+export function generateStaticParams(): PostParams[] {
   return allPosts.map((post) => ({
     slug: post.slugAsParams.split("/"),
   }));
 }
 
-export default function PostPage({ params }: PostPageProps) {
-  const post = getPostFromParams(params);
+export default async function PostPage({ params }: PostPageProps) {
+  const resolvedParams = await params;
+  const post = getPostFromParams(resolvedParams);
 
   if (!post) {
     notFound();

@@ -1,242 +1,186 @@
+# Videofly 🎬
 
-<div align="center" width="100%">
-    <img src="./saasfly-logo.svg" width="128" alt="" />
-</div>
+一个 AI 视频生成平台模板，基于 Next.js 构建，专为快速搭建 AI 视频/图片生成网站而设计。
 
-# Saasfly </br>
-<a href="https://trendshift.io/repositories/8929" target="_blank"><img src="https://trendshift.io/api/badge/repositories/8929" alt="saasfly%2Fsaasfly | Trendshift" style="width: 250px; height: 55px;" width="250" height="55"/></a>
+> 本模板由 **A梦** 基于 [Saasfly](https://github.com/saasfly/saasfly) 改造，旨在适配 AI 视频网站的快速搭建。
 
-[![GitHub Actions Workflow Status][check-workflow-badge]][check-workflow-badge-link] [![GitHub License][github-license-badge]][github-license-badge-link]  [![Discord][discord-badge]][discord-badge-link] [![Saasfly][made-by-nextify-badge]][made-by-nextify-badge-link]
-[![Chinese](https://img.shields.io/badge/-Chinese-red.svg)](README_zh.md)
-[![German](https://img.shields.io/badge/-German-yellow.svg)](README_de.md)
-[![Vietnamese](https://img.shields.io/badge/-Vietnamese-yellow.svg)](README_vi.md) </br>
-![COMMIT_ACTIVITY](https://img.shields.io/github/commit-activity/m/saasfly/saasfly?style=for-the-badge">)
-[![Visitors](https://api.visitorbadge.io/api/visitors?path=https%3A%2F%2Fgithub.com%2Fsaasfly%2Fsaasfly&labelColor=%23f47373&countColor=%23263759)](https://visitorbadge.io/status?path=https%3A%2F%2Fgithub.com%2Fsaasfly%2Fsaasfly)
+## ✨ 核心特性
 
-An easy-to-use and enterprise-grade Next.js boilerplate.
+### 🎬 AI 视频生成组件
 
-You don't need to buy templates anymore; Saasfly provides a complete, open-source solution for building SaaS applications quickly and easily.
+- **`@videofly/video-generator`** - 一个完全可配置的 AI 视频/图片生成输入组件
+- 支持多种 AI 模型（Sora 2、Kling AI、Seedance、Hailuo AI、Vidu AI 等）
+- 视频/图片双模式切换
+- 多种生成模式（标准、专业、图生视频、视频续写等）
+- 丰富的参数配置（宽高比、时长、分辨率、风格等）
+- 中英文双语支持
+- 完全可定制的 UI 和配置
 
-> **[Nextify](https://nextify.ltd)** provides a complete Enterprise SaaS solution. Contact us at [contact@nextify.ltd](mailto:contact@nextify.ltd) if you're interested in discussing your project, or if you'd simply like to have a conversation with us, please feel free to reach out.
+### 🎨 现代化 UI 设计
 
-> ❤️ We provide **free technical support and deployment services to non-profit organizations**.
->
-> 🙌 All profits obtained from our open source projects will be **entirely dedicated to supporting open source initiatives and charitable causes**.
+- 基于 Tailwind CSS + Shadcn/ui 的精美界面
+- 深色主题优化，专为视频创作场景设计
+- 响应式布局，支持移动端
+- 流畅的动画交互（Framer Motion）
 
-## ⚡ Live Demo
+### 🏢 企业级架构
 
-Try it out for yourself!
+- **Monorepo 架构** - 使用 Turborepo 管理多包项目
+- **类型安全** - 全栈 TypeScript，端到端类型推导
+- **tRPC** - 类型安全的 API 调用
+- **Better Auth** - 现代化的身份认证方案
+- **Prisma + Kysely** - 类型安全的数据库操作
+- **Stripe** - 开箱即用的支付集成
 
-Demo Server (Location: Washington - USA): <https://show.saasfly.io>
+### 🌍 国际化 & SEO
 
-See more documentation at <https://document.saasfly.io>
+- 内置 i18n 国际化支持
+- SEO 优化，支持元数据配置
+- 多语言路由
 
-## 🌟 Star History
+## 🚀 快速开始
 
-[![Star History Chart](https://app.repohistory.com/api/svg?repo=saasfly/saasfly&type=Timeline)](https://repohistory.com)
+### 环境要求
 
-## Sponsors
+- Node.js 18+
+- pnpm 8+
+- PostgreSQL 数据库
 
-<table>
-  <tr>
-   <td style="width: 64px;">
-      <a href="https://libra.dev/">
-        <div style="width: 64px;">
-          <img alt="Libra AI" src="https://raw.githubusercontent.com/nextify-limited/libra/main/logo.svg">
-        </div>
-      </a>
-    </td>
-    <td style="width: 64px;">
-      <a href="https://www.twillot.com/">
-        <div style="width: 64px;">
-          <img alt="Take Control of All Your Twitter Assets" src="/twillot.png">
-        </div>
-      </a>
-    </td>
-    <td style="width: 64px;">
-      <a href="https://www.setupyourpay.com/" title="如何注册美国公司进行收款">
-        <div style="width: 64px;">
-          <img alt="全球收款手册" src="/setupyourpay.png">
-        </div>
-      </a>
-    </td>
-  </tr>
-</table>
-
-<a href="mailto:contact@nextify.ltd">
-  Add your logo here
-</a>
-
-## 🚀 Getting Started
-
-### 🖱 One Click Template
-
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fsaasfly%2Fsaasfly&env=NEXT_PUBLIC_APP_URL,NEXTAUTH_URL,NEXTAUTH_SECRET,STRIPE_API_KEY,STRIPE_WEBHOOK_SECRET,POSTGRES_URL,GITHUB_CLIENT_ID,GITHUB_CLIENT_SECRET,RESEND_API_KEY,RESEND_FROM&install-command=pnpm%20install&build-command=pnpm%20run%20build&root-directory=apps%2Fnextjs)
-
-### 📋 Prerequisites
-
-Before you start, make sure you have the following installed:
-
-1. [pnpm](https://pnpm.io/) & [Node.js](https://nodejs.org/) & [Git](https://git-scm.com/)
-
-   1. Linux
-
-    ```bash
-      curl -fsSL https://get.pnpm.io/install.sh | sh -
-    ```
-
-   2. MacOS
-
-    ```bash
-      /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-      brew install git
-      brew install pnpm
-      brew install nvm
-    ```
-
-2. [PostgreSQL](https://www.postgresql.org/)
-   1. You can use Vercel Postgres or a local PostgreSQL server(add POSTGRES_URL env in .env.local)
-      ```bash
-         POSTGRES_URL = ''
-      ```
-
-### Installation
-
-To get started with this boilerplate, we offer two options:
-
-1. Use the `pnpm create` command(🌟Strongly recommend🌟):
+### 安装
 
 ```bash
-pnpm create saasfly
-```
+# 克隆仓库
+git clone <your-repo-url>
+cd videofly
 
-2. Manually clone the repository:
-
-```bash
-git clone https://github.com/saasfly/saasfly.git
-cd saasfly
+# 安装依赖
 pnpm install
-```
 
-### Setup
-
-Follow these steps to set up your project:
-
-1. Set up the environment variables:
-
-```bash
+# 配置环境变量
 cp .env.example .env.local
-// (you must have a database prepared before running this command)
+
+# 初始化数据库
 pnpm db:push
+
+# 启动开发服务器
+pnpm dev:web
 ```
 
-2. Run the development server:
+访问 [http://localhost:3000](http://localhost:3000) 查看效果。
+
+### 一键部署
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?env=NEXT_PUBLIC_APP_URL,BETTER_AUTH_SECRET,STRIPE_API_KEY,STRIPE_WEBHOOK_SECRET,POSTGRES_URL,GITHUB_CLIENT_ID,GITHUB_CLIENT_SECRET,RESEND_API_KEY,RESEND_FROM&install-command=pnpm%20install&build-command=pnpm%20run%20build&root-directory=apps%2Fnextjs)
+
+## 📦 项目结构
+
+```
+videofly/
+├── apps/
+│   └── nextjs/                 # 主应用
+├── packages/
+│   ├── video-generator/        # AI 视频生成组件
+│   ├── ui/                     # UI 组件库
+│   ├── api/                    # tRPC API 层
+│   ├── auth/                   # 认证模块
+│   ├── db/                     # 数据库模块
+│   ├── common/                 # 公共工具
+│   └── stripe/                 # 支付模块
+└── tooling/                    # 工具配置
+```
+
+## 🎯 使用 video-generator 组件
+
+```tsx
+import { VideoGeneratorInput } from "@videofly/video-generator";
+
+export default function Page() {
+  return (
+    <VideoGeneratorInput
+      isPro={false}
+      locale="zh"
+      onSubmit={(data) => {
+        console.log("生成参数:", data);
+        // data 包含: type, prompt, model, mode, aspectRatio, duration, resolution 等
+      }}
+    />
+  );
+}
+```
+
+### 自定义配置
+
+```tsx
+import {
+  VideoGeneratorInput,
+  DEFAULT_VIDEO_MODELS,
+  mergeConfig
+} from "@videofly/video-generator";
+
+// 自定义模型列表
+const customConfig = mergeConfig({
+  videoModels: DEFAULT_VIDEO_MODELS.filter(m => m.id !== "sora-2"),
+});
+
+<VideoGeneratorInput config={customConfig} onSubmit={handleSubmit} />
+```
+
+## 🛠 技术栈
+
+| 类别 | 技术 |
+|------|------|
+| 框架 | Next.js 14 (App Router) |
+| 认证 | Better Auth |
+| 数据库 | PostgreSQL + Prisma + Kysely |
+| API | tRPC + React Query |
+| 样式 | Tailwind CSS + Shadcn/ui |
+| 支付 | Stripe |
+| 邮件 | React Email + Resend |
+| 构建 | Turborepo + pnpm |
+
+## 📝 环境变量
 
 ```bash
-pnpm run dev:web
+# 数据库
+POSTGRES_URL='your-postgres-url'
+
+# 认证
+BETTER_AUTH_SECRET='your-secret'
+GITHUB_CLIENT_ID='your-github-client-id'
+GITHUB_CLIENT_SECRET='your-github-client-secret'
+
+# 支付
+STRIPE_API_KEY='your-stripe-key'
+STRIPE_WEBHOOK_SECRET='your-webhook-secret'
+
+# 邮件
+RESEND_API_KEY='your-resend-key'
+RESEND_FROM='noreply@yourdomain.com'
+
+# 应用
+NEXT_PUBLIC_APP_URL='http://localhost:3000'
 ```
 
-3. Open [http://localhost:3000](http://localhost:3000) in your browser to see the result.
+## 🗺 路线图
 
-4. (Optional alpha)`pnpm run tailwind-config-viewer` Open [http://localhost:3333](http://localhost:3333) in your browser to see your Tailwind CSS configuration
+- [x] AI 视频生成输入组件
+- [x] 多模型支持
+- [x] 中英文国际化
+- [ ] 视频生成 API 集成
+- [ ] 用户积分系统
+- [ ] 生成历史记录
+- [ ] 视频预览播放器
 
+## 📄 许可证
 
-## 🥺 Project Roadmap
+本项目基于 MIT 许可证开源。
 
-1. Admin Dashboard Page (in alpha !!!)
-    1. Only provide static page now and we plan to integrate with headless arch
-    2. You can provide your admin account and change **ADMIN_EMAIL="admin@saasfly.io,root@saasfly.io"** in .env.local and access host:port/admin/dashboard
-    3. Based on security concerns, we will not provide online demos for the time being.
-2. Consider integrating Payload CMS.
+## 🙏 致谢
 
-## ⭐ Features
+本项目基于 **[Saasfly](https://github.com/saasfly/saasfly)** 开发，Saasfly 是由 [Nextify](https://nextify.ltd) 团队创建的企业级 Next.js 模板，采用 [MIT 许可证](https://github.com/saasfly/saasfly/blob/main/LICENSE) 开源。
 
-### 🐭 Frameworks
+感谢 Saasfly 团队提供如此优秀的开源基础设施。
 
-- **[Next.js](https://nextjs.org/)** - The React Framework for the Web (with **App Directory**)
-- **[NextAuth.js](https://next-auth.js.org/)** - Authentication for Next.js
-- **[Kysely](https://kysely.dev/)** - The type-safe SQL query builder for TypeScript
-- **[Prisma](https://www.prisma.io/)** - Next-generation ORM for Node.js and TypeScript, used as a schema management tool
-- **[React-email](https://react.email/)** - A React renderer for creating beautiful emails using React components
-
-### 🐮 Platforms
-
-- **[Vercel](https://vercel.com/)** – Deploy your Next.js app with ease
-- **[Stripe](https://stripe.com/)** – Payment processing for internet businesses
-- **[Resend](https://resend.com/)** – Email marketing platform for developers
-
-### 🐯 Enterprise Features
-
-- **[i18n](https://nextjs.org/docs/app/building-your-application/routing/internationalization)** - Support for internationalization
-- **[SEO](https://nextjs.org/docs/app/building-your-application/optimizing/metadata)** - Search engine optimization
-- **[MonoRepo](https://turbo.build/)** - Monorepo for better code management
-- **[T3 Env](https://env.t3.gg/)** - Manage your environment variables with ease
-
-### 🐰 Data Fetching
-
-- **[trpc](https://trpc.io/)** – End-to-end typesafe APIs made easy
-- **[tanstack/react-query](https://react-query.tanstack.com/)** – Hooks for fetching, caching and updating asynchronous data in React
-
-### 🐲 Global State Management
-
-- **[Zustand](https://zustand.surge.sh/)** – Small, fast and scalable state management for React
-
-### 🐒 UI
-
-- **[Tailwind CSS](https://tailwindcss.com/)** – Utility-first CSS framework for rapid UI development
-- **[Shadcn/ui](https://ui.shadcn.com/)** – Re-usable components built using Radix UI and Tailwind CSS
-- **[Framer Motion](https://framer.com/motion)** – Motion library for React to animate components with ease
-- **[Lucide](https://lucide.dev/)** – Beautifully simple, pixel-perfect icons
-- **[next/font](https://nextjs.org/docs/basic-features/font-optimization)** – Optimize custom fonts and remove external network requests for improved performance
-
-### 🐴 Code Quality
-
-- **[TypeScript](https://www.typescriptlang.org/)** – Static type checker for end-to-end type safety
-- **[Prettier](https://prettier.io/)** – Opinionated code formatter for consistent code style
-- **[ESLint](https://eslint.org/)** – Pluggable linter for Next.js and TypeScript
-- **[Husky](https://typicode.github.io/husky)** – Git hooks made easy
-
-### 🐑 Performance
-
-- **[Vercel Analytics](https://vercel.com/analytics)** – Real-time performance metrics for your Next.js app
-- **[pnpm](https://pnpm.io/)** – Fast, disk space efficient package manager
-
-### 🐘 Database
-
-- **[PostgreSQL](https://www.postgresql.org/)** – The world's most advanced open source database
-
-## 📦 Apps and Packages
-
-- `web`: The main Next.js application
-- `ui`: Shared UI components
-- `db`: Database schema and utilities
-- `auth`: Authentication utilities
-- `email`: Email templates and utilities
-
-## 📜 License
-
-This project is licensed under the MIT License. For more information, see the [LICENSE](./LICENSE) file.
-
-## 🙏 Credits
-
-This project was inspired by shadcn's [Taxonomy](https://github.com/shadcn-ui/taxonomy) and t3-oss's [create-t3-turbo](https://github.com/t3-oss/create-t3-turbo).
-
-## 👨‍💻 Contributors
-
-<a href="https://github.com/saasfly/saasfly/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=saasfly/saasfly" />
-</a>
-
-Made with [contrib.rocks](https://contrib.rocks).
-
-<!-- Badges and links -->
-
-[check-workflow-badge]: https://img.shields.io/github/actions/workflow/status/saasfly/saasfly/ci.yml?label=ci
-[github-license-badge]: https://img.shields.io/badge/License-MIT-green.svg
-[discord-badge]: https://img.shields.io/discord/1204690198382911488?color=7b8dcd&link=https%3A%2F%2Fsaasfly.io%2Fdiscord
-[made-by-nextify-badge]: https://img.shields.io/badge/made_by-nextify-blue?color=FF782B&link=https://nextify.ltd/
-
-[check-workflow-badge-link]: https://github.com/saasfly/saasfly/actions/workflows/check.yml
-[github-license-badge-link]: https://github.com/saasfly/saasfly/blob/main/LICENSE
-[discord-badge-link]: https://discord.gg/8SwSX43wnD
-[made-by-nextify-badge-link]: https://nextify.ltd
+**Saasfly 原始致谢：**
+- [shadcn/Taxonomy](https://github.com/shadcn-ui/taxonomy)
+- [t3-oss/create-t3-turbo](https://github.com/t3-oss/create-t3-turbo)

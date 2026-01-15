@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 
-import { getCurrentUser } from "@saasfly/auth";
+import { getCurrentUser } from "@videofly/auth";
 
 import { NavBar } from "~/components/navbar";
 import { SiteFooter } from "~/components/site-footer";
@@ -10,15 +10,16 @@ import { getDictionary } from "~/lib/get-dictionary";
 
 interface DocsLayoutProps {
   children: React.ReactNode;
-  params: {
+  params: Promise<{
     lang: Locale;
-  };
+  }>;
 }
 
 export default async function DocsLayout({
   children,
-  params: { lang },
+  params,
 }: DocsLayoutProps) {
+  const { lang } = await params;
   const dict = await getDictionary(lang);
   const user = await getCurrentUser();
 

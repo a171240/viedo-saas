@@ -4,7 +4,7 @@
  */
 import type { Config } from "tailwindcss";
 
-import baseConfig from "@saasfly/tailwind-config";
+import baseConfig from "@videofly/tailwind-config";
 
 export default {
   content: baseConfig.content,

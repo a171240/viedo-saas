@@ -3,9 +3,9 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 
-import { cn } from "@saasfly/ui";
-import { buttonVariants } from "@saasfly/ui/button";
-import * as Icons from "@saasfly/ui/icons";
+import { cn } from "@videofly/ui";
+import { buttonVariants } from "@videofly/ui/button";
+import * as Icons from "@videofly/ui/icons";
 
 import { UserAuthForm } from "~/components/user-auth-form";
 import type { Locale } from "~/config/i18n-config";
@@ -17,12 +17,13 @@ export const metadata: Metadata = {
 };
 
 export default async function LoginPage({
-  params: { lang },
+  params,
 }: {
-  params: {
+  params: Promise<{
     lang: Locale;
-  };
+  }>;
 }) {
+  const { lang } = await params;
   const dict = await getDictionary(lang);
   return (
     <div className="container flex h-screen w-screen flex-col items-center justify-center">
