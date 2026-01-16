@@ -1,0 +1,197 @@
+import { betterAuth } from "better-auth";
+import { creem } from "@creem_io/better-auth";
+import { magicLink } from "better-auth/plugins";
+import { drizzleAdapter } from "better-auth/adapters/drizzle";
+import { nextCookies } from "better-auth/next-js";
+
+import {
+  CreditTransType,
+  creditService,
+} from "@/services/credit";
+import {
+  getProductById,
+  getProductExpiryDays,
+} from "@/config/credits";
+
+import { creditPackages, db, users } from "@/db";
+import { env } from "./env.mjs";
+import { eq } from "drizzle-orm";
+
+type AuthPlugin =
+  | ReturnType<typeof nextCookies>
+  | ReturnType<typeof magicLink>
+  | ReturnType<typeof creem>;
+
+const plugins: AuthPlugin[] = [
+  nextCookies(), // Auto-handle Next.js cookies
+  magicLink({
+    sendMagicLink: async ({ email, url }) => {
+      // Dynamic import to avoid Edge Runtime issues in middleware
+      const { MagicLinkEmail } = await import(
+        "@/lib/emails/magic-link-email"
+      );
+      const { resend } = await import("@/lib/email");
+      const { siteConfig } = await import("@/config/site");
+
+      // Check if user exists to determine email type
+      const [existingUser] = await db
+        .select({ name: users.name, emailVerified: users.emailVerified })
+        .from(users)
+        .where(eq(users.email, email))
+        .limit(1);
+
+      const userVerified = !!existingUser?.emailVerified;
+      const authSubject = userVerified
+        ? `Sign-in link for ${(siteConfig as { name: string }).name}`
+        : "Activate your account";
+
+      try {
+        await resend.emails.send({
+          from: env.RESEND_FROM,
+          to: email,
+          subject: authSubject,
+          react: MagicLinkEmail({
+            firstName: existingUser?.name ?? "",
+            actionUrl: url,
+            mailType: userVerified ? "login" : "register",
+            siteName: (siteConfig as { name: string }).name,
+          }),
+          headers: {
+            "X-Entity-Ref-ID": new Date().getTime() + "",
+          },
+        });
+      } catch (error) {
+        console.error("Failed to send magic link email:", error);
+        throw error;
+      }
+    },
+    expiresIn: 300, // 5 minutes
+  }),
+];
+
+if (env.CREEM_API_KEY) {
+  plugins.push(
+    creem({
+      apiKey: env.CREEM_API_KEY,
+      webhookSecret: env.CREEM_WEBHOOK_SECRET,
+      testMode: process.env.NODE_ENV !== "production",
+      persistSubscriptions: true,
+      defaultSuccessUrl: "/dashboard",
+
+      onGrantAccess: async ({ product, customer, metadata }) => {
+        const productConfig = getProductById(product.id);
+        if (!productConfig) {
+          console.error(`[Creem] Unknown product: ${product.id}`);
+          return;
+        }
+
+        const credits = productConfig.credits;
+        if (credits <= 0) return;
+
+        const meta = (metadata ?? {}) as Record<string, unknown>;
+        const metaOrderId =
+          typeof meta.paymentId === "string"
+            ? meta.paymentId
+            : typeof meta.subscriptionId === "string"
+              ? meta.subscriptionId
+              : typeof meta.orderId === "string"
+                ? meta.orderId
+                : undefined;
+        const customerData = customer as unknown as {
+          userId: string;
+          subscriptionId?: string;
+        };
+
+        const orderId = metaOrderId ?? customerData.subscriptionId;
+        const orderNo = orderId
+          ? `creem_${orderId}`
+          : `creem_${productConfig.type}_${customerData.userId}_${Date.now()}`;
+
+        const [existing] = await db
+          .select({ id: creditPackages.id })
+          .from(creditPackages)
+          .where(eq(creditPackages.orderNo, orderNo))
+          .limit(1);
+
+        if (existing) {
+          console.log(`[Creem] Duplicate webhook ignored: ${orderNo}`);
+          return;
+        }
+
+        const transType =
+          productConfig.type === "subscription"
+            ? CreditTransType.SUBSCRIPTION
+            : CreditTransType.ORDER_PAY;
+
+        const productName = product?.name ?? productConfig.id;
+
+        await creditService.recharge({
+          userId: customerData.userId,
+          credits,
+          orderNo,
+          transType,
+          expiryDays: getProductExpiryDays(productConfig),
+          remark: `Creem payment: ${productName}`,
+        });
+      },
+
+      onRevokeAccess: async ({ customer, product }) => {
+        console.log("Creem access revoked:", { customer, product });
+      },
+    })
+  );
+}
+
+export const auth = betterAuth({
+  baseURL: env.NEXT_PUBLIC_APP_URL,
+  basePath: "/api/auth",
+  secret: env.BETTER_AUTH_SECRET,
+
+  // Drizzle adapter
+  database: drizzleAdapter(db, {
+    provider: "pg",
+  }),
+
+  // Plugins
+  plugins,
+
+  // GitHub OAuth
+  socialProviders: {
+    github: {
+      clientId: env.GITHUB_CLIENT_ID,
+      clientSecret: env.GITHUB_CLIENT_SECRET,
+    },
+  },
+
+  // Custom user fields
+  user: {
+    additionalFields: {
+      isAdmin: {
+        type: "boolean",
+        required: false,
+        defaultValue: false,
+        input: false, // Prevent users from setting this
+      },
+    },
+  },
+
+  // Session configuration
+  session: {
+    cookieCache: {
+      enabled: true,
+      maxAge: 5 * 60, // 5 minutes
+    },
+  },
+});
+
+// Extend user type with additional fields
+export type User = typeof auth.$Infer.Session.user & {
+  isAdmin?: boolean | null;
+};
+
+// Session type with extended user
+type BaseSession = typeof auth.$Infer.Session;
+export type Session = {
+  session: BaseSession["session"];
+  user: User;
+};
