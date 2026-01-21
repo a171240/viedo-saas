@@ -18,10 +18,15 @@ const config = {
     // serverActions: true,
   },
   images: {
-    domains: ["images.unsplash.com", "avatars.githubusercontent.com", "www.twillot.com", "cdnv2.ruguoapp.com", "www.setupyourpay.com"],
+    remotePatterns: [
+      { protocol: "https", hostname: "images.unsplash.com" },
+      { protocol: "https", hostname: "avatars.githubusercontent.com" },
+      { protocol: "https", hostname: "www.twillot.com" },
+      { protocol: "https", hostname: "cdnv2.ruguoapp.com" },
+      { protocol: "https", hostname: "www.setupyourpay.com" },
+    ],
   },
   /** We already do linting and typechecking as separate tasks in CI */
-  eslint: { ignoreDuringBuilds: true },
   typescript: { ignoreBuildErrors: true },
   output: "standalone",
 };

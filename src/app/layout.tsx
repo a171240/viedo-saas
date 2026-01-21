@@ -4,7 +4,6 @@ import { getMessages } from "next-intl/server";
 
 import "@/styles/globals.css";
 
-import { NextDevtoolsProvider } from "@next-devtools/core";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { NextIntlClientProvider } from "next-intl";
@@ -29,11 +28,7 @@ const fontHeading = localFont({
   variable: "--font-heading",
 });
 
-const DevtoolsProvider =
-  process.env.NODE_ENV === "development" &&
-    process.env.NEXT_PUBLIC_ENABLE_DEVTOOLS === "true"
-    ? NextDevtoolsProvider
-    : ({ children }: { children: React.ReactNode }) => <>{children}</>;
+
 
 export function generateStaticParams() {
   return i18n.locales.map((locale) => ({ locale }));
@@ -107,7 +102,7 @@ export default async function RootLayout({
         >
           <NextIntlClientProvider messages={messages}>
             <QueryProvider>
-              <DevtoolsProvider>{children}</DevtoolsProvider>
+              {children}
               <Analytics />
               <SpeedInsights />
               <Toaster richColors position="top-right" />
