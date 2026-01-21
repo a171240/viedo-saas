@@ -11,6 +11,7 @@ import { NextIntlClientProvider } from "next-intl";
 
 import { cn } from "@/components/ui";
 import { Toaster } from "@/components/ui/sonner";
+import { QueryProvider } from "@/components/query-provider";
 
 import { TailwindIndicator } from "@/components/tailwind-indicator";
 import { ThemeProvider } from "@/components/theme-provider";
@@ -30,7 +31,7 @@ const fontHeading = localFont({
 
 const DevtoolsProvider =
   process.env.NODE_ENV === "development" &&
-  process.env.NEXT_PUBLIC_ENABLE_DEVTOOLS === "true"
+    process.env.NEXT_PUBLIC_ENABLE_DEVTOOLS === "true"
     ? NextDevtoolsProvider
     : ({ children }: { children: React.ReactNode }) => <>{children}</>;
 
@@ -105,11 +106,13 @@ export default async function RootLayout({
           enableSystem={false}
         >
           <NextIntlClientProvider messages={messages}>
-            <DevtoolsProvider>{children}</DevtoolsProvider>
-            <Analytics />
-            <SpeedInsights />
-            <Toaster richColors position="top-right" />
-            <TailwindIndicator />
+            <QueryProvider>
+              <DevtoolsProvider>{children}</DevtoolsProvider>
+              <Analytics />
+              <SpeedInsights />
+              <Toaster richColors position="top-right" />
+              <TailwindIndicator />
+            </QueryProvider>
           </NextIntlClientProvider>
         </ThemeProvider>
       </body>

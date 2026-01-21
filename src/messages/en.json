@@ -293,8 +293,10 @@
       "title": "My Creations",
       "filter": {
         "allStatus": "All Status",
+        "all": "All",
         "completed": "Completed",
         "processing": "Processing",
+        "generating": "Generating",
         "failed": "Failed",
         "allModels": "All Models",
         "newest": "Newest",

@@ -293,8 +293,10 @@
       "title": "我的创作",
       "filter": {
         "allStatus": "全部状态",
+        "all": "全部",
         "completed": "已完成",
         "processing": "生成中",
+        "generating": "生成中",
         "failed": "失败",
         "allModels": "全部模型",
         "newest": "最新",
