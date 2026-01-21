@@ -1,0 +1,264 @@
+"use client";
+
+// ============================================
+// Creation Card Component
+// ============================================
+
+import { useState } from "react";
+import Link from "next/link";
+import { Play, Clock, AlertCircle, MoreHorizontal, Download, Trash2, RefreshCw } from "lucide-react";
+import { useTranslations } from "next-intl";
+import { toast } from "sonner";
+import { cn } from "@/components/ui";
+import { formatDistanceToNow } from "date-fns";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import type { Video } from "@/lib/types/dashboard";
+
+interface CreationCardProps {
+  video: Video;
+  onClick: (uuid: string) => void;
+  onDelete?: (uuid: string) => void;
+  onRetry?: (uuid: string) => void;
+  isDeleting?: boolean;
+  isRetrying?: boolean;
+}
+
+const statusConfig = {
+  completed: {
+    icon: Play,
+    iconBg: "bg-primary",
+    label: "Completed",
+    labelColor: "bg-emerald-500/10 text-emerald-500 border-emerald-500/20",
+  },
+  pending: {
+    icon: Clock,
+    iconBg: "bg-muted",
+    label: "Pending",
+    labelColor: "bg-amber-500/10 text-amber-500 border-amber-500/20",
+  },
+  generating: {
+    icon: Clock,
+    iconBg: "bg-muted",
+    label: "Generating...",
+    labelColor: "bg-blue-500/10 text-blue-500 border-blue-500/20",
+  },
+  uploading: {
+    icon: Clock,
+    iconBg: "bg-muted",
+    label: "Uploading...",
+    labelColor: "bg-purple-500/10 text-purple-500 border-purple-500/20",
+  },
+  failed: {
+    icon: AlertCircle,
+    iconBg: "bg-destructive/10",
+    label: "Failed",
+    labelColor: "bg-rose-500/10 text-rose-500 border-rose-500/20",
+  },
+};
+
+export function CreationCard({
+  video,
+  onClick,
+  onDelete,
+  onRetry,
+  isDeleting,
+  isRetrying,
+}: CreationCardProps) {
+  const t = useTranslations("dashboard.myCreations");
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+
+  const config = statusConfig[video.status];
+  const StatusIcon = config.icon;
+
+  const isProcessing = video.status === "pending" || video.status === "generating" || video.status === "uploading";
+  const isFailed = video.status === "failed";
+  const isCompleted = video.status === "completed";
+
+  const handleDelete = async () => {
+    await onDelete?.(video.uuid);
+    setShowDeleteDialog(false);
+  };
+
+  const handleRetry = async () => {
+    await onRetry?.(video.uuid);
+  };
+
+  const handleDownload = () => {
+    if (video.videoUrl) {
+      const link = document.createElement("a");
+      link.href = video.videoUrl;
+      link.download = `videofly-${video.uuid}.mp4`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      toast.success(t("actions.downloadSuccess"));
+    }
+  };
+
+  return (
+    <>
+      <div
+        className={cn(
+          "group relative overflow-hidden rounded-lg border border-border bg-card transition-all hover:shadow-lg cursor-pointer",
+          isDeleting && "opacity-50 pointer-events-none"
+        )}
+        onClick={() => onClick(video.uuid)}
+      >
+        {/* Thumbnail / Preview */}
+        <div className="aspect-[9/16] w-full overflow-hidden bg-muted relative">
+          {video.thumbnailUrl ? (
+            <img
+              src={video.thumbnailUrl}
+              alt={video.prompt}
+              className="h-full w-full object-cover transition-transform group-hover:scale-105"
+            />
+          ) : (
+            <div className="flex h-full w-full items-center justify-center">
+              <StatusIcon className="h-12 w-12 text-muted-foreground" />
+            </div>
+          )}
+
+          {/* Overlay for completed videos */}
+          {isCompleted && (
+            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
+              <div className="h-12 w-12 rounded-full bg-primary/90 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                <Play className="h-5 w-5 text-primary-foreground fill-primary-foreground" />
+              </div>
+            </div>
+          )}
+
+          {/* Status badge */}
+          <div className="absolute top-2 left-2">
+            <Badge className={config.labelColor} variant="outline">
+              {config.label}
+            </Badge>
+          </div>
+
+          {/* Duration badge (completed only) */}
+          {isCompleted && video.duration > 0 && (
+            <div className="absolute bottom-2 right-2">
+              <Badge variant="secondary" className="bg-black/70 text-white border-0">
+                {Math.floor(video.duration)}s
+              </Badge>
+            </div>
+          )}
+
+          {/* Action menu (completed only) */}
+          {isCompleted && (
+            <div className="absolute top-2 right-2">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
+                  <Button
+                    variant="secondary"
+                    size="icon"
+                    className="h-8 w-8 bg-black/50 hover:bg-black/70 text-white border-0"
+                  >
+                    <MoreHorizontal className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleDownload(); }}>
+                    <Download className="h-4 w-4 mr-2" />
+                    {t("actions.download")}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={(e) => { e.stopPropagation(); setShowDeleteDialog(true); }}
+                    className="text-destructive"
+                  >
+                    <Trash2 className="h-4 w-4 mr-2" />
+                    {t("actions.delete")}
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          )}
+        </div>
+
+        {/* Card info */}
+        <div className="p-3 space-y-2">
+          {/* Model & Aspect Ratio */}
+          <div className="flex items-center justify-between text-xs text-muted-foreground">
+            <span className="font-medium capitalize">{video.model}</span>
+            <span>{video.aspectRatio}</span>
+          </div>
+
+          {/* Date */}
+          <div className="text-xs text-muted-foreground">
+            {formatDistanceToNow(new Date(video.createdAt), { addSuffix: true })}
+          </div>
+
+          {/* Error message (failed only) */}
+          {isFailed && video.errorMessage && (
+            <div className="text-xs text-destructive line-clamp-2">
+              {video.errorMessage}
+            </div>
+          )}
+
+          {/* Action buttons (failed only - directly shown) */}
+          {isFailed && (
+            <div className="flex gap-2 pt-2">
+              <Button
+                variant="outline"
+                size="sm"
+                className="flex-1"
+                onClick={(e) => { e.stopPropagation(); handleRetry(); }}
+                disabled={isRetrying}
+              >
+                <RefreshCw className={cn("h-3 w-3 mr-1", isRetrying && "animate-spin")} />
+                {t("actions.retry")}
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                className="flex-1 text-destructive hover:text-destructive"
+                onClick={(e) => { e.stopPropagation(); setShowDeleteDialog(true); }}
+                disabled={isDeleting}
+              >
+                <Trash2 className="h-3 w-3 mr-1" />
+                {t("actions.delete")}
+              </Button>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Delete confirmation dialog */}
+      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t("deleteConfirm.title")}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {t("deleteConfirm.message")}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{t("deleteConfirm.cancel")}</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDelete}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {t("deleteConfirm.confirm")}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
+  );
+}

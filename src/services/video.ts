@@ -10,11 +10,11 @@ import { generateSignedCallbackUrl } from "@/ai/utils/callback-signature";
 export interface GenerateVideoParams {
   userId: string;
   prompt: string;
-  model: string; // "sora-2" | "sora-2-pro"
+  model: string; // "sora-2"
   duration: number; // 10 | 15
   aspectRatio?: string; // "16:9" | "9:16"
-  quality?: string; // "standard" | "high" (only kie)
-  imageUrl?: string; // image-to-video (only evolink)
+  quality?: string; // "standard" | "high"
+  imageUrl?: string; // image-to-video
 }
 
 export interface VideoGenerationResult {

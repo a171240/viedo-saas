@@ -1,4 +1,0 @@
-{
-  "extends": "@videofly/typescript-config/base.json",
-  "include": ["routes"]
-}

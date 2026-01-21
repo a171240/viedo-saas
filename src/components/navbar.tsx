@@ -1,8 +1,8 @@
 "use client";
 
 import React from "react";
-import Link from "next/link";
-import { useSelectedLayoutSegment } from "next/navigation";
+import { usePathname } from "next/navigation";
+import { useTranslations } from "next-intl";
 
 import type { User } from "@/lib/auth";
 import { cn } from "@/components/ui";
@@ -13,11 +13,10 @@ import { LocaleChange } from "@/components/locale-change";
 import { GitHubStar } from "@/components/github-star";
 import { useSigninModal } from "@/hooks/use-signin-modal";
 import { UserAccountNav } from "./user-account-nav";
+import { LocaleLink } from "@/i18n/navigation";
 
 import useScroll from "@/hooks/use-scroll";
 import type { MainNavItem } from "@/types";
-
-type Dictionary = Record<string, string | Record<string, string>>;
 
 interface NavBarProps {
   user: Pick<User, "name" | "image" | "email"> | undefined;
@@ -25,11 +24,6 @@ interface NavBarProps {
   children?: React.ReactNode;
   rightElements?: React.ReactNode;
   scroll?: boolean;
-  params: {
-    lang: string;
-  };
-  marketing: Dictionary;
-  dropdown: Record<string, string>;
 }
 
 export function NavBar({
@@ -38,13 +32,11 @@ export function NavBar({
   children,
   rightElements,
   scroll = false,
-  params: { lang },
-  marketing,
-  dropdown,
 }: NavBarProps) {
+  const t = useTranslations('NavBar');
   const scrolled = useScroll(50);
   const signInModal = useSigninModal();
-  const segment = useSelectedLayoutSegment();
+  const pathname = usePathname();
 
   return (
     <header
@@ -53,7 +45,7 @@ export function NavBar({
       }`}
     >
       <div className="container flex h-16 items-center justify-between py-4">
-        <MainNav items={items} params={{ lang: `${lang}` }} marketing={marketing}>
+        <MainNav items={items}>
           {children}
         </MainNav>
 
@@ -61,19 +53,19 @@ export function NavBar({
           {items?.length ? (
             <nav className="hidden gap-6 md:flex">
               {items?.map((item, index) => (
-                <Link
+                <LocaleLink
                   key={index}
-                  href={item.disabled ? "#" : `/${lang}${item.href}`}
+                  href={item.disabled ? "#" : item.href}
                   className={cn(
                     "flex items-center text-lg font-medium transition-colors hover:text-foreground/80 sm:text-sm",
-                    item.href.startsWith(`/${segment}`)
+                    pathname.endsWith(item.href)
                       ? "text-blue-500 font-semibold"
                       : "",
                     item.disabled && "cursor-not-allowed opacity-80",
                   )}
                 >
                   {item.title}
-                </Link>
+                </LocaleLink>
               ))}
             </nav>
           ) : null}
@@ -87,21 +79,15 @@ export function NavBar({
           </div>
           <LocaleChange url={"/"} />
           {!user ? (
-            <Link href={`/${lang}/login`}>
+            <LocaleLink href="/login">
               <Button variant="outline" size="sm">
-                {typeof marketing.login === "string"
-                  ? marketing.login
-                  : "Default Login Text"}
+                {t('login')}
               </Button>
-            </Link>
+            </LocaleLink>
           ) : null}
 
           {user ? (
-            <UserAccountNav
-              user={user}
-              params={{ lang: `${lang}` }}
-              dict={dropdown}
-            />
+            <UserAccountNav user={user} />
           ) : (
             <Button
               className="px-3"
@@ -109,9 +95,7 @@ export function NavBar({
               size="sm"
               onClick={signInModal.onOpen}
             >
-              {typeof marketing.signup === "string"
-                ? marketing.signup
-                : "Default Signup Text"}
+              {t('signup')}
             </Button>
           )}
         </div>

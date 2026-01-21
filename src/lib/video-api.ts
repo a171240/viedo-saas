@@ -5,7 +5,7 @@ import type { SubmitData } from "@/components/video-generator";
  */
 export interface VideoGenerateRequest {
   prompt: string;
-  model: "sora-2" | "sora-2-pro";
+  model: "sora-2";
   duration: 10 | 15;
   aspectRatio?: "16:9" | "9:16";
   quality?: "standard" | "high";
@@ -75,7 +75,7 @@ export async function transformSubmitData(
 
   return {
     prompt: data.prompt,
-    model: data.model as "sora-2" | "sora-2-pro",
+    model: "sora-2",
     duration: parseDuration(data.duration),
     aspectRatio: data.aspectRatio as "16:9" | "9:16" | undefined,
     quality,

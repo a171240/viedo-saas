@@ -1,6 +1,7 @@
 "use client";
 
 import { useAction } from "next-safe-action/hooks";
+import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
 import * as Icons from "@/components/ui/icons";
@@ -12,15 +13,14 @@ interface BillingFormButtonProps {
   offer: SubscriptionPlan;
   subscriptionPlan: UserSubscriptionPlan;
   year: boolean;
-  dict: Record<string, string>;
 }
 
 export function BillingFormButton({
   year,
   offer,
-  dict,
   subscriptionPlan,
 }: BillingFormButtonProps) {
+  const t = useTranslations('PricingCards');
   const { executeAsync, status } = useAction(createStripeSessionAction);
   const isPending = status === "executing";
 
@@ -49,8 +49,8 @@ export function BillingFormButton({
       ) : (
         <>
           {subscriptionPlan.stripePriceId
-            ? dict.manage_subscription
-            : dict.upgrade}
+            ? t('manage_subscription')
+            : t('upgrade')}
         </>
       )}
     </Button>

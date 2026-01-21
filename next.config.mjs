@@ -1,5 +1,8 @@
 // @ts-check
 import withMDX from "@next/mdx";
+import createNextIntlPlugin from "next-intl/plugin";
+
+const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
 
 if (!process.env.SKIP_ENV_VALIDATION) {
   await import("./src/env.mjs");
@@ -23,4 +26,5 @@ const config = {
   output: "standalone",
 };
 
-export default withMDX()(config);
+// Compose plugins: next-intl wraps MDX
+export default withNextIntl(withMDX()(config));

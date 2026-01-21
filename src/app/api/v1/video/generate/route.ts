@@ -6,7 +6,7 @@ import { z } from "zod";
 
 const generateSchema = z.object({
   prompt: z.string().min(1).max(5000),
-  model: z.enum(["sora-2", "sora-2-pro"]),
+  model: z.literal("sora-2"),
   duration: z.union([z.literal(10), z.literal(15)]),
   aspectRatio: z.enum(["16:9", "9:16"]).optional(),
   quality: z.enum(["standard", "high"]).optional(),

@@ -14,8 +14,53 @@ import {
 } from "@/config/credits";
 
 import { creditPackages, db, users } from "@/db";
+import * as schema from "@/db/schema";
 import { env } from "./env.mjs";
 import { eq } from "drizzle-orm";
+
+const toLogString = (value: unknown) => {
+  if (value === null || value === undefined) return String(value);
+  if (typeof value === "string") return value;
+  const normalized =
+    value instanceof Error
+      ? {
+          name: value.name,
+          message: value.message,
+          stack: value.stack,
+          status: (value as Record<string, unknown>).status,
+          statusText: (value as Record<string, unknown>).statusText,
+          error: (value as Record<string, unknown>).error,
+        }
+      : value;
+  const seen = new WeakSet();
+  try {
+    return JSON.stringify(normalized, (_key, val) => {
+      if (typeof val === "bigint") return val.toString();
+      if (typeof val === "function") return "[Function]";
+      if (typeof val === "object" && val !== null) {
+        if (seen.has(val)) return "[Circular]";
+        seen.add(val);
+      }
+      return val;
+    });
+  } catch {
+    return String(normalized);
+  }
+};
+
+const debugLogger =
+  process.env.NODE_ENV === "development"
+    ? {
+        level: "debug" as const,
+        log: (level: "debug" | "info" | "warn" | "error", message: string, ...args: unknown[]) => {
+          const suffix = args.length ? ` ${args.map(toLogString).join(" ")}` : "";
+          const line = `[Better Auth] ${message}${suffix}`.trimEnd();
+          if (level === "error") console.error(line);
+          else if (level === "warn") console.warn(line);
+          else console.log(line);
+        },
+      }
+    : undefined;
 
 type AuthPlugin =
   | ReturnType<typeof nextCookies>
@@ -23,7 +68,8 @@ type AuthPlugin =
   | ReturnType<typeof creem>;
 
 const plugins: AuthPlugin[] = [
-  nextCookies(), // Auto-handle Next.js cookies
+  // Avoid Next.js dev DataCloneError from cookies() in some environments.
+  ...(process.env.NODE_ENV === "development" ? [] : [nextCookies()]),
   magicLink({
     sendMagicLink: async ({ email, url }) => {
       // Dynamic import to avoid Edge Runtime issues in middleware
@@ -146,20 +192,28 @@ export const auth = betterAuth({
   baseURL: env.NEXT_PUBLIC_APP_URL,
   basePath: "/api/auth",
   secret: env.BETTER_AUTH_SECRET,
+  logger: debugLogger,
 
-  // Drizzle adapter
+  // Drizzle adapter with schema for Better Auth
   database: drizzleAdapter(db, {
     provider: "pg",
+    schema: {
+      user: schema.users,
+      session: schema.sessions,
+      account: schema.accounts,
+      verification: schema.verifications,
+    },
   }),
 
   // Plugins
   plugins,
 
-  // GitHub OAuth
+  // Google OAuth
   socialProviders: {
-    github: {
-      clientId: env.GITHUB_CLIENT_ID,
-      clientSecret: env.GITHUB_CLIENT_SECRET,
+    google: {
+      clientId: env.GOOGLE_CLIENT_ID,
+      clientSecret: env.GOOGLE_CLIENT_SECRET,
+      prompt: "select_account", // Always show account picker
     },
   },
 

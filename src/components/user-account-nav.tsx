@@ -1,7 +1,7 @@
 "use client";
 
-import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useTranslations, useLocale } from "next-intl";
 
 import { authClient, type User } from "@/lib/auth/client";
 import {
@@ -13,20 +13,15 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 import { UserAvatar } from "@/components/user-avatar";
-
-interface UserAccountNavProps extends React.HTMLAttributes<HTMLDivElement> {
-  user: Pick<User, "name" | "image" | "email">;
-  params: {
-    lang: string;
-  };
-  dict: Record<string, string>;
-}
+import { LocaleLink } from "@/i18n/navigation";
 
 export function UserAccountNav({
   user,
-  params: { lang },
-  dict,
-}: UserAccountNavProps) {
+}: {
+  user: Pick<User, "name" | "image" | "email">;
+}) {
+  const t = useTranslations('UserAccountNav');
+  const locale = useLocale();
   const router = useRouter();
 
   return (
@@ -50,13 +45,13 @@ export function UserAccountNav({
         </div>
         <DropdownMenuSeparator />
         <DropdownMenuItem asChild>
-          <Link href={`/${lang}/dashboard`}>{dict.dashboard}</Link>
+          <LocaleLink href="/dashboard">{t('dashboard')}</LocaleLink>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
-          <Link href={`/${lang}/dashboard/billing`}>{dict.billing}</Link>
+          <LocaleLink href="/dashboard/billing">{t('billing')}</LocaleLink>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
-          <Link href={`/${lang}/dashboard/settings`}>{dict.settings}</Link>
+          <LocaleLink href="/dashboard/settings">{t('settings')}</LocaleLink>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem
@@ -67,7 +62,7 @@ export function UserAccountNav({
               .signOut({
                 fetchOptions: {
                   onSuccess: () => {
-                    router.push(`/${lang}/login`);
+                    router.push(`/${locale}/login`);
                   },
                 },
               })
@@ -76,7 +71,7 @@ export function UserAccountNav({
               });
           }}
         >
-          {dict.sign_out}
+          {t('sign_out')}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

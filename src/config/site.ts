@@ -1,9 +1,9 @@
 export const siteConfig = {
-  name: "Saasfly",
-  description: "We provide an easier way to build saas service in production",
-  url: "https://github.com/saaslfy/saasfly",
+  name: "VideoFly",
+  description: "AI Video Generation Platform - Create stunning videos with Sora 2, Veo 3.1, and more",
+  url: process.env.NEXT_PUBLIC_APP_URL || "https://videofly.app",
   ogImage: "",
   links: {
-    github: "https://github.com/saaslfy",
+    github: "https://github.com/your-org/videofly",
   },
 };

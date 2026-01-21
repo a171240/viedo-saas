@@ -1,26 +1,35 @@
-import type { AvatarProps } from "@radix-ui/react-avatar";
+import { User } from "lucide-react";
+import { cn } from "@/components/ui";
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import * as Icons from "@/components/ui/icons";
-
-interface UserAvatarProps extends AvatarProps {
+interface UserAvatarProps {
   user: {
-    image?: string | null;
-    name?: string | null;
+    name: string | null;
+    image: string | null;
   };
+  className?: string;
 }
 
-export function UserAvatar({ user, ...props }: UserAvatarProps) {
+export function UserAvatar({ user, className }: UserAvatarProps) {
   return (
-    <Avatar {...props}>
-      {user.image ? (
-        <AvatarImage alt="Picture" src={user.image} />
-      ) : (
-        <AvatarFallback>
-          <span className="sr-only">{user.name}</span>
-          <Icons.User className="h-4 w-4" />
-        </AvatarFallback>
+    <div
+      className={cn(
+        "h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center",
+        className
       )}
-    </Avatar>
+    >
+      {user.image ? (
+        <img
+          src={user.image}
+          alt={user.name || "User"}
+          className="h-full w-full rounded-full object-cover"
+        />
+      ) : user.name ? (
+        <span className="text-xs font-medium">
+          {user.name[0]?.toUpperCase()}
+        </span>
+      ) : (
+        <User className="h-4 w-4 text-muted-foreground" />
+      )}
+    </div>
   );
 }

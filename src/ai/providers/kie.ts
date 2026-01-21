@@ -22,7 +22,7 @@ export class KieProvider implements AIVideoProvider {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "sora-2-pro-text-to-video",
+        model: "sora-2-text-to-video",
         input: {
           prompt: params.prompt,
           aspect_ratio: params.aspectRatio === "9:16" ? "portrait" : "landscape",

@@ -115,7 +115,7 @@ const DialogClose = DialogPrimitive.Close;
 
 export {
   Dialog,
-  DialogClose,
+  // DialogClose,  // 暂时注释掉，避免上下文问题
   DialogTrigger,
   DialogContent,
   DialogHeader,

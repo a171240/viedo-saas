@@ -1,11 +1,13 @@
 import { Inter as FontSans } from "next/font/google";
 import localFont from "next/font/local";
+import { getMessages } from "next-intl/server";
 
 import "@/styles/globals.css";
 
 import { NextDevtoolsProvider } from "@next-devtools/core";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
+import { NextIntlClientProvider } from "next-intl";
 
 import { cn } from "@/components/ui";
 import { Toaster } from "@/components/ui/sonner";
@@ -14,9 +16,6 @@ import { TailwindIndicator } from "@/components/tailwind-indicator";
 import { ThemeProvider } from "@/components/theme-provider";
 import { i18n } from "@/config/i18n-config";
 import { siteConfig } from "@/config/site";
-
-// import { Suspense } from "react";
-// import { PostHogPageview } from "@/config/providers";
 
 const fontSans = FontSans({
   subsets: ["latin"],
@@ -29,8 +28,14 @@ const fontHeading = localFont({
   variable: "--font-heading",
 });
 
+const DevtoolsProvider =
+  process.env.NODE_ENV === "development" &&
+  process.env.NEXT_PUBLIC_ENABLE_DEVTOOLS === "true"
+    ? NextDevtoolsProvider
+    : ({ children }: { children: React.ReactNode }) => <>{children}</>;
+
 export function generateStaticParams() {
-  return i18n.locales.map((locale) => ({ lang: locale }));
+  return i18n.locales.map((locale) => ({ locale }));
 }
 
 export const metadata = {
@@ -68,20 +73,25 @@ export const metadata = {
     apple: "/apple-touch-icon.png",
   },
   metadataBase: new URL("https://show.saasfly.io/"),
-  // manifest: `${siteConfig.url}/site.webmanifest`,
 };
 
-export default function RootLayout({
-  children,
-}: {
+interface RootLayoutProps {
   children: React.ReactNode;
-}) {
+  params: Promise<{
+    locale: string;
+  }>;
+}
+
+export default async function RootLayout({
+  children,
+  params,
+}: RootLayoutProps) {
+  const { locale } = await params;
+  const messages = await getMessages();
+
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang={locale} suppressHydrationWarning>
       <head />
-      {/*<Suspense>*/}
-      {/*  <PostHogPageview />*/}
-      {/*</Suspense>*/}
       <body
         className={cn(
           "min-h-screen bg-background font-sans antialiased",
@@ -94,11 +104,13 @@ export default function RootLayout({
           defaultTheme="dark"
           enableSystem={false}
         >
-          <NextDevtoolsProvider>{children}</NextDevtoolsProvider>
-          <Analytics />
-          <SpeedInsights />
-          <Toaster richColors position="top-right" />
-          <TailwindIndicator />
+          <NextIntlClientProvider messages={messages}>
+            <DevtoolsProvider>{children}</DevtoolsProvider>
+            <Analytics />
+            <SpeedInsights />
+            <Toaster richColors position="top-right" />
+            <TailwindIndicator />
+          </NextIntlClientProvider>
         </ThemeProvider>
       </body>
     </html>

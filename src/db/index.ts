@@ -8,9 +8,10 @@ if (!databaseUrl) {
   throw new Error("Missing DATABASE_URL/POSTGRES_URL env var");
 }
 
+const isLocalhost = databaseUrl.includes("localhost") || databaseUrl.includes("127.0.0.1");
 const sql = postgres(databaseUrl, {
   max: 10,
-  ssl: process.env.NODE_ENV === "production" ? "require" : undefined,
+  ssl: isLocalhost ? undefined : "require",
 });
 
 export const db = drizzle(sql, { schema });

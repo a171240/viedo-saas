@@ -247,24 +247,53 @@ export const CREDITS_CONFIG = {
       durations: [10, 15],
       aspectRatios: ["16:9", "9:16"],
       creditCost: {
-        base: 15,              // 10s = 15 积分
-        perExtraSecond: 1.4,   // 15s = 15 + 5*1.4 = 22 积分
+        base: 10,              // 10s = 10 积分
+        perExtraSecond: 2,     // 15s = 10 + 5×2 = 20 积分
       },
     },
-    "sora-2-pro": {
-      id: "sora-2-pro",
-      name: "Sora 2 Pro",
-      provider: "kie" as const,
-      description: "models.sora2pro.description",
-      supportImageToVideo: false,
+    "wan2.6": {
+      id: "wan2.6",
+      name: "Wan 2.6",
+      provider: "evolink" as const,
+      description: "models.wan26.description",
+      supportImageToVideo: true,
       maxDuration: 15,
-      durations: [10, 15],
-      aspectRatios: ["16:9", "9:16"],
-      qualities: ["standard", "high"],
+      durations: [5, 10, 15],
+      aspectRatios: ["16:9", "9:16", "1:1", "4:3", "3:4"],
       creditCost: {
-        base: 18,              // standard 10s = 18 积分
-        perExtraSecond: 1.6,   // standard 15s = 18 + 5*1.6 = 26 积分
-        highQualityMultiplier: 1.4, // high = base * 1.4
+        base: 156,             // 5s 720p = 156 积分
+        perExtraSecond: 78,    // 每额外秒 = 78 积分
+        highQualityMultiplier: 1.67, // 1080p = base × 1.67
+      },
+    },
+    "veo-3.1": {
+      id: "veo-3.1",
+      name: "Veo 3.1",
+      provider: "evolink" as const,
+      description: "models.veo31.description",
+      supportImageToVideo: true,
+      maxDuration: 8,
+      durations: [4, 6, 8],
+      aspectRatios: ["16:9", "9:16"],
+      creditCost: {
+        base: 60,              // 固定 60 积分
+        perExtraSecond: 0,     // 不按时长计费
+      },
+    },
+    "seedance-1.5-pro": {
+      id: "seedance-1.5-pro",
+      name: "Seedance 1.5 Pro",
+      provider: "evolink" as const,
+      description: "models.seedance.description",
+      supportImageToVideo: true,
+      maxDuration: 12,
+      durations: [4, 5, 6, 8, 10, 12],
+      aspectRatios: ["16:9", "9:16", "1:1", "4:3", "3:4", "21:9"],
+      qualities: ["480P", "720P", "1080P"],
+      creditCost: {
+        base: 4,               // 480p 1s = 4 积分
+        perExtraSecond: 4,     // 每秒计费
+        highQualityMultiplier: 2.34, // 720p = 4 × 2.34 ≈ 9 积分/秒
       },
     },
   } satisfies Record<string, ModelConfig>,
