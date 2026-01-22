@@ -5,6 +5,17 @@ import { creditService, type CreditTransType } from "@/services/credit";
 import { requireAuth } from "@/lib/api/auth";
 import { apiSuccess, handleApiError } from "@/lib/api/response";
 
+// Map database enum values to frontend expected format
+const transTypeMapping: Record<CreditTransType, string> = {
+  NEW_USER: "new_user",
+  ORDER_PAY: "order_pay",
+  SUBSCRIPTION: "subscription",
+  VIDEO_CONSUME: "video_generate",
+  REFUND: "video_refund",
+  EXPIRED: "expired",
+  SYSTEM_ADJUST: "admin_adjust",
+};
+
 export async function GET(request: NextRequest) {
   try {
     const user = await requireAuth(request);
@@ -16,7 +27,13 @@ export async function GET(request: NextRequest) {
       transType: searchParams.get("type") as CreditTransType | undefined,
     });
 
-    return apiSuccess(result);
+    // Transform transType to frontend-expected format
+    const transformedRecords = result.records.map((record) => ({
+      ...record,
+      transType: transTypeMapping[record.transType] ?? record.transType.toLowerCase(),
+    }));
+
+    return apiSuccess({ records: transformedRecords, total: result.total });
   } catch (error) {
     return handleApiError(error);
   }
