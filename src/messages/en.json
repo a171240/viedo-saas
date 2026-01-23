@@ -48,6 +48,12 @@
   "Notifications": {
     "generationWillNotify": "Generation may take a while. We'll notify you when it's ready."
   },
+  "ToolPage": {
+    "queueTitle": "Queue",
+    "queueEmpty": "No active tasks",
+    "recentTitle": "Recent",
+    "recentEmpty": "No results yet"
+  },
   "Showcase": {
     "badge": "See It in Action",
     "title": "Created With VideoFly",

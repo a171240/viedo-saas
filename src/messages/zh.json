@@ -48,6 +48,12 @@
   "Notifications": {
     "generationWillNotify": "生成时间较长，我们会在生成完成后通知你。"
   },
+  "ToolPage": {
+    "queueTitle": "生成队列",
+    "queueEmpty": "暂无进行中的任务",
+    "recentTitle": "最近结果",
+    "recentEmpty": "暂无结果"
+  },
   "Showcase": {
     "badge": "亲眼见证",
     "title": "使用 VideoFly 创作",
