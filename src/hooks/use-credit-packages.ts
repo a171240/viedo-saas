@@ -74,10 +74,13 @@ export function getLocalizedOnetimePackages(
 
 /**
  * Check if current user can purchase credit packages
+ * Returns true if user has subscription OR if there are packages that allow free users
  */
 export function canPurchasePackages(hasSubscription: boolean): boolean {
-  if (CREDITS_CONFIG.enablePackagesForFreePlan) {
+  if (hasSubscription) {
     return true;
   }
-  return hasSubscription;
+  // Check if any package allows free users
+  const packages = getOnetimeProducts();
+  return packages.some((pkg) => pkg.allowFreeUser !== false);
 }

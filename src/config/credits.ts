@@ -112,7 +112,7 @@ export const CREDITS_CONFIG = {
           billingPeriod: product.period,
           popular: product.popular,
           expireDays: isYearly ? 365 : undefined,
-          features: [], // 由前端国际化文件处理
+          features: product.features || [],
         },
       ];
     })
@@ -134,7 +134,7 @@ export const CREDITS_CONFIG = {
         type: "one-time" as const,
         popular: pkg.popular,
         expireDays: CREDIT_EXPIRATION.purchaseDays,
-        features: [],
+        features: pkg.features || [],
         // allowFreeUser: 是否允许免费用户购买（前端使用）
         allowFreeUser: pkg.allowFreeUser ?? true, // 默认允许
       },

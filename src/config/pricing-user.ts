@@ -48,6 +48,7 @@ export interface SubscriptionProductConfig {
   period: "month" | "year";
   popular?: boolean;
   enabled: boolean;
+  features?: string[];
 }
 
 /** 积分包配置 */
@@ -60,6 +61,7 @@ export interface CreditPackageConfig {
   enabled: boolean;
   /** 是否允许免费用户购买（可选，默认 true） */
   allowFreeUser?: boolean;
+  features?: string[];
 }
 
 // ============================================
@@ -116,6 +118,7 @@ export const SUBSCRIPTION_PRODUCTS = [
     period: "month" as const,
     popular: false,
     enabled: true,
+    features: ["hd_videos", "fast_generation"],
   },
   {
     id: "pro_monthly",
@@ -125,6 +128,7 @@ export const SUBSCRIPTION_PRODUCTS = [
     period: "month" as const,
     popular: true, // 推荐
     enabled: true,
+    features: ["hd_videos", "fast_generation", "no_watermark", "commercial_use"],
   },
   {
     id: "team_monthly",
@@ -134,6 +138,7 @@ export const SUBSCRIPTION_PRODUCTS = [
     period: "month" as const,
     popular: false,
     enabled: true,
+    features: ["hd_videos", "fast_generation", "no_watermark", "commercial_use", "priority_support", "api_access"],
   },
 
   // ===== 年付订阅 =====
@@ -145,6 +150,7 @@ export const SUBSCRIPTION_PRODUCTS = [
     period: "year" as const,
     popular: false,
     enabled: true,
+    features: ["hd_videos", "fast_generation"],
   },
   {
     id: "pro_yearly",
@@ -154,6 +160,7 @@ export const SUBSCRIPTION_PRODUCTS = [
     period: "year" as const,
     popular: true,
     enabled: true,
+    features: ["hd_videos", "fast_generation", "no_watermark", "commercial_use"],
   },
   {
     id: "team_yearly",
@@ -163,6 +170,7 @@ export const SUBSCRIPTION_PRODUCTS = [
     period: "year" as const,
     popular: false,
     enabled: true,
+    features: ["hd_videos", "fast_generation", "no_watermark", "commercial_use", "priority_support", "api_access"],
   },
 ];
 
@@ -189,6 +197,7 @@ export const CREDIT_PACKAGES: CreditPackageConfig[] = [
     popular: true, // 推荐
     enabled: true,
     allowFreeUser: false, // 仅订阅用户可购买
+    features: ["hd_videos", "fast_generation", "no_watermark"],
   },
   // 可以添加更多积分包
   // {

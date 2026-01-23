@@ -12,6 +12,11 @@
  *   pnpm tsx scripts/add-credits.ts user@example.com 500
  */
 
+import { config } from "dotenv";
+
+// 加载 .env 文件
+config();
+
 import { db } from "@/db";
 import { users, creditPackages, creditTransactions } from "@/db/schema";
 import { eq } from "drizzle-orm";

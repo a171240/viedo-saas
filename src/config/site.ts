@@ -14,9 +14,8 @@ export interface SiteConfig {
   };
   auth: {
     enableGoogleLogin: boolean;
-    enableGithubLogin: boolean;
     enableMagicLinkLogin: boolean;
-    defaultProvider: "google" | "github" | "email";
+    defaultProvider: "google" | "email";
   };
   routes: {
     defaultLoginRedirect: string;
@@ -33,7 +32,6 @@ export const siteConfig: SiteConfig = {
   },
   auth: {
     enableGoogleLogin: true,
-    enableGithubLogin: false,
     enableMagicLinkLogin: true,
     defaultProvider: "google",
   },
@@ -47,6 +45,5 @@ export function getEnabledAuthProviders() {
   const providers: string[] = [];
   if (siteConfig.auth.enableGoogleLogin) providers.push("google");
   if (siteConfig.auth.enableMagicLinkLogin) providers.push("email");
-  if (siteConfig.auth.enableGithubLogin) providers.push("github");
   return providers;
 }

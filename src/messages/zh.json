@@ -160,7 +160,34 @@
     "used": "已使用",
     "expiringSoon": "即将过期",
     "buyCredits": "购买积分",
-    "history": "交易历史"
+    "history": "交易历史",
+    "packages": {
+      "basic": {
+        "name": "基础计划",
+        "description": "适合初学者"
+      },
+      "pro": {
+        "name": "专业计划",
+        "description": "适合专业人士"
+      },
+      "team": {
+        "name": "团队计划",
+        "description": "适合团队和企业"
+      },
+      "standard": {
+        "name": "标准积分包",
+        "description": "一次性积分购买"
+      }
+    },
+    "features": {
+      "hd_videos": "高清视频生成",
+      "fast_generation": "快速生成",
+      "no_watermark": "无水印",
+      "commercial_use": "商业使用授权",
+      "priority_support": "优先支持",
+      "api_access": "API 访问",
+      "custom_models": "自定义 AI 模型"
+    }
   },
   "VideoGenerator": {
     "selectModel": "选择模型",
@@ -215,7 +242,6 @@
     "privacy": "继续即表示您同意我们的服务条款和隐私政策。",
     "continue_google": "使用 Google 继续",
     "continue_email": "使用邮箱继续",
-    "continue_github": "使用 GitHub 继续",
     "or_continue_with": "或使用以下方式继续",
     "email_placeholder": "name@example.com",
     "terms_notice": "继续即表示您同意我们的服务条款和隐私政策。"
