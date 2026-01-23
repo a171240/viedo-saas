@@ -254,6 +254,10 @@
     "faq": "Frequently Asked Questions",
     "faq_detail": "Find answers to common questions about our pricing"
   },
+  "Sidebar": {
+    "upgradeTitle": "Upgrade to Pro",
+    "upgradeSubtitle": "Unlock faster generation and more credits"
+  },
   "UserAccountNav": {
     "dashboard": "Dashboard",
     "billing": "Billing",

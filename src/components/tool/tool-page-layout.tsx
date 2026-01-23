@@ -15,7 +15,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { Play } from "lucide-react";
 import { authClient } from "@/lib/auth/client";
 import { useCredits } from "@/stores/credits-store";
 import { useVideoPolling } from "@/hooks/use-video-polling";
@@ -82,7 +81,6 @@ export function ToolPageLayout({
   const videoIdFromQuery = searchParams.get("id");
   const NOTIFICATION_ASKED_KEY = "videofly_notification_asked";
   const tNotify = useTranslations("Notifications");
-  const tTool = useTranslations("ToolPage");
 
   // 状态
   const [user, setUser] = useState<any>(null);
@@ -393,7 +391,7 @@ export function ToolPageLayout({
         </div>
       )}
 
-      <div className="grid h-full min-h-0 grid-cols-1 lg:grid-cols-[360px_minmax(0,1fr)] xl:grid-cols-[360px_minmax(0,1fr)_320px] gap-5">
+      <div className="grid h-full min-h-0 grid-cols-1 lg:grid-cols-[360px_minmax(0,1fr)] gap-5">
         {/* Generator Panel */}
         <div
           className={`${activeTab === "generator" ? "flex" : "hidden"
@@ -423,73 +421,6 @@ export function ToolPageLayout({
           />
         </div>
 
-        {/* Side Panel */}
-        <aside className="hidden xl:flex flex-col gap-4 min-h-0 overflow-y-auto">
-          <div className="rounded-2xl border border-border bg-card/70 backdrop-blur shadow-md">
-            <div className="px-4 py-3 border-b border-border flex items-center justify-between">
-              <span className="text-xs uppercase tracking-wide text-muted-foreground">
-                {tTool("queueTitle")}
-              </span>
-              <span className="text-xs text-muted-foreground">{generatingIds.length}</span>
-            </div>
-            <div className="p-4 space-y-2">
-              {generatingIds.length === 0 ? (
-                <div className="text-xs text-muted-foreground">
-                  {tTool("queueEmpty")}
-                </div>
-              ) : (
-                generatingIds.map((id) => (
-                  <div
-                    key={id}
-                    className="flex items-center justify-between rounded-lg border border-border/70 bg-background/60 px-3 py-2 text-xs text-muted-foreground"
-                  >
-                    <span className="truncate max-w-[160px]">{id}</span>
-                    <span className="text-[10px] uppercase">Generating</span>
-                  </div>
-                ))
-              )}
-            </div>
-          </div>
-
-          <div className="rounded-2xl border border-border bg-card/70 backdrop-blur shadow-md">
-            <div className="px-4 py-3 border-b border-border flex items-center justify-between">
-              <span className="text-xs uppercase tracking-wide text-muted-foreground">
-                {tTool("recentTitle")}
-              </span>
-            </div>
-            <div className="p-4 space-y-3">
-              {currentVideos.length === 0 ? (
-                <div className="text-xs text-muted-foreground">
-                  {tTool("recentEmpty")}
-                </div>
-              ) : (
-                currentVideos.slice(0, 3).map((video) => (
-                  <div key={video.uuid} className="flex gap-3 items-start">
-                    <div className="h-9 w-9 rounded-lg bg-muted overflow-hidden flex items-center justify-center">
-                      {video.thumbnailUrl ? (
-                        <img
-                          src={video.thumbnailUrl}
-                          alt={video.prompt}
-                          className="h-full w-full object-cover"
-                        />
-                      ) : (
-                        <Play className="h-4 w-4 text-muted-foreground" />
-                      )}
-                    </div>
-                    <div className="min-w-0">
-                      <div className="text-[11px] uppercase text-muted-foreground">
-                        {video.model || "Model"}
-                      </div>
-                      <div className="text-sm text-foreground line-clamp-2">
-                        {video.prompt || ""}
-                      </div>
-                    </div>
-                  </div>
-                ))
-              )}
-            </div>
-          </div>
-        </aside>
       </div>
     </div>
   );

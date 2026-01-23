@@ -254,6 +254,10 @@
     "faq": "常见问题",
     "faq_detail": "查找关于我们定价的常见问题答案"
   },
+  "Sidebar": {
+    "upgradeTitle": "升级专业版",
+    "upgradeSubtitle": "解锁更快生成与更多额度"
+  },
   "UserAccountNav": {
     "dashboard": "控制台",
     "billing": "账单",

@@ -1,12 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { Gem, Menu } from "lucide-react";
-import { useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import { Gem, Globe, Menu } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 import { authClient, type User } from "@/lib/auth/client";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/components/ui";
 import { useCredits } from "@/stores/credits-store";
 import { UserAvatar } from "@/components/user-avatar";
 import { useSigninModal } from "@/hooks/use-signin-modal";
@@ -18,6 +19,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { userMenuItems } from "@/config/navigation";
+import { i18n, localeMap } from "@/config/i18n-config";
 
 interface HeaderSimpleProps {
   user?: Pick<User, "name" | "image" | "email"> | null;
@@ -35,6 +37,21 @@ export function HeaderSimple({
   const { balance } = useCredits();
   const signInModal = useSigninModal();
   const router = useRouter();
+  const pathname = usePathname();
+  const tCommon = useTranslations("Common");
+  const tHeader = useTranslations("Header");
+  const currentLocale = lang || "en";
+
+  const switchLocale = (nextLocale: string) => {
+    const pathWithoutLocale = pathname.replace(/^\/[a-z]{2}/, "") || "/";
+    router.push(`/${nextLocale}${pathWithoutLocale}`);
+  };
+
+  const menuLabelMap: Record<string, string> = {
+    creations: tHeader("myCreations"),
+    credits: tHeader("credits"),
+    settings: tHeader("settings"),
+  };
 
   return (
     <header className="sticky top-0 z-50 h-16 border-b border-border bg-background">
@@ -55,6 +72,39 @@ export function HeaderSimple({
 
         {/* Right: Credits + User Menu */}
         <div className="flex items-center gap-4">
+          {/* Language Switcher */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-8 gap-1 px-2 text-muted-foreground hover:text-foreground"
+              >
+                <Globe className="h-4 w-4" />
+                <span className="text-xs font-semibold">
+                  {currentLocale.toUpperCase()}
+                </span>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="min-w-[140px]">
+              <div className="px-2 py-1 text-xs text-muted-foreground">
+                {tCommon("language")}
+              </div>
+              {i18n.locales.map((locale) => (
+                <DropdownMenuItem
+                  key={locale}
+                  onSelect={() => switchLocale(locale)}
+                  className={cn(
+                    "cursor-pointer",
+                    locale === currentLocale && "bg-muted"
+                  )}
+                >
+                  <span>{localeMap[locale]}</span>
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+
           {/* Credits Display */}
           {user && balance && (
             <div className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-muted border border-border">
@@ -84,7 +134,7 @@ export function HeaderSimple({
                 {userMenuItems.map((item) => (
                   <DropdownMenuItem key={item.id} asChild>
                     <Link href={`/${lang}${item.href}`}>
-                      {item.title}
+                      {menuLabelMap[item.id] ?? item.title}
                     </Link>
                   </DropdownMenuItem>
                 ))}
@@ -97,13 +147,13 @@ export function HeaderSimple({
                     router.refresh();
                   }}
                 >
-                  Logout
+                  {tCommon("logout")}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (
             <Button variant="default" size="sm" onClick={signInModal.onOpen}>
-              Login
+              {tCommon("login")}
             </Button>
           )}
         </div>

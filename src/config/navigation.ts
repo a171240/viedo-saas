@@ -129,9 +129,7 @@ export const headerDocs = {
 
 // 用户菜单项 (HeaderSimple 组件使用)
 export const userMenuItems = [
-  { id: "language", title: "Language", href: "#", icon: "Languages" },
   { id: "creations", title: "My Creations", href: "/my-creations", icon: "FolderOpen" },
   { id: "credits", title: "Credits", href: "/credits", icon: "Gem" },
   { id: "settings", title: "Account", href: "/settings", icon: "User" },
-  { id: "logout", title: "Logout", href: "#", icon: "LogOut" },
 ];

@@ -8,6 +8,7 @@ import { useMemo } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ImagePlay, Type, Video, FolderOpen, Gem, User, Sparkles } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { cn } from "@/components/ui";
 import { sidebarNavigation } from "@/config/navigation";
 import {
@@ -34,6 +35,7 @@ interface SidebarProps {
 export function Sidebar({ lang = "en", mobileOpen, onMobileClose }: SidebarProps) {
   const pathname = usePathname();
   const pathWithoutLang = pathname.replace(new RegExp(`^/${lang}`), "");
+  const t = useTranslations("Sidebar");
 
   // 判断是否为免费用户（可根据实际业务调整）
   const isFreeUser = useMemo(() => true, []);
@@ -86,13 +88,27 @@ export function Sidebar({ lang = "en", mobileOpen, onMobileClose }: SidebarProps
         <div className="px-3 pt-4 border-t border-border/50">
           <Link
             href={`/${lang}/pricing`}
-            className="block group rounded-lg border border-amber-500/20 bg-amber-500/5 p-3 transition-colors hover:bg-amber-500/10 hover:border-amber-500/30"
+            className="group relative block overflow-hidden rounded-xl border border-primary/30 bg-gradient-to-br from-primary/15 via-background to-primary/5 p-3 shadow-lg shadow-primary/20 transition-all hover:-translate-y-0.5 hover:border-primary/50 hover:shadow-xl hover:shadow-primary/30"
           >
-            <div className="flex items-center gap-2 mb-1">
-              <Sparkles className="h-4 w-4 text-amber-600" />
-              <span className="text-sm font-medium text-amber-700">升级专业版</span>
+            <span
+              aria-hidden
+              className="pointer-events-none absolute -right-6 -top-8 h-24 w-24 rounded-full bg-primary/25 blur-2xl"
+            />
+            <span
+              aria-hidden
+              className="pointer-events-none absolute -bottom-8 left-4 h-16 w-16 rounded-full bg-primary/15 blur-2xl"
+            />
+            <div className="relative flex items-center gap-2 mb-1">
+              <span className="flex h-7 w-7 items-center justify-center rounded-full bg-primary/15 text-primary">
+                <Sparkles className="h-4 w-4" />
+              </span>
+              <span className="text-sm font-semibold text-foreground">
+                {t("upgradeTitle")}
+              </span>
             </div>
-            <p className="text-xs text-amber-600/70">解锁更多功能</p>
+            <p className="relative text-xs text-muted-foreground">
+              {t("upgradeSubtitle")}
+            </p>
           </Link>
         </div>
       )}
@@ -146,13 +162,27 @@ export function Sidebar({ lang = "en", mobileOpen, onMobileClose }: SidebarProps
             <Link
               href={`/${lang}/pricing`}
               onClick={onMobileClose}
-              className="block group rounded-lg border border-amber-500/20 bg-amber-500/5 p-3 transition-colors hover:bg-amber-500/10 hover:border-amber-500/30"
+              className="group relative block overflow-hidden rounded-xl border border-primary/30 bg-gradient-to-br from-primary/15 via-background to-primary/5 p-3 shadow-lg shadow-primary/20 transition-all hover:-translate-y-0.5 hover:border-primary/50 hover:shadow-xl hover:shadow-primary/30"
             >
-              <div className="flex items-center gap-2 mb-1">
-                <Sparkles className="h-4 w-4 text-amber-600" />
-                <span className="text-sm font-medium text-amber-700">升级专业版</span>
+              <span
+                aria-hidden
+                className="pointer-events-none absolute -right-6 -top-8 h-24 w-24 rounded-full bg-primary/25 blur-2xl"
+              />
+              <span
+                aria-hidden
+                className="pointer-events-none absolute -bottom-8 left-4 h-16 w-16 rounded-full bg-primary/15 blur-2xl"
+              />
+              <div className="relative flex items-center gap-2 mb-1">
+                <span className="flex h-7 w-7 items-center justify-center rounded-full bg-primary/15 text-primary">
+                  <Sparkles className="h-4 w-4" />
+                </span>
+                <span className="text-sm font-semibold text-foreground">
+                  {t("upgradeTitle")}
+                </span>
               </div>
-              <p className="text-xs text-amber-600/70">解锁更多功能</p>
+              <p className="relative text-xs text-muted-foreground">
+                {t("upgradeSubtitle")}
+              </p>
             </Link>
           </SheetClose>
         </div>
