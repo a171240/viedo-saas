@@ -119,6 +119,14 @@ export const headerTools = [
   },
 ];
 
+// 落地页顶部导航 - 文档链接
+export const headerDocs = {
+  id: "docs",
+  title: "Docs",
+  href: "https://docs.videofly.app",
+  external: true,
+};
+
 // 用户菜单项 (HeaderSimple 组件使用)
 export const userMenuItems = [
   { id: "language", title: "Language", href: "#", icon: "Languages" },

@@ -13,15 +13,18 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { useRouter } from "next/navigation";
-import { use } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { authClient } from "@/lib/auth/client";
 import { useCredits } from "@/stores/credits-store";
+import { useVideoPolling } from "@/hooks/use-video-polling";
+import { videoTaskStorage } from "@/lib/video-task-storage";
 import type { Video } from "@/db";
-import type { ToolPageConfig, ToolPageRoute } from "@/config/tool-pages";
+import type { ToolPageConfig } from "@/config/tool-pages";
 import { GeneratorPanel } from "@/components/tool/generator-panel";
 import { ToolLandingPage } from "@/components/tool/tool-landing-page";
 import { ResultPanelWrapper } from "@/components/tool/result-panel-wrapper";
+import { toast } from "sonner";
 
 // ============================================================================
 // Types
@@ -34,16 +37,14 @@ export interface ToolPageLayoutProps {
   config: ToolPageConfig;
 
   /**
-   * 页面参数
-   */
-  params: Promise<{
-    locale: string;
-  }>;
-
-  /**
    * 工具路由（用于 SEO 和导航）
    */
   toolRoute: string;
+
+  /**
+   * 当前语言
+   */
+  locale: string;
 }
 
 // ============================================================================
@@ -65,25 +66,72 @@ export interface ToolPageLayoutProps {
  *
  * export default function ImageToVideoPage({ params }) {
  *   const config = getToolPageConfig("image-to-video");
- *   return <ToolPageLayout config={config} params={params} toolRoute="image-to-video" />;
+ *   return <ToolPageLayout config={config} locale={params.locale} toolRoute="image-to-video" />;
  * }
  * ```
  */
 export function ToolPageLayout({
   config,
-  params,
   toolRoute,
+  locale,
 }: ToolPageLayoutProps) {
-  const { locale } = use(params);
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { balance } = useCredits();
+  const videoIdFromQuery = searchParams.get("id");
+  const NOTIFICATION_ASKED_KEY = "videofly_notification_asked";
+  const tNotify = useTranslations("Notifications");
 
   // 状态
   const [user, setUser] = useState<any>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [currentVideo, setCurrentVideo] = useState<Video | null>(null);
-  const [videoUuid, setVideoUuid] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [currentVideos, setCurrentVideos] = useState<Video[]>([]);
+  const [generatingIds, setGeneratingIds] = useState<string[]>([]);
   const [activeTab, setActiveTab] = useState<"generator" | "result">("generator");
+
+  const addGeneratingId = useCallback((videoId: string) => {
+    setGeneratingIds((prev) => (prev.includes(videoId) ? prev : [videoId, ...prev]));
+  }, []);
+
+  const removeGeneratingId = useCallback((videoId: string) => {
+    setGeneratingIds((prev) => prev.filter((id) => id !== videoId));
+  }, []);
+
+  const { startPolling, isPolling } = useVideoPolling({
+    onCompleted: useCallback(
+      (video) => {
+        setCurrentVideos((prev) => {
+          const exists = prev.find((v) => v.uuid === video.uuid);
+          if (exists) {
+            return prev.map((v) => (v.uuid === video.uuid ? video : v));
+          }
+          return [video, ...prev];
+        });
+        removeGeneratingId(video.uuid);
+        if (user?.id) {
+          videoTaskStorage.updateTask(
+            video.uuid,
+            { status: "completed" },
+            user.id
+          );
+        }
+      },
+      [removeGeneratingId, user?.id]
+    ),
+    onFailed: useCallback(
+      ({ videoId }) => {
+        removeGeneratingId(videoId);
+        if (user?.id) {
+          videoTaskStorage.updateTask(
+            videoId,
+            { status: "failed" },
+            user.id
+          );
+        }
+      },
+      [removeGeneratingId, user?.id]
+    ),
+  });
 
   // 检查登录状态
   useEffect(() => {
@@ -91,6 +139,27 @@ export function ToolPageLayout({
       setUser(session?.data?.user ?? null);
     });
   }, []);
+
+  useEffect(() => {
+    if (!user?.id) return;
+    const localTasks = videoTaskStorage.getGeneratingTasks(user.id);
+    localTasks.forEach((task) => {
+      addGeneratingId(task.videoId);
+      if (!isPolling(task.videoId)) {
+        startPolling(task.videoId);
+      }
+    });
+  }, [user?.id, isPolling, startPolling, addGeneratingId]);
+
+  useEffect(() => {
+    if (!user?.id) return;
+    if (!videoIdFromQuery) return;
+    setActiveTab("result");
+    addGeneratingId(videoIdFromQuery);
+    if (!isPolling(videoIdFromQuery)) {
+      startPolling(videoIdFromQuery);
+    }
+  }, [videoIdFromQuery, user?.id, isPolling, startPolling, addGeneratingId]);
 
   // 处理生成提交
   const handleSubmit = useCallback(async (data: any) => {
@@ -109,19 +178,32 @@ export function ToolPageLayout({
       return;
     }
 
-    // 开始生成
-    setIsLoading(true);
-    setVideoUuid(null);
-    setActiveTab("result");
+    // 开始提交
+    setIsSubmitting(true);
 
     try {
+      if (typeof window !== "undefined" && "Notification" in window) {
+        const asked = localStorage.getItem(NOTIFICATION_ASKED_KEY);
+        if (!asked && Notification.permission === "default") {
+          toast.info(tNotify("generationWillNotify"));
+          Notification.requestPermission().finally(() => {
+            localStorage.setItem(NOTIFICATION_ASKED_KEY, "1");
+          });
+        }
+      }
+    } catch (error) {
+      console.warn("Notification permission request failed:", error);
+    }
+
+    try {
+      const selectedMode = data.mode || config.generator.mode;
       const response = await fetch("/api/v1/video/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           prompt: data.prompt,
           model: data.model,
-          mode: data.mode || config.generator.mode,
+          mode: selectedMode,
           duration: data.duration,
           aspectRatio: data.aspectRatio,
           quality: data.quality,
@@ -136,30 +218,34 @@ export function ToolPageLayout({
       }
 
       const result = await response.json();
-      setVideoUuid(result.data.videoUuid);
+      const videoUuid = result.data.videoUuid as string;
+
+      setActiveTab("result");
+      addGeneratingId(videoUuid);
+      startPolling(videoUuid);
+
+      if (user?.id) {
+        videoTaskStorage.addTask({
+          userId: user.id,
+          videoId: videoUuid,
+          taskId: result.data.taskId,
+          prompt: data.prompt,
+          model: data.model,
+          mode: selectedMode,
+          status: "generating",
+          createdAt: Date.now(),
+          notified: false,
+        });
+      }
     } catch (error) {
       console.error("Generation error:", error);
-      setIsLoading(false);
       // 可以在这里显示错误提示
     }
-  }, [user, locale, router, balance, config]);
-
-  // 处理视频完成
-  const handleVideoComplete = useCallback((video: Video) => {
-    setIsLoading(false);
-    setCurrentVideo(video);
-  }, []);
-
-  // 处理生成失败
-  const handleGenerationFailed = useCallback((error?: string) => {
-    setIsLoading(false);
-    console.error("Generation failed:", error);
-    // 可以在这里显示错误提示
-  }, []);
+    setIsSubmitting(false);
+  }, [user, locale, router, balance, config, startPolling, addGeneratingId]);
 
   // 处理重新生成
   const handleRegenerate = useCallback(() => {
-    setCurrentVideo(null);
     setActiveTab("generator");
   }, []);
 
@@ -205,7 +291,7 @@ export function ToolPageLayout({
               <div className={`${activeTab === "generator" ? "block" : "hidden"} lg:block w-full lg:w-[380px] shrink-0`}>
                 <GeneratorPanel
                   toolType={toolRoute as "image-to-video" | "text-to-video" | "reference-to-video"}
-                  isLoading={isLoading}
+                  isLoading={isSubmitting}
                   onSubmit={handleSubmit}
                 />
               </div>
@@ -271,7 +357,7 @@ export function ToolPageLayout({
       >
         <GeneratorPanel
           toolType={toolRoute as "image-to-video" | "text-to-video" | "reference-to-video"}
-          isLoading={isLoading}
+          isLoading={isSubmitting}
           onSubmit={handleSubmit}
         />
       </div>
@@ -282,11 +368,8 @@ export function ToolPageLayout({
           } lg:flex flex-1 h-full rounded-2xl border border-border bg-muted/20 overflow-hidden relative shadow-inner`}
       >
         <ResultPanelWrapper
-          currentVideo={currentVideo}
-          isGenerating={isLoading}
-          videoUuid={videoUuid}
-          onVideoComplete={handleVideoComplete}
-          onGenerationFailed={handleGenerationFailed}
+          currentVideos={currentVideos}
+          generatingIds={generatingIds}
           onRegenerate={handleRegenerate}
         />
       </div>

@@ -79,25 +79,22 @@ export function NavBar({
           </div>
           <LocaleChange url={"/"} />
           {!user ? (
-            <LocaleLink href="/login">
-              <Button variant="outline" size="sm">
+            <>
+              <Button variant="outline" size="sm" onClick={signInModal.onOpen}>
                 {t('login')}
               </Button>
-            </LocaleLink>
+              <Button
+                className="px-3"
+                variant="default"
+                size="sm"
+                onClick={signInModal.onOpen}
+              >
+                {t('signup')}
+              </Button>
+            </>
           ) : null}
 
-          {user ? (
-            <UserAccountNav user={user} />
-          ) : (
-            <Button
-              className="px-3"
-              variant="default"
-              size="sm"
-              onClick={signInModal.onOpen}
-            >
-              {t('signup')}
-            </Button>
-          )}
+          {user ? <UserAccountNav user={user} /> : null}
         </div>
       </div>
     </header>

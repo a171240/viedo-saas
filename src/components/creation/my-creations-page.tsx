@@ -45,10 +45,11 @@ export function MyCreationsPage({ locale }: MyCreationsPageProps) {
     deleteVideo,
     retryVideo,
     isDeleting,
+    refetch,
   } = useVideos(filter);
 
   // Auto-refresh processing videos
-  useRefreshProcessingVideos();
+  useRefreshProcessingVideos(videos, refetch);
 
   // Infinite scroll observer
   const observerTarget = useRef<HTMLDivElement>(null);

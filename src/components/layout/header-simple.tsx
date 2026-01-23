@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Gem, Menu } from "lucide-react";
 import { useState } from "react";
 
@@ -8,6 +9,7 @@ import { authClient, type User } from "@/lib/auth/client";
 import { Button } from "@/components/ui/button";
 import { useCredits } from "@/stores/credits-store";
 import { UserAvatar } from "@/components/user-avatar";
+import { useSigninModal } from "@/hooks/use-signin-modal";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -31,6 +33,8 @@ export function HeaderSimple({
   onMobileMenuToggle,
 }: HeaderSimpleProps) {
   const { balance } = useCredits();
+  const signInModal = useSigninModal();
+  const router = useRouter();
 
   return (
     <header className="sticky top-0 z-50 h-16 border-b border-border bg-background">
@@ -38,6 +42,7 @@ export function HeaderSimple({
         {/* Left: Logo + Mobile Menu */}
         <div className="flex items-center gap-4">
           <button
+            type="button"
             className="lg:hidden p-2 hover:bg-muted rounded-md"
             onClick={onMobileMenuToggle}
           >
@@ -86,14 +91,10 @@ export function HeaderSimple({
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
                   className="cursor-pointer text-destructive"
-                  onSelect={() => {
-                    authClient.signOut({
-                      fetchOptions: {
-                        onSuccess: () => {
-                          window.location.href = `/${lang}/login`;
-                        },
-                      },
-                    });
+                  onSelect={async () => {
+                    await authClient.signOut();
+                    router.push(`/${lang}`);
+                    router.refresh();
                   }}
                 >
                   Logout
@@ -101,11 +102,9 @@ export function HeaderSimple({
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (
-            <Link href={`/${lang}/login`}>
-              <Button variant="default" size="sm">
-                Login
-              </Button>
-            </Link>
+            <Button variant="default" size="sm" onClick={signInModal.onOpen}>
+              Login
+            </Button>
           )}
         </div>
       </div>

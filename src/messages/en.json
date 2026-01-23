@@ -21,6 +21,7 @@
     "models": "Models",
     "tools": "Tools",
     "pricing": "Pricing",
+    "docs": "Docs",
     "myCreations": "My Creations",
     "credits": "Credits",
     "settings": "Settings"
@@ -43,6 +44,9 @@
       "rating": "user rating"
     },
     "creditsHint": "Free credits to start • No credit card required"
+  },
+  "Notifications": {
+    "generationWillNotify": "Generation may take a while. We'll notify you when it's ready."
   },
   "Showcase": {
     "badge": "See It in Action",
@@ -340,6 +344,9 @@
         "oldest": "Oldest"
       },
       "status": {
+        "pending": "Pending",
+        "generating": "Generating...",
+        "uploading": "Uploading...",
         "completed": "Completed",
         "processing": "Processing...",
         "failed": "Failed"

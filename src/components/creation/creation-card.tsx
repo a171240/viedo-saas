@@ -44,31 +44,31 @@ const statusConfig = {
   completed: {
     icon: Play,
     iconBg: "bg-primary",
-    label: "Completed",
+    labelKey: "status.completed",
     labelColor: "bg-emerald-500/10 text-emerald-500 border-emerald-500/20",
   },
   pending: {
     icon: Clock,
     iconBg: "bg-muted",
-    label: "Pending",
+    labelKey: "status.pending",
     labelColor: "bg-amber-500/10 text-amber-500 border-amber-500/20",
   },
   generating: {
     icon: Clock,
     iconBg: "bg-muted",
-    label: "Generating...",
+    labelKey: "status.generating",
     labelColor: "bg-blue-500/10 text-blue-500 border-blue-500/20",
   },
   uploading: {
     icon: Clock,
     iconBg: "bg-muted",
-    label: "Uploading...",
+    labelKey: "status.uploading",
     labelColor: "bg-purple-500/10 text-purple-500 border-purple-500/20",
   },
   failed: {
     icon: AlertCircle,
     iconBg: "bg-destructive/10",
-    label: "Failed",
+    labelKey: "status.failed",
     labelColor: "bg-rose-500/10 text-rose-500 border-rose-500/20",
   },
 };
@@ -84,12 +84,17 @@ export function CreationCard({
   const t = useTranslations("dashboard.myCreations");
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
-  const config = statusConfig[video.status];
+  const normalizedStatus = (video.status || "pending").toLowerCase() as keyof typeof statusConfig;
+  const config = statusConfig[normalizedStatus] ?? statusConfig.pending;
   const StatusIcon = config.icon;
+  const statusLabel = t(config.labelKey as "status.completed");
 
-  const isProcessing = video.status === "pending" || video.status === "generating" || video.status === "uploading";
-  const isFailed = video.status === "failed";
-  const isCompleted = video.status === "completed";
+  const isProcessing =
+    normalizedStatus === "pending" ||
+    normalizedStatus === "generating" ||
+    normalizedStatus === "uploading";
+  const isFailed = normalizedStatus === "failed";
+  const isCompleted = normalizedStatus === "completed";
 
   const handleDelete = async () => {
     await onDelete?.(video.uuid);
@@ -147,7 +152,7 @@ export function CreationCard({
           {/* Status badge */}
           <div className="absolute top-2 left-2">
             <Badge className={config.labelColor} variant="outline">
-              {config.label}
+              {statusLabel}
             </Badge>
           </div>
 

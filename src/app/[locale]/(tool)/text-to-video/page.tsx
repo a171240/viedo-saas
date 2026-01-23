@@ -1,15 +1,21 @@
-"use client";
-
 import { getToolPageConfig } from "@/config/tool-pages";
 import { ToolPageLayout } from "@/components/tool/tool-page-layout";
+import type { Locale } from "@/config/i18n-config";
 
 interface TextToVideoPageProps {
   params: Promise<{
-    locale: string;
+    locale: Locale;
   }>;
 }
 
-export default function TextToVideoPage({ params }: TextToVideoPageProps) {
+export default async function TextToVideoPage({ params }: TextToVideoPageProps) {
   const config = getToolPageConfig("text-to-video");
-  return <ToolPageLayout config={config} params={params} toolRoute="text-to-video" />;
+  const { locale } = await params;
+  return (
+    <ToolPageLayout
+      config={config}
+      locale={locale}
+      toolRoute="text-to-video"
+    />
+  );
 }

@@ -250,12 +250,39 @@ export class VideoService {
             error: updated.errorMessage || undefined,
           };
         }
+        if (result.status === "processing" && video.status === VideoStatus.PENDING) {
+          await db
+            .update(videos)
+            .set({
+              status: VideoStatus.GENERATING,
+              updatedAt: new Date(),
+            })
+            .where(eq(videos.uuid, video.uuid));
+          return { status: VideoStatus.GENERATING };
+        }
       } catch (error) {
         console.error("Failed to refresh status from provider:", error);
       }
     }
 
     return { status: video.status };
+  }
+
+  /**
+   * Refresh status by external task id
+   */
+  async refreshStatusByTaskId(taskId: string, userId: string) {
+    const [video] = await db
+      .select()
+      .from(videos)
+      .where(and(eq(videos.externalTaskId, taskId), eq(videos.userId, userId)))
+      .limit(1);
+
+    if (!video) {
+      throw new Error("Video not found");
+    }
+
+    return this.refreshStatus(video.uuid, userId);
   }
 
   /**

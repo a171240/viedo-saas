@@ -36,10 +36,11 @@ import {
 } from "@/components/ui/accordion";
 import { cn } from "@/components/ui";
 import { useCredits } from "@/stores/credits-store";
-import { headerModels, headerTools } from "@/config/navigation";
-import { Gem, ImagePlay, Type, Video } from "lucide-react";
+import { headerModels, headerTools, headerDocs } from "@/config/navigation";
+import { Gem, ImagePlay, Type, Video, BookOpen } from "lucide-react";
 import { LocaleLink } from "@/i18n/navigation";
 import type { User } from "@/lib/auth/client";
+import { useSigninModal } from "@/hooks/use-signin-modal";
 
 const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
   ImagePlay,
@@ -48,6 +49,7 @@ const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
 };
 
 export function LandingHeader({ user }: { user?: User | null }) {
+  const signInModal = useSigninModal();
   const t = useTranslations();
   const locale = useLocale();
   const pathname = usePathname();
@@ -157,6 +159,23 @@ export function LandingHeader({ user }: { user?: User | null }) {
                   </LocaleLink>
                 </NavigationMenuLink>
               </NavigationMenuItem>
+
+              {/* Docs Link */}
+              <NavigationMenuItem>
+                <NavigationMenuLink asChild>
+                  <a
+                    href={headerDocs.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={cn(
+                      "group inline-flex h-10 w-max items-center justify-center gap-2 rounded-md bg-transparent px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none"
+                    )}
+                  >
+                    <BookOpen className="h-4 w-4" />
+                    {t('Header.docs')}
+                  </a>
+                </NavigationMenuLink>
+              </NavigationMenuItem>
             </NavigationMenuList>
           </NavigationMenu>
 
@@ -234,14 +253,9 @@ export function LandingHeader({ user }: { user?: User | null }) {
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (
-              <div className="flex items-center gap-3">
-                <Button variant="ghost" size="sm" asChild>
-                  <LocaleLink href="/login">{t('Common.login')}</LocaleLink>
-                </Button>
-                <Button size="sm" asChild>
-                  <LocaleLink href="/login">{t('Common.signup')}</LocaleLink>
-                </Button>
-              </div>
+              <Button variant="ghost" size="sm" onClick={signInModal.onOpen}>
+                {t('Common.login')}
+              </Button>
             )}
           </div>
         </nav>
@@ -341,6 +355,17 @@ export function LandingHeader({ user }: { user?: User | null }) {
                     {t('Header.pricing')}
                   </LocaleLink>
 
+                  {/* Docs */}
+                  <a
+                    href={headerDocs.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-2 font-semibold p-2 hover:bg-accent rounded-md transition-colors"
+                  >
+                    <BookOpen className="h-4 w-4" />
+                    {t('Header.docs')}
+                  </a>
+
                   {/* Language */}
                   <div className="flex items-center gap-3 p-2">
                     <Globe className="h-4 w-4" />
@@ -384,14 +409,9 @@ export function LandingHeader({ user }: { user?: User | null }) {
                       </LocaleLink>
                     </div>
                   ) : (
-                    <div className="flex flex-col gap-3">
-                      <Button variant="outline" asChild>
-                        <LocaleLink href="/login">{t('Common.login')}</LocaleLink>
-                      </Button>
-                      <Button asChild>
-                        <LocaleLink href="/login">{t('Common.signup')}</LocaleLink>
-                      </Button>
-                    </div>
+                    <Button variant="outline" onClick={signInModal.onOpen}>
+                      {t('Common.login')}
+                    </Button>
                   )}
                 </div>
               </SheetContent>

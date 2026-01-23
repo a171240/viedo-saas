@@ -56,19 +56,10 @@ export function UserAccountNav({
         <DropdownMenuSeparator />
         <DropdownMenuItem
           className="cursor-pointer"
-          onSelect={(event) => {
-            event.preventDefault();
-            authClient
-              .signOut({
-                fetchOptions: {
-                  onSuccess: () => {
-                    router.push(`/${locale}/login`);
-                  },
-                },
-              })
-              .catch((error) => {
-                console.error("Error during sign out:", error);
-              });
+          onSelect={async () => {
+            await authClient.signOut();
+            router.push(`/${locale}`);
+            router.refresh();
           }}
         >
           {t('sign_out')}

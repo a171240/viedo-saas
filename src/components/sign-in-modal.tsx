@@ -16,12 +16,12 @@ import { toast } from "sonner";
 
 type Dictionary = Record<string, string>;
 
-interface SignInModalProps {
+interface SignInModalContentProps {
   lang: string;
   dict: Dictionary;
 }
 
-export const SignInModal = ({ lang, dict }: SignInModalProps) => {
+export const SignInModalContent = ({ lang, dict }: SignInModalContentProps) => {
   const signInModal = useSigninModal();
   const searchParams = useSearchParams();
   const [signInClicked, setSignInClicked] = useState<string | null>(null);
@@ -87,26 +87,17 @@ export const SignInModal = ({ lang, dict }: SignInModalProps) => {
   return (
     <div className="w-full">
       {/* Header */}
-      <div className="flex flex-col items-center justify-center space-y-3 border-b bg-background px-4 py-6 pt-8 text-center md:px-16">
-        <a href={siteConfig.url}>
-          <Image
-            src="/images/avatars/saasfly-logo.svg"
-            className="mx-auto"
-            width="64"
-            height="64"
-            alt={siteConfig.name}
-          />
-        </a>
+      <div className="flex flex-col items-center justify-center space-y-3 border-b bg-background px-4 py-6 pt-8 text-center">
         <h3 className="font-urban text-2xl font-bold">
           {dict.signin_title || "Sign in to your account"}
         </h3>
-        <p className="text-sm text-gray-500">
+        <p className="text-sm text-muted-foreground">
           {dict.signin_subtitle || "Get started with VideoFly today"}
         </p>
       </div>
 
       {/* Body */}
-      <div className="flex flex-col space-y-4 bg-secondary/50 px-4 py-8 md:px-16">
+      <div className="flex flex-col space-y-4 bg-secondary/50 px-4 py-8">
         {/* Google Login - Priority */}
         {siteConfig.auth.enableGoogleLogin && (
           <Button
@@ -190,13 +181,12 @@ export const SignInModal = ({ lang, dict }: SignInModalProps) => {
   );
 };
 
-// Wrapper component for use with Modal
-export function SignInModalWrapper({ lang, dict }: SignInModalProps) {
-  const signInModal = useSigninModal();
+// Legacy component for backward compatibility
+export const SignInModal = ({ lang, dict }: SignInModalContentProps) => {
+  return <SignInModalContent lang={lang} dict={dict} />;
+};
 
-  return (
-    <div className="w-full">
-      <SignInModal lang={lang} dict={dict} />
-    </div>
-  );
+// Wrapper component for use with Modal
+export function SignInModalWrapper({ lang, dict }: SignInModalContentProps) {
+  return <SignInModalContent lang={lang} dict={dict} />;
 }

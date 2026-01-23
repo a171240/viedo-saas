@@ -1,13 +1,23 @@
 "use client";
 
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Sparkles, Zap, Play } from "lucide-react";
 import { motion } from "framer-motion";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
+import { toast } from "sonner";
 
-import { VideoGeneratorInput } from "@/components/video-generator";
+import { VideoGeneratorInput, type SubmitData } from "@/components/video-generator";
 import { BlurFade } from "@/components/magicui/blur-fade";
 import { Meteors } from "@/components/magicui/meteors";
 import { cn } from "@/components/ui";
+import { authClient } from "@/lib/auth/client";
+import { useSigninModal } from "@/hooks/use-signin-modal";
+import { videoTaskStorage } from "@/lib/video-task-storage";
+
+const PENDING_PROMPT_KEY = "videofly_pending_prompt";
+const PENDING_IMAGE_KEY = "videofly_pending_image";
+const NOTIFICATION_ASKED_KEY = "videofly_notification_asked";
 
 /**
  * Hero Section - 视频生成器优先设计
@@ -19,6 +29,122 @@ import { cn } from "@/components/ui";
  */
 export function HeroSection() {
   const t = useTranslations("Hero");
+  const tNotify = useTranslations("Notifications");
+  const locale = useLocale();
+  const router = useRouter();
+  const signInModal = useSigninModal();
+  const { data: session } = authClient.useSession();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const getToolRouteByMode = (mode: string) => {
+    switch (mode) {
+      case "image-to-video":
+      case "i2v":
+        return "image-to-video";
+      case "reference-to-video":
+      case "r2v":
+        return "reference-to-video";
+      case "text-to-video":
+      case "t2v":
+      default:
+        return "text-to-video";
+    }
+  };
+
+  const toDuration = (duration?: string | number) => {
+    if (typeof duration === "number") return duration;
+    if (!duration) return undefined;
+    const parsed = Number.parseInt(duration, 10);
+    return Number.isNaN(parsed) ? undefined : parsed;
+  };
+
+  const toQuality = (resolution?: string) => {
+    if (!resolution) return undefined;
+    return resolution.toLowerCase().includes("1080") ? "high" : "standard";
+  };
+
+  const handleSubmit = async (data: SubmitData) => {
+    if (!session?.user) {
+      try {
+        sessionStorage.setItem(PENDING_PROMPT_KEY, data.prompt);
+        if (data.images?.[0]) {
+          const reader = new FileReader();
+          reader.onloadend = () => {
+            sessionStorage.setItem(PENDING_IMAGE_KEY, reader.result as string);
+          };
+          reader.readAsDataURL(data.images[0]);
+        }
+      } catch (error) {
+        console.warn("Failed to store pending input:", error);
+      }
+      signInModal.onOpen();
+      return;
+    }
+
+    if (data.images?.length) {
+      toast.error("Image upload is not available yet.");
+      return;
+    }
+
+    try {
+      if (typeof window !== "undefined" && "Notification" in window) {
+        const asked = localStorage.getItem(NOTIFICATION_ASKED_KEY);
+        if (!asked && Notification.permission === "default") {
+          toast.info(tNotify("generationWillNotify"));
+          Notification.requestPermission().finally(() => {
+            localStorage.setItem(NOTIFICATION_ASKED_KEY, "1");
+          });
+        }
+      }
+    } catch (error) {
+      console.warn("Notification permission request failed:", error);
+    }
+
+    setIsSubmitting(true);
+    try {
+      const response = await fetch("/api/v1/video/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          prompt: data.prompt,
+          model: data.model,
+          mode: data.mode,
+          duration: toDuration(data.duration),
+          aspectRatio: data.aspectRatio,
+          quality: toQuality(data.resolution),
+          outputNumber: data.outputNumber,
+          generateAudio: data.generateAudio,
+        }),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error?.error?.message || "Failed to generate video");
+      }
+
+      const result = await response.json();
+      const toolRoute = getToolRouteByMode(data.mode);
+      if (session?.user?.id) {
+        videoTaskStorage.addTask({
+          userId: session.user.id,
+          videoId: result.data.videoUuid,
+          taskId: result.data.taskId,
+          prompt: data.prompt,
+          model: data.model,
+          mode: data.mode,
+          status: "generating",
+          createdAt: Date.now(),
+          notified: false,
+        });
+      }
+      router.push(`/${locale}/${toolRoute}?id=${result.data.videoUuid}`);
+    } catch (error) {
+      console.error("Generation error:", error);
+      toast.error("Failed to generate video. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
     <section className="relative min-h-screen overflow-hidden pb-20">
@@ -94,12 +220,9 @@ export function HeroSection() {
 
             {/* 视频生成器 - 不需要外层容器，直接使用组件 */}
             <VideoGeneratorInput
-              isLoading={false}
-              disabled={false}
-              onSubmit={(data) => {
-                console.log("生成视频:", data);
-                // TODO: 实现视频生成逻辑
-              }}
+              isLoading={isSubmitting}
+              disabled={isSubmitting}
+              onSubmit={handleSubmit}
             />
 
             {/* 底部提示 */}

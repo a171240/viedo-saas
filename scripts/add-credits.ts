@@ -10,12 +10,9 @@
  * 示例:
  *   pnpm tsx scripts/add-credits.ts user@example.com 100 "管理员赠送"
  *   pnpm tsx scripts/add-credits.ts user@example.com 500
+ *
+ * 注意: 此脚本通过 dotenv-cli 加载 .env.local 环境变量
  */
-
-import { config } from "dotenv";
-
-// 加载 .env 文件
-config();
 
 import { db } from "@/db";
 import { users, creditPackages, creditTransactions } from "@/db/schema";

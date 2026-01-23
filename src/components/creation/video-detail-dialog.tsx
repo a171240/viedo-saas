@@ -45,8 +45,6 @@ export function VideoDetailDialog({
   isDeleting,
 }: VideoDetailDialogProps) {
   const t = useTranslations("dashboard.myCreations");
-  const tDetail = useTranslations("dashboard.myCreations");
-  const tCommon = useTranslations();
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
 
@@ -87,10 +85,15 @@ export function VideoDetailDialog({
     }
   };
 
+  const normalizedStatus = (video.status || "pending").toLowerCase();
+  const statusLabel =
+    t(`status.${normalizedStatus}` as "status.completed") || t("status.processing");
+
   return (
     <>
       <Dialog open={open} onOpenChange={onClose}>
         <DialogContent className="max-w-5xl p-0 overflow-hidden">
+          <DialogTitle className="sr-only">{t("title")}</DialogTitle>
           {/* Close button */}
           <button
             onClick={onClose}
@@ -128,13 +131,15 @@ export function VideoDetailDialog({
               <div>
                 <Badge
                   className={
-                    video.status === "completed"
+                    normalizedStatus === "completed"
                       ? "bg-emerald-500/10 text-emerald-500 border-emerald-500/20"
-                      : "bg-rose-500/10 text-rose-500 border-rose-500/20"
+                      : normalizedStatus === "failed"
+                      ? "bg-rose-500/10 text-rose-500 border-rose-500/20"
+                      : "bg-blue-500/10 text-blue-500 border-blue-500/20"
                   }
                   variant="outline"
                 >
-                  {video.status === "completed" ? t("status.completed") : t("status.failed")}
+                  {statusLabel}
                 </Badge>
               </div>
 
@@ -182,7 +187,7 @@ export function VideoDetailDialog({
               </div>
 
               {/* Actions */}
-              {video.status === "completed" && (
+              {normalizedStatus === "completed" && (
                 <>
                   <div className="border-t border-border" />
                   <div className="flex gap-3">

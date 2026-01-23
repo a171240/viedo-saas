@@ -166,13 +166,15 @@ export function useDownloadVideo() {
 /**
  * Auto-refresh processing videos
  */
-export function useRefreshProcessingVideos(interval: number = 5000) {
-  const { videos, refetch } = useVideos();
-
-  // 检查是否有处理中的视频
-  const hasProcessing = videos.some(
-    (v) => v.status === "generating" || v.status === "uploading" || v.status === "pending"
-  );
+export function useRefreshProcessingVideos(
+  videos: Array<{ status?: string }>,
+  refetch: () => void,
+  interval: number = 5000
+) {
+  const hasProcessing = videos.some((v) => {
+    const status = (v.status || "").toLowerCase();
+    return status === "generating" || status === "uploading" || status === "pending";
+  });
 
   useEffect(() => {
     if (!hasProcessing) return;

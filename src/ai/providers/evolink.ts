@@ -57,7 +57,23 @@ export class EvolinkProvider implements AIVideoProvider {
       }
     );
 
-    if (!response.ok) throw new Error("Failed to get task status");
+    if (!response.ok) {
+      const errorText = await response.text();
+      if (response.status === 404 || response.status === 410) {
+        return {
+          taskId,
+          provider: "evolink",
+          status: "failed",
+          error: {
+            code: "TASK_NOT_FOUND",
+            message: errorText || "Task not found",
+          },
+        };
+      }
+      throw new Error(
+        `Failed to get task status (${response.status}): ${errorText}`
+      );
+    }
 
     const data = await response.json();
 
