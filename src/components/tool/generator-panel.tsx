@@ -1,15 +1,46 @@
 "use client";
 
+/**
+ * Generator Panel Component - Pollo.ai Style
+ *
+ * Tool page generator panel with dark theme design
+ * Design inspired by https://pollo.ai
+ * - Dark theme (#1A1A1A background)
+ * - Uppercase labels for sections
+ * - Purple accent color (#6D28D9)
+ * - Dashed border upload area
+ */
+
 import { useState, useCallback, useMemo } from "react";
 import { cn } from "@/components/ui";
 import { getAvailableModels, calculateModelCredits } from "@/config/credits";
-import { ChevronDown, Upload, X, Sparkles } from "lucide-react";
+import { ChevronDown, Upload, X, Sparkles, Image as ImageIcon, Volume2, Wand2 } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuSeparator,
+  DropdownMenuLabel,
 } from "@/components/ui/dropdown-menu";
+
+// ============================================================================
+// Types
+// ============================================================================
+
+interface SectionLabelProps {
+  children: React.ReactNode;
+  required?: boolean;
+}
+
+function SectionLabel({ children, required }: SectionLabelProps) {
+  return (
+    <label className="text-xs text-zinc-400 font-medium uppercase tracking-wide mb-2 block">
+      {children}
+      {required && <span className="text-red-400 ml-1">*</span>}
+    </label>
+  );
+}
 
 interface GeneratorPanelProps {
   toolType: "image-to-video" | "text-to-video" | "reference-to-video";
@@ -104,241 +135,266 @@ export function GeneratorPanel({
 
   const canSubmit = prompt.trim().length > 0 && !isLoading;
 
-  return (
-    <div className="h-full flex flex-col bg-background rounded-2xl border border-border shadow-xl shadow-zinc-200/20 overflow-hidden transition-all duration-300">
-      {/* Page Title */}
-      <div className="px-5 py-4 border-b border-border/50 bg-zinc-50/50">
-        <h2 className="text-sm font-bold uppercase tracking-wider text-zinc-500">
-          {toolType.replace(/-/g, " ")}
-        </h2>
-      </div>
+  // Get page title
+  const getPageTitle = () => {
+    if (toolType === "image-to-video") return "IMAGE TO VIDEO";
+    if (toolType === "text-to-video") return "TEXT TO VIDEO";
+    if (toolType === "reference-to-video") return "REFERENCE TO VIDEO";
+    return "AI GENERATOR";
+  };
 
-      {/* Scrollable Content */}
-      <div className="flex-1 overflow-y-auto px-5 py-5 space-y-6 custom-scrollbar">
-        {/* Model Selector */}
-        <div className="space-y-2.5">
-          <label className="text-xs font-bold text-zinc-500 uppercase tracking-tight">Model</label>
-          <DropdownMenu>
-            <DropdownMenuTrigger
-              disabled={isLoading}
-              className="w-full flex items-center justify-between px-4 py-2.5 rounded-xl border border-border bg-muted/30 hover:bg-muted/50 hover:border-zinc-300 transition-all text-sm group"
-            >
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-                <span className="font-medium">{currentModel?.name || "Select Model"}</span>
-              </div>
-              <ChevronDown className="h-4 w-4 text-muted-foreground group-hover:text-foreground transition-colors" />
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="start" className="w-[300px] rounded-xl p-1 shadow-2xl">
-              {availableModels.map((model) => (
-                <DropdownMenuItem
-                  key={model.id}
-                  onClick={() => setSelectedModel(model.id)}
-                  className={cn(
-                    "flex flex-col items-start gap-0.5 rounded-lg px-3 py-2 cursor-pointer",
-                    selectedModel === model.id ? "bg-primary/10 text-primary" : "hover:bg-muted"
-                  )}
-                >
-                  <span className="font-semibold text-sm">{model.name}</span>
-                  <div className="flex items-center gap-2 text-[10px] opacity-70">
-                    <span className="uppercase tracking-wider">{model.provider === "evolink" ? "Evolink" : "Kie"}</span>
-                    <span>•</span>
-                    <span>{model.supportImageToVideo ? "High Quality" : "Standard"}</span>
-                  </div>
-                </DropdownMenuItem>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
+  return (
+    <div className="h-full flex flex-col rounded-xl overflow-hidden">
+      {/* Main Card - Pollo.ai Style */}
+      <div className="flex-1 flex flex-col rounded-xl bg-[#1A1A1A] border border-zinc-800 overflow-hidden">
+        {/* Header Bar */}
+        <div className="px-5 py-3 bg-zinc-900/50 border-b border-zinc-800 shrink-0">
+          <h2 className="text-sm text-zinc-400 font-medium uppercase tracking-wide">
+            {getPageTitle()}
+          </h2>
         </div>
 
-        {/* Image Upload (for image-to-video) */}
-        {(toolType === "image-to-video" || toolType === "reference-to-video") &&
-          currentModel?.supportImageToVideo && (
-            <div className="space-y-2.5">
-              <label className="text-xs font-bold text-zinc-500 uppercase tracking-tight">
-                {toolType === "reference-to-video" ? "Reference Video" : "Image Source"}
-              </label>
-              {imageFile ? (
-                <div className="relative group aspect-video rounded-xl bg-muted/30 border border-zinc-200 overflow-hidden">
-                  <div className="absolute inset-0 flex items-center justify-center p-3">
-                    <span className="text-xs font-medium truncate bg-white/80 backdrop-blur-sm px-3 py-1.5 rounded-full border border-zinc-200 shadow-sm">
-                      {imageFile.name}
-                    </span>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={handleRemoveImage}
-                    className="absolute top-2 right-2 p-1.5 bg-black/50 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/70"
-                  >
-                    <X className="h-3.5 w-3.5" />
-                  </button>
+        {/* Scrollable Content */}
+        <div className="flex-1 overflow-y-auto p-5 space-y-5 custom-scrollbar">
+          {/* Model Selection */}
+          <div>
+            <SectionLabel>MODEL</SectionLabel>
+            <DropdownMenu>
+              <DropdownMenuTrigger
+                disabled={isLoading}
+                className="w-full flex items-center justify-between px-4 py-3 rounded-lg bg-zinc-900 hover:bg-zinc-800 transition-colors"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-2 h-2 rounded-full bg-purple-500" />
+                  <span className="text-white font-medium">
+                    {currentModel?.name || "Select Model"}
+                  </span>
                 </div>
-              ) : (
-                <label className="flex flex-col items-center justify-center h-36 border-2 border-dashed border-zinc-200 rounded-xl cursor-pointer hover:border-primary/40 hover:bg-primary/5 transition-all group">
-                  <div className="p-3 rounded-full bg-zinc-50 group-hover:bg-primary/10 transition-colors mb-2">
-                    <Upload className="h-5 w-5 text-zinc-400 group-hover:text-primary transition-colors" />
-                  </div>
-                  <span className="text-xs font-semibold text-zinc-600">
-                    Upload image
-                  </span>
-                  <span className="text-[10px] text-zinc-400 mt-1 uppercase tracking-wider">
-                    JPG, PNG, WEBP • Max 10MB
-                  </span>
-                  <input
-                    type="file"
-                    accept="image/*,video/*"
-                    onChange={handleImageChange}
-                    className="hidden"
-                    disabled={isLoading}
-                  />
-                </label>
-              )}
-            </div>
-          )}
-
-        {/* Prompt Input */}
-        <div className="space-y-3">
-          <div className="flex items-center justify-between">
-            <label className="text-sm font-semibold text-foreground">Prompt</label>
-            <div className="flex items-center gap-2">
-              <span className="text-xs text-muted-foreground">Prompt Enhancement</span>
-              {/* Toggle Switch Mockup */}
-              <div className="w-9 h-5 rounded-full bg-muted border border-border relative cursor-pointer opacity-80 hover:opacity-100 transition-opacity">
-                <div className="absolute left-1 top-1 w-3 h-3 rounded-full bg-muted-foreground/50" />
-              </div>
-            </div>
+                <ChevronDown className="w-4 h-4 text-zinc-500" />
+              </DropdownMenuTrigger>
+              <DropdownMenuContent
+                align="start"
+                className="bg-[#1A1A1A] border-zinc-800 w-[300px] max-h-[320px] overflow-y-auto"
+              >
+                <DropdownMenuLabel className="text-zinc-400 text-xs uppercase tracking-wide">
+                  Video Models
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator className="bg-zinc-800" />
+                {availableModels.map((model) => (
+                  <DropdownMenuItem
+                    key={model.id}
+                    onClick={() => setSelectedModel(model.id)}
+                    className="text-white hover:bg-zinc-800 py-3"
+                  >
+                    <div className="flex items-center justify-between w-full">
+                      <div className="flex items-center gap-3">
+                        <div className={cn(
+                          "w-2 h-2 rounded-full",
+                          selectedModel === model.id ? "bg-purple-500" : "bg-zinc-600"
+                        )} />
+                        <span className="font-medium">{model.name}</span>
+                      </div>
+                    </div>
+                    <div className="text-xs text-zinc-500 mt-1 ml-5">
+                      {model.provider === "evolink" ? "Evolink" : "Kie"} • {model.supportImageToVideo ? "High Quality" : "Standard"}
+                    </div>
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
-          <div className="relative">
+
+          {/* Image Upload (for image-to-video) */}
+          {(toolType === "image-to-video" || toolType === "reference-to-video") &&
+            currentModel?.supportImageToVideo && (
+              <div>
+                <SectionLabel required={toolType === "image-to-video"}>
+                  {toolType === "reference-to-video" ? "REFERENCE VIDEO" : "IMAGE SOURCE"}
+                </SectionLabel>
+                {imageFile ? (
+                  <div className="relative group aspect-video rounded-lg overflow-hidden border-2 border-zinc-700">
+                    <div className="absolute inset-0 flex items-center justify-center p-3">
+                      <span className="text-xs font-medium truncate bg-zinc-900/80 backdrop-blur-sm px-3 py-1.5 rounded-full border border-zinc-700">
+                        {imageFile.name}
+                      </span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={handleRemoveImage}
+                      className="absolute top-2 right-2 p-1.5 rounded-full bg-zinc-700 hover:bg-zinc-600 opacity-0 group-hover:opacity-100 transition-opacity"
+                    >
+                      <X className="w-3.5 h-3.5 text-white" />
+                    </button>
+                  </div>
+                ) : (
+                  <label className="flex flex-col items-center justify-center w-full aspect-video rounded-lg border-2 border-dashed border-zinc-700 hover:border-purple-500/50 cursor-pointer transition-colors group">
+                    <div className="w-12 h-12 rounded-full flex items-center justify-center bg-zinc-800 group-hover:bg-zinc-700 transition-colors">
+                      <ImageIcon className="w-6 h-6 text-zinc-500 group-hover:text-purple-400" />
+                    </div>
+                    <p className="text-sm text-zinc-400 mt-3">Upload image</p>
+                    <p className="text-xs text-zinc-600 mt-1">JPG, PNG, WEBP • Max 10MB</p>
+                    <input
+                      type="file"
+                      accept="image/*,video/*"
+                      onChange={handleImageChange}
+                      className="hidden"
+                      disabled={isLoading}
+                    />
+                  </label>
+                )}
+              </div>
+            )}
+
+          {/* Prompt Section */}
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <SectionLabel className="mb-0">PROMPT</SectionLabel>
+              <button className="flex items-center gap-2 text-xs text-zinc-500 hover:text-zinc-400 transition-colors">
+                <Wand2 className="w-3 h-3" />
+                <span>Enhance</span>
+                <div className="w-8 h-4 rounded-full p-0.5 bg-zinc-700 transition-colors">
+                  <div className="w-3 h-3 rounded-full bg-white/50" />
+                </div>
+              </button>
+            </div>
             <textarea
               value={prompt}
               onChange={(e) => setPrompt(e.target.value)}
               placeholder="Describe the video you want to create, e.g., A cat playing in a sunny garden with natural lighting and fresh atmosphere..."
-              className="w-full min-h-[140px] p-4 text-sm rounded-lg border border-border bg-muted/20 resize-none focus:outline-none focus:ring-1 focus:ring-primary/50 focus:border-primary/50 transition-all leading-relaxed placeholder:text-muted-foreground/60"
               disabled={isLoading}
+              className="w-full min-h-[100px] max-h-[200px] px-4 py-3 rounded-lg bg-zinc-900 border border-zinc-700 text-white placeholder:text-zinc-600 resize-none focus:outline-none focus:border-purple-500 transition-colors text-sm leading-relaxed"
+              rows={4}
               maxLength={2000}
             />
           </div>
-        </div>
 
-        {/* Settings Group */}
-        <div className="space-y-6 pt-2">
-          {/* Ratio */}
-          {currentModel?.aspectRatios && (
-            <div className="space-y-3">
-              <label className="text-sm font-medium text-foreground">Aspect Ratio</label>
-              <div className="grid grid-cols-2 gap-4">
-                {currentModel.aspectRatios.map((ar) => (
-                  <button
-                    key={ar}
-                    type="button"
-                    onClick={() => setAspectRatio(ar)}
-                    disabled={isLoading}
-                    className={cn(
-                      "flex flex-col items-center justify-center gap-2 p-4 rounded-xl border-2 transition-all relative overflow-hidden",
-                      aspectRatio === ar
-                        ? "border-[#6366f1] bg-[#6366f1]/10 text-foreground"
-                        : "border-border/50 bg-muted/20 hover:border-border hover:bg-muted/30 text-muted-foreground"
-                    )}
-                  >
-                    {ar === "16:9" ? (
-                      <div className={cn("w-8 h-5 border-2 rounded-sm", aspectRatio === ar ? "border-[#6366f1]" : "border-current")} />
-                    ) : ar === "9:16" ? (
-                      <div className={cn("w-5 h-8 border-2 rounded-sm", aspectRatio === ar ? "border-[#6366f1]" : "border-current")} />
-                    ) : (
-                      <div className={cn("w-6 h-6 border-2 rounded-sm", aspectRatio === ar ? "border-[#6366f1]" : "border-current")} />
-                    )}
-                    <span className="text-sm font-medium">{ar}</span>
-                  </button>
-                ))}
+          {/* Settings Group */}
+          <div className="space-y-5">
+            {/* Aspect Ratio */}
+            {currentModel?.aspectRatios && (
+              <div>
+                <SectionLabel>ASPECT RATIO</SectionLabel>
+                <div className="flex gap-3">
+                  {currentModel.aspectRatios.map((ar) => (
+                    <button
+                      key={ar}
+                      type="button"
+                      onClick={() => setAspectRatio(ar)}
+                      disabled={isLoading}
+                      className={cn(
+                        "flex-1 px-4 py-3 rounded-lg text-sm font-medium transition-all",
+                        aspectRatio === ar
+                          ? "bg-purple-600/20 text-purple-400 border-2 border-purple-500"
+                          : "bg-zinc-900 text-zinc-400 border-2 border-zinc-800 hover:border-zinc-700"
+                      )}
+                    >
+                      <div className="flex flex-col items-center gap-2">
+                        <div className={cn(
+                          "border-2 rounded-sm",
+                          aspectRatio === ar ? "border-purple-400" : "border-zinc-600",
+                          ar === "16:9" && "w-8 h-4",
+                          ar === "9:16" && "w-4 h-8",
+                          ar === "1:1" && "w-6 h-6",
+                          ar === "4:3" && "w-6 h-4",
+                          ar === "3:4" && "w-4 h-6"
+                        )} />
+                        <span>{ar}</span>
+                      </div>
+                    </button>
+                  ))}
+                </div>
               </div>
+            )}
+
+            {/* Duration & Quality */}
+            <div className="grid grid-cols-2 gap-3">
+              {currentModel?.durations && (
+                <div>
+                  <SectionLabel>VIDEO LENGTH</SectionLabel>
+                  <div className="flex gap-2">
+                    {currentModel.durations.map((d) => (
+                      <button
+                        key={d}
+                        type="button"
+                        onClick={() => setDuration(d)}
+                        disabled={isLoading}
+                        className={cn(
+                          "flex-1 px-3 py-2.5 rounded-lg text-sm font-medium transition-all",
+                          duration === d
+                            ? "bg-purple-600 text-white"
+                            : "bg-zinc-900 text-zinc-400 hover:bg-zinc-800"
+                        )}
+                      >
+                        {d}s
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {currentModel?.qualities && (
+                <div>
+                  <SectionLabel>RESOLUTION</SectionLabel>
+                  <div className="flex gap-2">
+                    {currentModel.qualities.map((q) => (
+                      <button
+                        key={q}
+                        type="button"
+                        onClick={() => setQuality(q)}
+                        disabled={isLoading}
+                        className={cn(
+                          "flex-1 px-3 py-2.5 rounded-lg text-sm font-medium transition-all capitalize",
+                          quality === q
+                            ? "bg-purple-600 text-white"
+                            : "bg-zinc-900 text-zinc-400 hover:bg-zinc-800"
+                        )}
+                      >
+                        {q}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
-          )}
-
-          <div className="grid grid-cols-2 gap-4">
-            {/* Duration */}
-            {currentModel?.durations && (
-              <div className="space-y-3">
-                <label className="text-sm font-medium text-foreground">Video Length</label>
-                <div className="flex bg-muted/20 p-1 rounded-lg border border-border/50">
-                  {currentModel.durations.map((d) => (
-                    <button
-                      key={d}
-                      type="button"
-                      onClick={() => setDuration(d)}
-                      disabled={isLoading}
-                      className={cn(
-                        "flex-1 py-2 rounded-md text-sm font-medium transition-all",
-                        duration === d
-                          ? "bg-muted text-foreground shadow-sm border border-border/50"
-                          : "text-muted-foreground hover:text-foreground/80"
-                      )}
-                    >
-                      {d}s
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Quality (Resolution) */}
-            {currentModel?.qualities && (
-              <div className="space-y-3">
-                <label className="text-sm font-medium text-foreground">Resolution</label>
-                <div className="flex bg-muted/20 p-1 rounded-lg border border-border/50">
-                  {currentModel.qualities.map((q) => (
-                    <button
-                      key={q}
-                      type="button"
-                      onClick={() => setQuality(q)}
-                      disabled={isLoading}
-                      className={cn(
-                        "flex-1 py-2 rounded-md text-sm font-medium transition-all capitalize",
-                        quality === q
-                          ? "bg-muted text-foreground shadow-sm border border-border/50"
-                          : "text-muted-foreground hover:text-foreground/80"
-                      )}
-                    >
-                      {q}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
           </div>
         </div>
 
-      </div>
-
-      {/* Bottom Section - Credits + Generate Button */}
-      <div className="px-5 py-5 bg-background/80 border-t border-border/50 space-y-4 backdrop-blur-sm">
-        {/* Credits Display */}
-        <div className="flex items-center justify-between text-[11px] font-bold uppercase tracking-widest">
-          <span className="text-muted-foreground">Total Credits:</span>
-          <div className="flex items-center gap-1.5 text-foreground">
-            <span className="w-1.5 h-1.5 rounded-full bg-yellow-400" />
-            <span>{estimatedCredits} Credits</span>
+        {/* Bottom Section - Credits + Generate Button */}
+        <div className="px-5 py-4 bg-zinc-900/50 border-t border-zinc-800 space-y-4 shrink-0">
+          {/* Credits Display */}
+          <div className="flex items-center justify-between">
+            <span className="text-xs text-zinc-500 font-medium uppercase tracking-wide">Total Credits:</span>
+            <div className="flex items-center gap-2">
+              <div className="w-1.5 h-1.5 rounded-full bg-yellow-500" />
+              <span className="text-white font-medium">{estimatedCredits} Credits</span>
+            </div>
           </div>
-        </div>
 
-        {/* Generate Button */}
-        <button
-          type="button"
-          onClick={handleSubmit}
-          disabled={!canSubmit}
-          className={cn(
-            "w-full py-3.5 rounded-xl font-bold text-sm flex items-center justify-center gap-2.5 transition-all shadow-lg active:scale-[0.98]",
-            canSubmit
-              ? "bg-[#6366f1] hover:bg-[#5558e6] text-white shadow-indigo-500/25"
-              : "bg-muted text-muted-foreground cursor-not-allowed shadow-none"
-          )}
-        >
-          {isLoading ? (
-            <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-          ) : (
-            <Sparkles className="h-4 w-4" />
-          )}
-          <span>{isLoading ? "Generating..." : "Generate Video"}</span>
-        </button>
+          {/* Generate Button */}
+          <button
+            type="button"
+            onClick={handleSubmit}
+            disabled={!canSubmit}
+            className={cn(
+              "w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-sm font-semibold transition-all",
+              canSubmit
+                ? "bg-purple-600 hover:bg-purple-700 text-white"
+                : "bg-zinc-800 text-zinc-600 cursor-not-allowed"
+            )}
+          >
+            {isLoading ? (
+              <>
+                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                Generating...
+              </>
+            ) : (
+              <>
+                <Sparkles className="w-4 h-4" />
+                Generate Video
+              </>
+            )}
+          </button>
+        </div>
       </div>
     </div>
   );

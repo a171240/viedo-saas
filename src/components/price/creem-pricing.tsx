@@ -101,7 +101,7 @@ export function CreemPricing({
       const origin = window.location.origin;
       const { data, error } = await creem.createCheckout({
         productId: product.id,
-        successUrl: `${origin}/dashboard/videos?payment=success`,
+        successUrl: `${origin}/my-creations?payment=success`,
         metadata: {
           plan: product.id,
         },

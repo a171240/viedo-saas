@@ -45,13 +45,13 @@ export function UserAccountNav({
         </div>
         <DropdownMenuSeparator />
         <DropdownMenuItem asChild>
-          <LocaleLink href="/dashboard">{t('dashboard')}</LocaleLink>
+          <LocaleLink href="/my-creations">{t('dashboard')}</LocaleLink>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
-          <LocaleLink href="/dashboard/billing">{t('billing')}</LocaleLink>
+          <LocaleLink href="/credits">{t('billing')}</LocaleLink>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
-          <LocaleLink href="/dashboard/settings">{t('settings')}</LocaleLink>
+          <LocaleLink href="/settings">{t('settings')}</LocaleLink>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem

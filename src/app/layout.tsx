@@ -11,6 +11,7 @@ import { NextIntlClientProvider } from "next-intl";
 import { cn } from "@/components/ui";
 import { Toaster } from "@/components/ui/sonner";
 import { QueryProvider } from "@/components/query-provider";
+import { AutoAdminChecker } from "@/components/auth/auto-admin-checker";
 
 import { TailwindIndicator } from "@/components/tailwind-indicator";
 import { ThemeProvider } from "@/components/theme-provider";
@@ -51,10 +52,10 @@ export const metadata = {
   ],
   authors: [
     {
-      name: "saasfly",
+      name: "VideoFly",
     },
   ],
-  creator: "Saasfly",
+  creator: "VideoFly",
   openGraph: {
     type: "website",
     locale: "en_US",
@@ -68,7 +69,7 @@ export const metadata = {
     shortcut: "/favicon-16x16.png",
     apple: "/apple-touch-icon.png",
   },
-  metadataBase: new URL("https://show.saasfly.io/"),
+  metadataBase: new URL(siteConfig.url),
 };
 
 interface RootLayoutProps {
@@ -102,6 +103,7 @@ export default async function RootLayout({
         >
           <NextIntlClientProvider messages={messages}>
             <QueryProvider>
+              <AutoAdminChecker />
               {children}
               <Analytics />
               <SpeedInsights />

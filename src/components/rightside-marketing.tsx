@@ -13,7 +13,7 @@ export function RightsideMarketing({ dict } : { dict: Record<string, string> | u
         icon={<Icons.Rocket className="h-4 w-4 text-black dark:text-neutral-400" />}
         title={dict?.deploy_on_vercel_title ?? ''}
         description={dict?.deploy_on_vercel_desc ?? ''}
-        link="https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fsaasfly%2Fsaasfly&env=NEXT_PUBLIC_APP_URL,BETTER_AUTH_SECRET,STRIPE_API_KEY,STRIPE_WEBHOOK_SECRET,POSTGRES_URL,GITHUB_CLIENT_ID,GITHUB_CLIENT_SECRET,RESEND_API_KEY,RESEND_FROM&install-command=pnpm%20install&build-command=pnpm%20run%20build"
+        link="https://vercel.com/new"
       />
 
       <GridItem

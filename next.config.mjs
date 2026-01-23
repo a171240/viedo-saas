@@ -1,5 +1,4 @@
 // @ts-check
-import withMDX from "@next/mdx";
 import createNextIntlPlugin from "next-intl/plugin";
 
 const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
@@ -12,11 +11,7 @@ if (!process.env.SKIP_ENV_VALIDATION) {
 /** @type {import("next").NextConfig} */
 const config = {
   reactStrictMode: true,
-  pageExtensions: ["ts", "tsx", "mdx"],
-  experimental: {
-    mdxRs: true,
-    // serverActions: true,
-  },
+  pageExtensions: ["ts", "tsx"],
   images: {
     remotePatterns: [
       { protocol: "https", hostname: "images.unsplash.com" },
@@ -31,5 +26,5 @@ const config = {
   output: "standalone",
 };
 
-// Compose plugins: next-intl wraps MDX
-export default withNextIntl(withMDX()(config));
+// Compose plugins
+export default withNextIntl(config);

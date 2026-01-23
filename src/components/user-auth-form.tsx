@@ -52,7 +52,7 @@ export function UserAuthForm({
     try {
       await authClient.signIn.magicLink({
         email: data.email.toLowerCase(),
-        callbackURL: searchParams?.get("from") ?? `/${lang}/dashboard`,
+        callbackURL: searchParams?.get("from") ?? `/${lang}/my-creations`,
       });
 
       toast.success("Check your email", {
@@ -122,7 +122,7 @@ export function UserAuthForm({
           authClient.signIn
             .social({
               provider: "google",
-              callbackURL: searchParams?.get("from") ?? `/${lang}/dashboard`,
+              callbackURL: searchParams?.get("from") ?? `/${lang}/my-creations`,
             })
             .catch((error) => {
               console.error("Google signIn error:", error);

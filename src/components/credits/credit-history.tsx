@@ -83,7 +83,7 @@ export function CreditHistory({ transactions, hasMore, onLoadMore }: CreditHisto
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
-              {transactions.map((transaction) => {
+              {transactions.filter(Boolean).map((transaction) => {
                 const config = typeConfig[transaction.transType];
                 const Icon = config.icon;
                 const isPositive = transaction.credits > 0;

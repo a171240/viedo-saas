@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { requireAuth } from "@/lib/auth";
 import { HeaderSimple } from "@/components/layout/header-simple";
 import { Sidebar } from "@/components/layout/sidebar";
+import { AutoAdminChecker } from "@/components/auth/auto-admin-checker";
 import { i18n, type Locale } from "@/config/i18n-config";
 
 interface DashboardLayoutProps {
@@ -25,6 +26,7 @@ export default async function DashboardLayout({
 
   return (
     <div className="min-h-screen bg-background">
+      <AutoAdminChecker />
       <HeaderSimple
         user={{
           name: user.name,

@@ -5,7 +5,7 @@ import * as Icons from "@/components/ui/icons";
 
 export function CodeCopy() {
   const [copied, setCopied] = useState(false)
-  const command = "pnpm create saasfly"
+  const command = "pnpm install"
 
   const copyToClipboard = async () => {
     try {

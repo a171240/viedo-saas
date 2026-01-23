@@ -63,8 +63,8 @@ export function useCreditHistory() {
     refetchOnWindowFocus: false,
   });
 
-  // Flatten pages
-  const transactions = data?.pages.flatMap((page) => page.transactions) || [];
+  // Flatten pages and filter out any null/undefined values
+  const transactions = data?.pages.flatMap((page) => page.transactions).filter(Boolean) || [];
   const hasMore = hasNextPage || false;
 
   return {

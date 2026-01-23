@@ -27,7 +27,7 @@ export default async function MarketingLayout({
         <LandingHeader user={user ?? null} />
       </Suspense>
 
-      <ModalProvider dict={dict}>
+      <ModalProvider dict={dict} locale={locale}>
         <main className="flex-1">{children}</main>
       </ModalProvider>
 

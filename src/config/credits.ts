@@ -21,6 +21,8 @@ export interface CreditPackageConfig {
   disabled?: boolean;
   expireDays?: number;       // 覆盖默认过期天数
   features?: string[];       // 功能列表（用于展示）
+  /** 是否允许免费用户购买（仅积分包有效） */
+  allowFreeUser?: boolean;
 }
 
 export interface ModelConfig {
@@ -41,262 +43,180 @@ export interface ModelConfig {
 }
 
 // ============================================
-// 统一积分配置
+// 用户配置导入
+// ============================================
+// 所有的价格和积分配置都在 pricing-user.ts 中
+// 用户只需要修改那个文件即可
+import {
+  NEW_USER_GIFT,
+  CREDIT_EXPIRATION,
+  SUBSCRIPTION_PRODUCTS,
+  CREDIT_PACKAGES,
+  VIDEO_MODEL_PRICING,
+} from "./pricing-user";
+
+// ============================================
+// 转换函数：用户配置 -> 内部格式
+// ============================================
+
+/** 将美元转换为美分（内部使用） */
+function usdToCents(usd: number): number {
+  return Math.round(usd * 100);
+}
+
+// ============================================
+// 统一积分配置（从 pricing-user.ts 生成）
 // ============================================
 
 export const CREDITS_CONFIG = {
   // ========== 系统开关 ==========
-  enabled: true,
-
-  // 是否允许免费用户购买积分包
-  // false: 仅付费订阅用户可购买
-  // true: 所有用户可购买
-  enablePackagesForFreePlan: false,
+  enabled: true, // 积分系统始终启用
 
   // ========== 新用户赠送 ==========
   registerGift: {
-    enabled: process.env.CREDIT_NEW_USER_ENABLED !== "false",
-    amount: Number.parseInt(process.env.CREDIT_NEW_USER_AMOUNT || "50"),
-    expireDays: Number.parseInt(process.env.CREDIT_NEW_USER_EXPIRY_DAYS || "30"),
+    enabled: NEW_USER_GIFT.enabled,
+    amount: NEW_USER_GIFT.credits,
+    expireDays: NEW_USER_GIFT.validDays,
   },
 
   // ========== 过期配置 ==========
   expiration: {
-    // 订阅积分有效期（天）
-    subscriptionDays: Number.parseInt(
-      process.env.CREDIT_SUBSCRIPTION_EXPIRY_DAYS || "30"
-    ),
-    // 一次性购买积分有效期（天）
-    purchaseDays: Number.parseInt(
-      process.env.CREDIT_PURCHASE_EXPIRY_DAYS || "365"
-    ),
-    // 即将过期提醒阈值（天）
-    warnBeforeDays: 7,
+    subscriptionDays: CREDIT_EXPIRATION.subscriptionDays,
+    purchaseDays: CREDIT_EXPIRATION.purchaseDays,
+    warnBeforeDays: CREDIT_EXPIRATION.warnBeforeDays,
   },
 
-  // ========== 订阅产品 ==========
-  subscriptions: {
-    basic_monthly: {
-      id:
-        process.env.NEXT_PUBLIC_CREEM_PRODUCT_SUB_BASIC_MONTHLY ||
-        process.env.NEXT_PUBLIC_CREEM_PRODUCT_SUB_BASIC ||
-        "prod_sub_basic_monthly",
-      credits: 100,
-      price: {
-        priceId:
-          process.env.NEXT_PUBLIC_CREEM_PRICE_SUB_BASIC_MONTHLY ||
-          process.env.NEXT_PUBLIC_CREEM_PRICE_SUB_BASIC ||
-          "",
-        amount: 990, // $9.9
-        currency: "USD",
-      },
-      type: "subscription" as const,
-      billingPeriod: "month",
-      popular: false,
-      features: [
-        "credits.features.100_per_month",
-        "credits.features.10s_video",
-        "credits.features.standard_quality",
-      ],
-    },
-    pro_monthly: {
-      id:
-        process.env.NEXT_PUBLIC_CREEM_PRODUCT_SUB_PRO_MONTHLY ||
-        process.env.NEXT_PUBLIC_CREEM_PRODUCT_SUB_PRO ||
-        "prod_sub_pro_monthly",
-      credits: 500,
-      price: {
-        priceId:
-          process.env.NEXT_PUBLIC_CREEM_PRICE_SUB_PRO_MONTHLY ||
-          process.env.NEXT_PUBLIC_CREEM_PRICE_SUB_PRO ||
-          "",
-        amount: 2990, // $29.9
-        currency: "USD",
-      },
-      type: "subscription" as const,
-      billingPeriod: "month",
-      popular: true,
-      features: [
-        "credits.features.500_per_month",
-        "credits.features.15s_video",
-        "credits.features.high_quality",
-        "credits.features.priority_queue",
-      ],
-    },
-    team_monthly: {
-      id:
-        process.env.NEXT_PUBLIC_CREEM_PRODUCT_SUB_TEAM_MONTHLY ||
-        process.env.NEXT_PUBLIC_CREEM_PRODUCT_SUB_TEAM ||
-        "prod_sub_team_monthly",
-      credits: 2000,
-      price: {
-        priceId:
-          process.env.NEXT_PUBLIC_CREEM_PRICE_SUB_TEAM_MONTHLY ||
-          process.env.NEXT_PUBLIC_CREEM_PRICE_SUB_TEAM ||
-          "",
-        amount: 9990, // $99.9
-        currency: "USD",
-      },
-      type: "subscription" as const,
-      billingPeriod: "month",
-      popular: false,
-      features: [
-        "credits.features.2000_per_month",
-        "credits.features.all_features",
-        "credits.features.api_access",
-        "credits.features.priority_support",
-      ],
-    },
-    basic_yearly: {
-      id:
-        process.env.NEXT_PUBLIC_CREEM_PRODUCT_SUB_BASIC_YEARLY ||
-        "prod_sub_basic_yearly",
-      credits: 1200,
-      price: {
-        priceId: process.env.NEXT_PUBLIC_CREEM_PRICE_SUB_BASIC_YEARLY || "",
-        amount: 9900, // $99
-        currency: "USD",
-      },
-      type: "subscription" as const,
-      billingPeriod: "year",
-      expireDays: 365,
-      popular: false,
-      features: [
-        "credits.features.1200_per_year",
-        "credits.features.10s_video",
-        "credits.features.standard_quality",
-      ],
-    },
-    pro_yearly: {
-      id:
-        process.env.NEXT_PUBLIC_CREEM_PRODUCT_SUB_PRO_YEARLY ||
-        "prod_sub_pro_yearly",
-      credits: 6000,
-      price: {
-        priceId: process.env.NEXT_PUBLIC_CREEM_PRICE_SUB_PRO_YEARLY || "",
-        amount: 29900, // $299
-        currency: "USD",
-      },
-      type: "subscription" as const,
-      billingPeriod: "year",
-      expireDays: 365,
-      popular: true,
-      features: [
-        "credits.features.6000_per_year",
-        "credits.features.15s_video",
-        "credits.features.high_quality",
-        "credits.features.priority_queue",
-      ],
-    },
-    team_yearly: {
-      id:
-        process.env.NEXT_PUBLIC_CREEM_PRODUCT_SUB_TEAM_YEARLY ||
-        "prod_sub_team_yearly",
-      credits: 24000,
-      price: {
-        priceId: process.env.NEXT_PUBLIC_CREEM_PRICE_SUB_TEAM_YEARLY || "",
-        amount: 99900, // $999
-        currency: "USD",
-      },
-      type: "subscription" as const,
-      billingPeriod: "year",
-      expireDays: 365,
-      popular: false,
-      features: [
-        "credits.features.24000_per_year",
-        "credits.features.all_features",
-        "credits.features.api_access",
-        "credits.features.priority_support",
-      ],
-    },
-  } satisfies Record<string, CreditPackageConfig>,
+  // ========== 订阅产品（从 pricing-user.ts 生成）==========
+  subscriptions: Object.fromEntries(
+    SUBSCRIPTION_PRODUCTS.filter((p) => p.enabled).map((product) => {
+      const isYearly = product.period === "year";
+      const planType = product.id.includes("basic")
+        ? "BASIC"
+        : product.id.includes("pro")
+          ? "PRO"
+          : "TEAM";
+      const envKey = isYearly ? "YEARLY" : "MONTHLY";
 
-  // ========== 一次性购买产品 ==========
-  packages: {
-    standard: {
-      id:
-        process.env.NEXT_PUBLIC_CREEM_PRODUCT_PACK_STANDARD ||
-        "prod_pack_standard",
-      credits: 300,
-      price: {
-        priceId: process.env.NEXT_PUBLIC_CREEM_PRICE_PACK_STANDARD || "",
-        amount: 1990, // $19.9
-        currency: "USD",
-      },
-      type: "one-time" as const,
-      popular: true,
-      expireDays: 365,
-      features: [
-        "credits.features.300_credits",
-        "credits.features.365_days_valid",
-        "credits.features.all_models",
-        "credits.features.best_value",
-      ],
-    },
-  } satisfies Record<string, CreditPackageConfig>,
+      return [
+        product.id,
+        {
+          id: product.id,
+          credits: product.credits,
+          price: {
+            priceId:
+              process.env[`NEXT_PUBLIC_CREEM_PRICE_SUB_${planType}_${envKey}`] || "",
+            amount: usdToCents(product.priceUsd),
+            currency: "USD",
+          },
+          type: "subscription" as const,
+          billingPeriod: product.period,
+          popular: product.popular,
+          expireDays: isYearly ? 365 : undefined,
+          features: [], // 由前端国际化文件处理
+        },
+      ];
+    })
+  ) as Record<string, CreditPackageConfig>,
 
-  // ========== AI 模型配置 ==========
-  models: {
-    "sora-2": {
-      id: "sora-2",
-      name: "Sora 2",
-      provider: "evolink" as const,
-      description: "models.sora2.description",
-      supportImageToVideo: true,
-      maxDuration: 15,
-      durations: [10, 15],
-      aspectRatios: ["16:9", "9:16"],
-      creditCost: {
-        base: 10,              // 10s = 10 积分
-        perExtraSecond: 2,     // 15s = 10 + 5×2 = 20 积分
+  // ========== 一次性购买产品（从 pricing-user.ts 生成）==========
+  packages: Object.fromEntries(
+    CREDIT_PACKAGES.filter((p) => p.enabled).map((pkg) => [
+      pkg.id,
+      {
+        id: pkg.id,
+        credits: pkg.credits,
+        price: {
+          priceId:
+            process.env[`NEXT_PUBLIC_CREEM_PRICE_PACK_${pkg.id.toUpperCase()}`] || "",
+          amount: usdToCents(pkg.priceUsd),
+          currency: "USD",
+        },
+        type: "one-time" as const,
+        popular: pkg.popular,
+        expireDays: CREDIT_EXPIRATION.purchaseDays,
+        features: [],
+        // allowFreeUser: 是否允许免费用户购买（前端使用）
+        allowFreeUser: pkg.allowFreeUser ?? true, // 默认允许
       },
-    },
-    "wan2.6": {
-      id: "wan2.6",
-      name: "Wan 2.6",
-      provider: "evolink" as const,
-      description: "models.wan26.description",
-      supportImageToVideo: true,
-      maxDuration: 15,
-      durations: [5, 10, 15],
-      aspectRatios: ["16:9", "9:16", "1:1", "4:3", "3:4"],
-      creditCost: {
-        base: 156,             // 5s 720p = 156 积分
-        perExtraSecond: 78,    // 每额外秒 = 78 积分
-        highQualityMultiplier: 1.67, // 1080p = base × 1.67
-      },
-    },
-    "veo-3.1": {
-      id: "veo-3.1",
-      name: "Veo 3.1",
-      provider: "evolink" as const,
-      description: "models.veo31.description",
-      supportImageToVideo: true,
-      maxDuration: 8,
-      durations: [4, 6, 8],
-      aspectRatios: ["16:9", "9:16"],
-      creditCost: {
-        base: 60,              // 固定 60 积分
-        perExtraSecond: 0,     // 不按时长计费
-      },
-    },
-    "seedance-1.5-pro": {
-      id: "seedance-1.5-pro",
-      name: "Seedance 1.5 Pro",
-      provider: "evolink" as const,
-      description: "models.seedance.description",
-      supportImageToVideo: true,
-      maxDuration: 12,
-      durations: [4, 5, 6, 8, 10, 12],
-      aspectRatios: ["16:9", "9:16", "1:1", "4:3", "3:4", "21:9"],
-      qualities: ["480P", "720P", "1080P"],
-      creditCost: {
-        base: 4,               // 480p 1s = 4 积分
-        perExtraSecond: 4,     // 每秒计费
-        highQualityMultiplier: 2.34, // 720p = 4 × 2.34 ≈ 9 积分/秒
-      },
-    },
-  } satisfies Record<string, ModelConfig>,
+    ])
+  ) as Record<string, CreditPackageConfig>,
+
+  // ========== AI 模型配置（从 pricing-user.ts 生成）==========
+  models: Object.fromEntries(
+    Object.entries(VIDEO_MODEL_PRICING)
+      .filter(([_, pricing]) => pricing.enabled)
+      .map(([modelId, pricing]) => {
+        // 模型基础配置（从 defaults.ts 获取）
+        const baseConfigs: Record<string, Omit<ModelConfig, "creditCost">> = {
+          "sora-2": {
+            id: "sora-2",
+            name: "Sora 2",
+            provider: "evolink" as const,
+            description: "models.sora2.description",
+            supportImageToVideo: true,
+            maxDuration: 15,
+            durations: [10, 15],
+            aspectRatios: ["16:9", "9:16"],
+          },
+          "wan2.6": {
+            id: "wan2.6",
+            name: "Wan 2.6",
+            provider: "evolink" as const,
+            description: "models.wan26.description",
+            supportImageToVideo: true,
+            maxDuration: 15,
+            durations: [5, 10, 15],
+            aspectRatios: ["16:9", "9:16", "1:1", "4:3", "3:4"],
+          },
+          "veo-3.1": {
+            id: "veo-3.1",
+            name: "Veo 3.1",
+            provider: "evolink" as const,
+            description: "models.veo31.description",
+            supportImageToVideo: true,
+            maxDuration: 8,
+            durations: [4, 6, 8],
+            aspectRatios: ["16:9", "9:16"],
+          },
+          "seedance-1.5-pro": {
+            id: "seedance-1.5-pro",
+            name: "Seedance 1.5 Pro",
+            provider: "evolink" as const,
+            description: "models.seedance.description",
+            supportImageToVideo: true,
+            maxDuration: 12,
+            durations: [4, 5, 6, 8, 10, 12],
+            aspectRatios: ["16:9", "9:16", "1:1", "4:3", "3:4", "21:9"],
+            qualities: ["480P", "720P", "1080P"],
+          },
+        };
+
+        const baseConfig = baseConfigs[modelId];
+        if (!baseConfig) return null;
+
+        const creditCost: {
+          base: number;
+          perExtraSecond: number;
+          highQualityMultiplier?: number;
+        } = {
+          base: pricing.baseCredits,
+          perExtraSecond: pricing.perSecond,
+        };
+
+        if (pricing.qualityMultiplier !== undefined) {
+          creditCost.highQualityMultiplier = pricing.qualityMultiplier;
+        }
+
+        return [
+          modelId,
+          {
+            ...baseConfig,
+            creditCost,
+          },
+        ];
+      })
+      .filter(Boolean) as Array<[string, ModelConfig]>
+  ) as Record<string, ModelConfig>,
 };
 
 // ============================================

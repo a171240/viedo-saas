@@ -117,7 +117,7 @@ export function PricingCards({
               {userId && subscriptionPlan ? (
                 offer.id === "starter" ? (
                   <LocaleLink
-                    href="/dashboard"
+                    href="/my-creations"
                     className={buttonVariants({
                       className: "w-full",
                       variant: "default",

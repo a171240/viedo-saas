@@ -1,23 +1,24 @@
 // ============================================
-// Navigation Configuration
+// 导航配置
+// 统一管理所有导航菜单项
 // ============================================
 
 export interface NavItem {
   id: string;
   title: string;
   href: string;
-  icon?: string; // Lucide icon name
-  badge?: string; // "New", "Beta"
-  requiresAuth?: boolean;
+  icon?: string; // Lucide 图标名称
+  badge?: string; // 标签文字，如 "New", "Beta"
+  requiresAuth?: boolean; // 是否需要登录
 }
 
 export interface NavGroup {
   id: string;
-  title?: string; // Group header (optional)
+  title?: string; // 分组标题（可选）
   items: NavItem[];
 }
 
-// Left sidebar navigation
+// 左侧导航菜单 (工具页和管理页使用)
 export const sidebarNavigation: NavGroup[] = [
   {
     id: "video",
@@ -43,7 +44,7 @@ export const sidebarNavigation: NavGroup[] = [
       },
     ],
   },
-  // Future IMAGE group
+  // 未来 IMAGE 分组扩展示例
   // {
   //   id: "image",
   //   title: "IMAGE",
@@ -74,16 +75,16 @@ export const sidebarNavigation: NavGroup[] = [
       },
       {
         id: "settings",
-        title: "Settings",
+        title: "Account",
         href: "/settings",
-        icon: "Settings",
+        icon: "User",
         requiresAuth: true,
       },
     ],
   },
 ];
 
-// Landing page header - Models dropdown
+// 落地页顶部导航 - Models 下拉菜单
 export const headerModels = [
   { id: "sora", title: "Sora 2", subtitle: "by OpenAI", href: "/sora-2" },
   { id: "veo", title: "Veo 3.1", subtitle: "by Google", href: "/veo-3-1" },
@@ -96,7 +97,7 @@ export const headerModels = [
   { id: "wan", title: "Wan 2.6", subtitle: "by Alibaba", href: "/wan-2-6" },
 ];
 
-// Landing page header - Tools dropdown
+// 落地页顶部导航 - Tools 下拉菜单
 export const headerTools = [
   {
     id: "img2vid",
@@ -118,11 +119,11 @@ export const headerTools = [
   },
 ];
 
-// User menu items
+// 用户菜单项 (HeaderSimple 组件使用)
 export const userMenuItems = [
   { id: "language", title: "Language", href: "#", icon: "Languages" },
   { id: "creations", title: "My Creations", href: "/my-creations", icon: "FolderOpen" },
   { id: "credits", title: "Credits", href: "/credits", icon: "Gem" },
-  { id: "settings", title: "Settings", href: "/settings", icon: "Settings" },
+  { id: "settings", title: "Account", href: "/settings", icon: "User" },
   { id: "logout", title: "Logout", href: "#", icon: "LogOut" },
 ];

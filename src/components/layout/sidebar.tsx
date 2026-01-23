@@ -1,8 +1,13 @@
 "use client";
 
+// ============================================
+// 左侧导航组件
+// ============================================
+
+import { useMemo } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ImagePlay, Type, Video, FolderOpen, Gem, Settings, X } from "lucide-react";
+import { ImagePlay, Type, Video, FolderOpen, Gem, User, Sparkles } from "lucide-react";
 import { cn } from "@/components/ui";
 import { sidebarNavigation } from "@/config/navigation";
 import {
@@ -17,7 +22,7 @@ const iconMap = {
   Video,
   FolderOpen,
   Gem,
-  Settings,
+  User,
 };
 
 interface SidebarProps {
@@ -28,115 +33,146 @@ interface SidebarProps {
 
 export function Sidebar({ lang = "en", mobileOpen, onMobileClose }: SidebarProps) {
   const pathname = usePathname();
-
-  // Remove lang prefix from pathname for matching
   const pathWithoutLang = pathname.replace(new RegExp(`^/${lang}`), "");
 
-  // Desktop navigation content (without SheetClose)
-  const DesktopNavContent = () => (
-    <nav className="p-4 space-y-6">
-      {sidebarNavigation.map((group) => (
-        <div key={group.id}>
-          {group.title && (
-            <div className="px-3 mb-2 text-xs font-medium text-muted-foreground uppercase tracking-wider">
-              {group.title}
-            </div>
-          )}
-          <ul className="space-y-1">
-            {group.items.map((item) => {
-              const isActive = pathWithoutLang === item.href;
-              const Icon = iconMap[item.icon as keyof typeof iconMap];
+  // 判断是否为免费用户（可根据实际业务调整）
+  const isFreeUser = useMemo(() => true, []);
 
-              return (
-                <li key={item.id}>
-                  <Link
-                    href={`/${lang}${item.href}`}
-                    className={cn(
-                      "flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors",
-                      isActive
-                        ? "bg-primary text-primary-foreground"
-                        : "text-muted-foreground hover:bg-muted hover:text-foreground"
-                    )}
-                  >
-                    {Icon && <Icon className="h-4 w-4" />}
-                    <span>{item.title}</span>
-                  </Link>
-                </li>
-              );
-            })}
-          </ul>
+  // 渲染导航项
+  const renderNavItem = (item: any, isActive: boolean) => {
+    const Icon = iconMap[item.icon as keyof typeof iconMap];
+
+    return (
+      <Link
+        key={item.id}
+        href={`/${lang}${item.href}`}
+        className={cn(
+          "flex items-center gap-2 px-2 py-1.5 rounded-md text-sm font-medium transition-colors",
+          isActive
+            ? "bg-primary text-primary-foreground"
+            : "text-muted-foreground hover:bg-muted hover:text-foreground"
+        )}
+      >
+        {Icon && <Icon className="h-4 w-4 shrink-0" />}
+        <span className="truncate">{item.title}</span>
+      </Link>
+    );
+  };
+
+  // Desktop Sidebar
+  const DesktopNav = () => (
+    <div className="flex flex-col h-full py-4">
+      {/* 主导航 */}
+      <nav className="flex-1 px-3 space-y-6 overflow-y-auto">
+        {sidebarNavigation.map((group) => (
+          <div key={group.id} className="space-y-1">
+            {group.title && (
+              <div className="px-2 mb-2 text-xs font-medium text-muted-foreground">
+                {group.title}
+              </div>
+            )}
+            <div className="space-y-0.5">
+              {group.items.map((item) => {
+                const isActive = pathWithoutLang === item.href;
+                return renderNavItem(item, isActive);
+              })}
+            </div>
+          </div>
+        ))}
+      </nav>
+
+      {/* 底部升级区域 */}
+      {isFreeUser && (
+        <div className="px-3 pt-4 border-t border-border/50">
+          <Link
+            href={`/${lang}/pricing`}
+            className="block group rounded-lg border border-amber-500/20 bg-amber-500/5 p-3 transition-colors hover:bg-amber-500/10 hover:border-amber-500/30"
+          >
+            <div className="flex items-center gap-2 mb-1">
+              <Sparkles className="h-4 w-4 text-amber-600" />
+              <span className="text-sm font-medium text-amber-700">升级专业版</span>
+            </div>
+            <p className="text-xs text-amber-600/70">解锁更多功能</p>
+          </Link>
         </div>
-      ))}
-    </nav>
+      )}
+    </div>
   );
 
-  // Mobile navigation content (with SheetClose)
-  const MobileNavContent = () => (
-    <nav className="p-4 space-y-6">
-      {sidebarNavigation.map((group) => (
-        <div key={group.id}>
-          {group.title && (
-            <div className="px-3 mb-2 text-xs font-medium text-muted-foreground uppercase tracking-wider">
-              {group.title}
-            </div>
-          )}
-          <ul className="space-y-1">
-            {group.items.map((item) => {
-              const isActive = pathWithoutLang === item.href;
-              const Icon = iconMap[item.icon as keyof typeof iconMap];
-
-              return (
-                <li key={item.id}>
-                  <SheetClose asChild>
+  // Mobile Nav
+  const MobileNav = () => (
+    <div className="flex flex-col h-full py-4">
+      <nav className="flex-1 px-3 space-y-6 overflow-y-auto">
+        {sidebarNavigation.map((group) => (
+          <div key={group.id} className="space-y-1">
+            {group.title && (
+              <div className="px-2 mb-2 text-xs font-medium text-muted-foreground">
+                {group.title}
+              </div>
+            )}
+            <div className="space-y-0.5">
+              {group.items.map((item) => {
+                const isActive = pathWithoutLang === item.href;
+                return (
+                  <SheetClose key={item.id} asChild>
                     <Link
                       href={`/${lang}${item.href}`}
                       onClick={onMobileClose}
                       className={cn(
-                        "flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors",
+                        "flex items-center gap-2 px-2 py-1.5 rounded-md text-sm font-medium transition-colors",
                         isActive
                           ? "bg-primary text-primary-foreground"
                           : "text-muted-foreground hover:bg-muted hover:text-foreground"
                       )}
                     >
-                      {Icon && <Icon className="h-4 w-4" />}
-                      <span>{item.title}</span>
+                      {(() => {
+                        const Icon = iconMap[item.icon as keyof typeof iconMap];
+                        return Icon && <Icon className="h-4 w-4 shrink-0" />;
+                      })()}
+                      <span className="truncate">{item.title}</span>
                     </Link>
                   </SheetClose>
-                </li>
-              );
-            })}
-          </ul>
+                );
+              })}
+            </div>
+          </div>
+        ))}
+      </nav>
+
+      {/* 移动端升级区域 */}
+      {isFreeUser && (
+        <div className="px-3 pt-4 border-t border-border/50">
+          <SheetClose asChild>
+            <Link
+              href={`/${lang}/pricing`}
+              onClick={onMobileClose}
+              className="block group rounded-lg border border-amber-500/20 bg-amber-500/5 p-3 transition-colors hover:bg-amber-500/10 hover:border-amber-500/30"
+            >
+              <div className="flex items-center gap-2 mb-1">
+                <Sparkles className="h-4 w-4 text-amber-600" />
+                <span className="text-sm font-medium text-amber-700">升级专业版</span>
+              </div>
+              <p className="text-xs text-amber-600/70">解锁更多功能</p>
+            </Link>
+          </SheetClose>
         </div>
-      ))}
-    </nav>
+      )}
+    </div>
   );
 
   return (
     <>
       {/* Desktop Sidebar */}
-      <aside className="hidden lg:block w-[200px] border-r border-border bg-background overflow-y-auto">
-        <DesktopNavContent />
+      <aside className="hidden lg:flex flex-col w-[200px] border-r border-border bg-background">
+        <DesktopNav />
       </aside>
 
-      {/* Mobile Sidebar Drawer */}
+      {/* Mobile Sidebar */}
       {mobileOpen && (
         <Sheet open={mobileOpen} onOpenChange={onMobileClose ? () => onMobileClose() : undefined}>
-          <SheetContent
-            position="left"
-            size="sm"
-            className="w-[280px] p-0"
-          >
+          <SheetContent side="left" className="w-[280px] p-0">
             <div className="flex flex-col h-full">
-              <div className="flex items-center justify-between px-6 py-4 border-b border-border">
-                <span className="text-lg font-semibold">Menu</span>
-                <SheetClose className="rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none">
-                  <X className="h-4 w-4" />
-                  <span className="sr-only">Close</span>
-                </SheetClose>
-              </div>
-              <div className="flex-1 overflow-y-auto">
-                <MobileNavContent />
-              </div>
+              <MobileNav />
             </div>
           </SheetContent>
         </Sheet>

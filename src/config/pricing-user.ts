@@ -1,0 +1,280 @@
+/**
+ * ============================================
+ * 用户配置文件 - 价格和积分
+ * ============================================
+ *
+ * 📖 使用指南
+ * -----------
+ * 这个文件包含了所有与价格、积分相关的配置。
+ *
+ * 🎯 主要配置项：
+ * 1. 基础设置 - 新用户赠送、过期规则
+ * 2. 订阅产品 - 月付/年付订阅价格和积分
+ * 3. 积分包 - 一次性购买积分包
+ * 4. 模型计费 - 各 AI 模型的积分消耗规则
+ *
+ * 📝 修改方法：
+ * - 直接修改下面的数值即可（价格用美元，不是美分）
+ * - 保存后自动生效，无需重启服务器
+ * - 要禁用某个产品，将 enabled 改为 false
+ *
+ * ⚠️ 注意事项：
+ * - 不要修改 id 字段（用于数据库关联）
+ * - 价格使用美元单位（如 9.9 表示 $9.90）
+ * - 积分数量是整数
+ * - allowFreeUser: 是否允许免费用户购买（可选，默认 true）
+ *
+ * ============================================
+ */
+
+// ============================================
+// 类型定义（内部使用）
+// ============================================
+
+/** 视频模型积分配置 */
+export interface VideoModelPricing {
+  baseCredits: number;
+  perSecond: number;
+  qualityMultiplier?: number;
+  enabled: boolean;
+}
+
+/** 订阅产品配置 */
+export interface SubscriptionProductConfig {
+  id: string;
+  name: string;
+  priceUsd: number;
+  credits: number;
+  period: "month" | "year";
+  popular?: boolean;
+  enabled: boolean;
+}
+
+/** 积分包配置 */
+export interface CreditPackageConfig {
+  id: string;
+  name: string;
+  priceUsd: number;
+  credits: number;
+  popular?: boolean;
+  enabled: boolean;
+  /** 是否允许免费用户购买（可选，默认 true） */
+  allowFreeUser?: boolean;
+}
+
+// ============================================
+// 一、基础设置
+// ============================================
+
+/**
+ * 新用户注册赠送积分
+ */
+export const NEW_USER_GIFT = {
+  /** 是否启用赠送 */
+  enabled: true,
+  /** 赠送积分数量 */
+  credits: 50,
+  /** 积分有效期（天）*/
+  validDays: 30,
+};
+
+/**
+ * 积分过期设置
+ */
+export const CREDIT_EXPIRATION = {
+  /** 订阅积分有效期（天）- 月付用户 */
+  subscriptionDays: 30,
+  /** 一次性购买积分有效期（天）- 单独购买积分包 */
+  purchaseDays: 365,
+  /** 提前多少天提醒积分即将过期 */
+  warnBeforeDays: 7,
+};
+
+// ============================================
+// 二、订阅产品配置
+// ============================================
+
+/**
+ * 订阅产品列表
+ *
+ * 每个产品包含：
+ * - id: 产品唯一标识（不要改）
+ * - name: 显示名称
+ * - priceUsd: 价格（美元）
+ * - credits: 每周期赠送积分
+ * - period: 付费周期 ("month" 或 "year")
+ * - popular: 是否标记为推荐（最多选1-2个）
+ * - enabled: 是否启用该产品
+ */
+export const SUBSCRIPTION_PRODUCTS = [
+  // ===== 月付订阅 =====
+  {
+    id: "basic_monthly",
+    name: "Basic Plan",
+    priceUsd: 9.9,
+    credits: 100,
+    period: "month" as const,
+    popular: false,
+    enabled: true,
+  },
+  {
+    id: "pro_monthly",
+    name: "Pro Plan",
+    priceUsd: 29.9,
+    credits: 500,
+    period: "month" as const,
+    popular: true, // 推荐
+    enabled: true,
+  },
+  {
+    id: "team_monthly",
+    name: "Team Plan",
+    priceUsd: 99.9,
+    credits: 2000,
+    period: "month" as const,
+    popular: false,
+    enabled: true,
+  },
+
+  // ===== 年付订阅 =====
+  {
+    id: "basic_yearly",
+    name: "Basic Plan (Yearly)",
+    priceUsd: 99,
+    credits: 1200, // 100 × 12 月
+    period: "year" as const,
+    popular: false,
+    enabled: true,
+  },
+  {
+    id: "pro_yearly",
+    name: "Pro Plan (Yearly)",
+    priceUsd: 299,
+    credits: 6000, // 500 × 12 月
+    period: "year" as const,
+    popular: true,
+    enabled: true,
+  },
+  {
+    id: "team_yearly",
+    name: "Team Plan (Yearly)",
+    priceUsd: 999,
+    credits: 24000, // 2000 × 12 月
+    period: "year" as const,
+    popular: false,
+    enabled: true,
+  },
+];
+
+// ============================================
+// 三、一次性购买积分包
+// ============================================
+
+/**
+ * 积分包产品列表
+ *
+ * 用户可以单独购买积分包（不订阅）
+ *
+ * allowFreeUser 说明：
+ * - true:  所有用户都可以购买此积分包
+ * - false: 只有订阅用户才能购买此积分包
+ * - 不填: 默认为 true（所有用户可购买）
+ */
+export const CREDIT_PACKAGES: CreditPackageConfig[] = [
+  {
+    id: "standard",
+    name: "Standard Pack",
+    priceUsd: 19.9,
+    credits: 300,
+    popular: true, // 推荐
+    enabled: true,
+    allowFreeUser: false, // 仅订阅用户可购买
+  },
+  // 可以添加更多积分包
+  // {
+  //   id: "large",
+  //   name: "Large Pack",
+  //   priceUsd: 49.9,
+  //   credits: 1000,
+  //   popular: false,
+  //   enabled: true,
+  //   allowFreeUser: true,  // 所有用户可购买
+  // },
+  // {
+  //   id: "starter",
+  //   name: "Starter Pack",
+  //   priceUsd: 9.9,
+  //   credits: 100,
+  //   popular: false,
+  //   enabled: true,
+  //   allowFreeUser: true,  // 免费用户可购买（小包引流）
+  // },
+];
+
+// ============================================
+// 四、AI 模型积分计费
+// ============================================
+
+/**
+ * 视频生成模型积分配置
+ *
+ * 计费规则说明：
+ * - baseCredits: 基础积分（通常指最短时长、最低画质）
+ * - perSecond: 每秒额外积分（可选，有些模型是按时长累加）
+ * - qualityMultiplier: 画质乘数（1080p vs 720p 的倍数关系）
+ *
+ * 示例：
+ * - 如果 baseCredits=10, perSecond=2
+ * - 10秒 = 10 积分
+ * - 15秒 = 10 + (5×2) = 20 积分
+ */
+export const VIDEO_MODEL_PRICING: Record<string, VideoModelPricing> = {
+  /** Sora 2 - OpenAI */
+  "sora-2": {
+    baseCredits: 10,      // 10秒 = 10积分
+    perSecond: 2,         // 每额外秒 = 2积分 (15秒 = 20积分)
+    enabled: true,
+  },
+
+  /** Wan 2.6 */
+  "wan2.6": {
+    baseCredits: 156,     // 5秒 720p = 156积分
+    perSecond: 78,        // 每额外秒 = 78积分
+    qualityMultiplier: 1.67, // 1080p = 720p × 1.67
+    enabled: true,
+  },
+
+  /** Veo 3.1 - Google */
+  "veo-3.1": {
+    baseCredits: 60,      // 固定 60积分（不按时长）
+    perSecond: 0,
+    enabled: true,
+  },
+
+  /** Seedance 1.5 Pro - 按秒计费 */
+  "seedance-1.5-pro": {
+    baseCredits: 4,       // 480p = 4积分/秒
+    perSecond: 4,
+    qualityMultiplier: 2.34, // 720p = 480p × 2.34 ≈ 9积分/秒
+    enabled: true,
+  },
+};
+
+// ============================================
+// 五、支付配置（环境变量）
+// ============================================
+
+/**
+ * 支付提供商配置
+ *
+ * 这些配置通常在 .env.local 文件中设置
+ * 这里只是说明，不需要修改
+ */
+export const PAYMENT_CONFIG = {
+  /** 使用 Creem 支付 */
+  provider: "creem",
+  /** 支付成功后的回调地址（自动生成）*/
+  webhookUrl: process.env.NEXT_PUBLIC_APP_URL
+    ? `${process.env.NEXT_PUBLIC_APP_URL}/api/v1/credit/callback`
+    : "",
+};

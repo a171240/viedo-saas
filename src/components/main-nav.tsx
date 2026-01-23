@@ -32,11 +32,11 @@ export function MainNav({
     <div className="flex gap-6 md:gap-10">
       <div className="flex items-center">
         <LocaleLink href="/" className="hidden items-center space-x-2 md:flex">
-          <div className="text-3xl">Saasfly</div>
+          <div className="text-3xl">VideoFly</div>
         </LocaleLink>
 
         <a
-          href="https://docs.saasfly.io"
+          href="https://docs.videofly.app"
           target="_blank"
           rel="noopener noreferrer"
           className="ml-4 hidden md:flex lg:flex xl:flex"
