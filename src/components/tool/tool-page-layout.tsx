@@ -251,6 +251,47 @@ export function ToolPageLayout({
     setActiveTab("generator");
   }, []);
 
+  // 处理删除视频
+  const handleDelete = useCallback(async (uuid: string) => {
+    try {
+      const response = await fetch(`/api/v1/video/${uuid}`, {
+        method: "DELETE",
+      });
+      if (!response.ok) {
+        throw new Error("Failed to delete video");
+      }
+      setCurrentVideos((prev) => prev.filter((v) => v.uuid !== uuid));
+      toast.success("Video deleted successfully");
+    } catch (error) {
+      console.error("Delete error:", error);
+      toast.error("Failed to delete video");
+    }
+  }, []);
+
+  // 处理重试失败的视频
+  const handleRetry = useCallback(async (uuid: string) => {
+    try {
+      const response = await fetch(`/api/v1/video/${uuid}/retry`, {
+        method: "POST",
+      });
+      if (!response.ok) {
+        throw new Error("Failed to retry video");
+      }
+      const result = await response.json();
+      addGeneratingId(uuid);
+      startPolling(uuid);
+      setCurrentVideos((prev) =>
+        prev.map((v) =>
+          v.uuid === uuid ? { ...v, status: "generating", errorMessage: null } : v
+        )
+      );
+      toast.success("Video retry started");
+    } catch (error) {
+      console.error("Retry error:", error);
+      toast.error("Failed to retry video");
+    }
+  }, [addGeneratingId, startPolling]);
+
   // 移动端：显示标签导航
   const showMobileTabs = true;
 
@@ -352,35 +393,39 @@ export function ToolPageLayout({
         </div>
       )}
 
-      <div className="grid h-full grid-cols-1 lg:grid-cols-[360px_minmax(0,1fr)] xl:grid-cols-[360px_minmax(0,1fr)_320px] gap-6">
+      <div className="grid h-full min-h-0 grid-cols-1 lg:grid-cols-[360px_minmax(0,1fr)] xl:grid-cols-[360px_minmax(0,1fr)_320px] gap-5">
         {/* Generator Panel */}
         <div
           className={`${activeTab === "generator" ? "flex" : "hidden"
-            } lg:flex flex-col h-full`}
+            } lg:flex flex-col h-full min-h-0`}
         >
-          <GeneratorPanel
-            toolType={toolRoute as "image-to-video" | "text-to-video" | "reference-to-video"}
-            isLoading={isSubmitting}
-            onSubmit={handleSubmit}
-          />
+          <div className="h-full min-h-0 rounded-2xl border border-border bg-card/70 p-3 shadow-md">
+            <GeneratorPanel
+              toolType={toolRoute as "image-to-video" | "text-to-video" | "reference-to-video"}
+              isLoading={isSubmitting}
+              onSubmit={handleSubmit}
+            />
+          </div>
         </div>
 
         {/* Result Panel */}
         <div
           className={`${activeTab === "result" ? "flex" : "hidden"
-            } lg:flex flex-1 h-full rounded-2xl border border-border bg-muted/10 overflow-hidden shadow-inner`}
+            } lg:flex flex-1 h-full min-h-0`}
         >
           <ResultPanelWrapper
             currentVideos={currentVideos}
             generatingIds={generatingIds}
             onRegenerate={handleRegenerate}
-            className="h-full"
+            onDelete={handleDelete}
+            onRetry={handleRetry}
+            className="h-full min-h-0"
           />
         </div>
 
         {/* Side Panel */}
-        <aside className="hidden xl:flex flex-col gap-4">
-          <div className="rounded-2xl border border-border bg-card/70 backdrop-blur">
+        <aside className="hidden xl:flex flex-col gap-4 min-h-0 overflow-y-auto">
+          <div className="rounded-2xl border border-border bg-card/70 backdrop-blur shadow-md">
             <div className="px-4 py-3 border-b border-border flex items-center justify-between">
               <span className="text-xs uppercase tracking-wide text-muted-foreground">
                 {tTool("queueTitle")}
@@ -406,7 +451,7 @@ export function ToolPageLayout({
             </div>
           </div>
 
-          <div className="rounded-2xl border border-border bg-card/70 backdrop-blur">
+          <div className="rounded-2xl border border-border bg-card/70 backdrop-blur shadow-md">
             <div className="px-4 py-3 border-b border-border flex items-center justify-between">
               <span className="text-xs uppercase tracking-wide text-muted-foreground">
                 {tTool("recentTitle")}

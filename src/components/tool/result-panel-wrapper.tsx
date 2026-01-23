@@ -31,6 +31,16 @@ export interface ResultPanelWrapperProps {
   onRegenerate?: () => void;
 
   /**
+   * 删除视频的回调
+   */
+  onDelete?: (uuid: string) => void;
+
+  /**
+   * 重试失败视频的回调
+   */
+  onRetry?: (uuid: string) => void;
+
+  /**
    * 额外的 CSS 类名
    */
   className?: string;
@@ -40,6 +50,8 @@ export function ResultPanelWrapper({
   currentVideos = [],
   generatingIds = [],
   onRegenerate,
+  onDelete,
+  onRetry,
   className,
 }: ResultPanelWrapperProps) {
   return (
@@ -47,6 +59,8 @@ export function ResultPanelWrapper({
       currentVideos={currentVideos}
       generatingIds={generatingIds}
       onRegenerate={onRegenerate}
+      onDelete={onDelete}
+      onRetry={onRetry}
       className={className}
     />
   );
