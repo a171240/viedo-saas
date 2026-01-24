@@ -119,7 +119,15 @@ export function HeroSection() {
       router.push(`/${locale}/${toolRoute}?id=${result.data.videoUuid}`);
     } catch (error) {
       console.error("Generation error:", error);
-      toast.error("Failed to generate video. Please try again.");
+      const message = error instanceof Error ? error.message : "Failed to generate video. Please try again.";
+      // Check for common errors and provide helpful messages
+      if (message.includes("credits") || message.includes("Credit")) {
+        toast.error("Insufficient credits. Please top up and try again.");
+      } else if (message.includes("database") || message.includes("DATABASE_URL")) {
+        toast.error("Service temporarily unavailable. Please try again later.");
+      } else {
+        toast.error(message || "Failed to generate video. Please try again.");
+      }
     } finally {
       setIsSubmitting(false);
       setPendingSubmitData(null);
