@@ -46,7 +46,11 @@
     "creditsHint": "Free credits to start • No credit card required"
   },
   "Notifications": {
-    "generationWillNotify": "Generation may take a while. We'll notify you when it's ready."
+    "generationWillNotify": "Generation may take a while. We'll notify you when it's ready.",
+    "enableNotifications": "Enable Notifications",
+    "notificationDescription": "Get notified when your video generation is complete.",
+    "maybeLater": "Maybe Later",
+    "allow": "Allow"
   },
   "ToolPage": {
     "queueTitle": "Queue",
@@ -172,6 +176,35 @@
     "testimonials": {
       "title": "Loved by Creators",
       "subtitle": "See what our users are saying"
+    }
+  },
+  "FAQ": {
+    "title": "Frequently Asked Questions",
+    "subtitle": "Everything you need to know about VideoFly template",
+    "contact": "Still have questions? Contact us at",
+    "template": {
+      "question": "What is VideoFly template?",
+      "answer": "VideoFly is a production-ready AI video generation SaaS template built with Next.js 15, React 19, and Drizzle ORM. It includes everything you need to launch your own AI video platform: user authentication, credit system, AI provider integration, payment processing, and a beautiful UI ready for customization."
+    },
+    "deployment": {
+      "question": "How do I deploy this template?",
+      "answer": "VideoFly can be deployed to Vercel, Railway, or any Node.js hosting platform. Simply connect your GitHub repository, set up the required environment variables, and deploy. The template includes detailed documentation in the /docs folder to guide you through the process."
+    },
+    "aiModels": {
+      "question": "Which AI models are supported?",
+      "answer": "The template currently supports Evolink (Sora 2, Wan 2.6, Veo 3.1, Seedance) and Kie.ai. The modular provider architecture makes it easy to add more AI providers. You can configure models and pricing in the config/pricing-user.ts file."
+    },
+    "credits": {
+      "question": "How does the credit system work?",
+      "answer": "VideoFly uses a FIFO-based credit system with freeze/settle/release pattern. Users purchase credit packages or subscriptions, which are consumed when generating videos. The system supports credit expiration, refunds, and detailed transaction history."
+    },
+    "customization": {
+      "question": "Can I customize the UI and branding?",
+      "answer": "Absolutely! The template is built with Tailwind CSS 4 and shadcn/ui components, making customization straightforward. All colors, fonts, and styling can be modified through the Tailwind configuration. The component structure is modular and well-documented."
+    },
+    "payment": {
+      "question": "What payment providers are integrated?",
+      "answer": "VideoFly integrates with Creem as the primary payment provider, with Stripe available as a secondary option. Both support subscriptions and one-time purchases. The payment webhook system automatically handles credit allocation to user accounts."
     }
   },
   "Footer": {

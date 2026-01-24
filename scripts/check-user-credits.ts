@@ -5,10 +5,10 @@
  * ============================================
  *
  * 用法:
- *   pnpm tsx scripts/check-user-credits.ts <email>
+ *   pnpm script:check-credits <email>
  *
  * 示例:
- *   pnpm tsx scripts/check-user-credits.ts user@example.com
+ *   pnpm script:check-credits user@example.com
  */
 
 import { db } from "@/db";
@@ -19,8 +19,8 @@ import { CreditPackageStatus } from "@/db/schema";
 const email = process.argv[2];
 
 if (!email) {
-  console.error("❌ Usage: pnpm tsx scripts/check-user-credits.ts <email>");
-  console.error("   Example: pnpm tsx scripts/check-user-credits.ts user@example.com");
+  console.error("❌ Usage: pnpm script:check-credits <email>");
+  console.error("   Example: pnpm script:check-credits user@example.com");
   process.exit(1);
 }
 

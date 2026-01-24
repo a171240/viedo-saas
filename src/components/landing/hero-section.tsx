@@ -15,6 +15,17 @@ import { authClient } from "@/lib/auth/client";
 import { useSigninModal } from "@/hooks/use-signin-modal";
 import { videoTaskStorage } from "@/lib/video-task-storage";
 
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+
 const PENDING_PROMPT_KEY = "videofly_pending_prompt";
 const PENDING_IMAGE_KEY = "videofly_pending_image";
 const NOTIFICATION_ASKED_KEY = "videofly_notification_asked";
@@ -35,6 +46,8 @@ export function HeroSection() {
   const signInModal = useSigninModal();
   const { data: session } = authClient.useSession();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showNotifyDialog, setShowNotifyDialog] = useState(false);
+  const [pendingSubmitData, setPendingSubmitData] = useState<SubmitData | null>(null);
 
   const getToolRouteByMode = (mode: string) => {
     switch (mode) {
@@ -63,43 +76,7 @@ export function HeroSection() {
     return resolution.toLowerCase().includes("1080") ? "high" : "standard";
   };
 
-  const handleSubmit = async (data: SubmitData) => {
-    if (!session?.user) {
-      try {
-        sessionStorage.setItem(PENDING_PROMPT_KEY, data.prompt);
-        if (data.images?.[0]) {
-          const reader = new FileReader();
-          reader.onloadend = () => {
-            sessionStorage.setItem(PENDING_IMAGE_KEY, reader.result as string);
-          };
-          reader.readAsDataURL(data.images[0]);
-        }
-      } catch (error) {
-        console.warn("Failed to store pending input:", error);
-      }
-      signInModal.onOpen();
-      return;
-    }
-
-    if (data.images?.length) {
-      toast.error("Image upload is not available yet.");
-      return;
-    }
-
-    try {
-      if (typeof window !== "undefined" && "Notification" in window) {
-        const asked = localStorage.getItem(NOTIFICATION_ASKED_KEY);
-        if (!asked && Notification.permission === "default") {
-          toast.info(tNotify("generationWillNotify"));
-          Notification.requestPermission().finally(() => {
-            localStorage.setItem(NOTIFICATION_ASKED_KEY, "1");
-          });
-        }
-      }
-    } catch (error) {
-      console.warn("Notification permission request failed:", error);
-    }
-
+  const processSubmission = async (data: SubmitData) => {
     setIsSubmitting(true);
     try {
       const response = await fetch("/api/v1/video/generate", {
@@ -143,7 +120,62 @@ export function HeroSection() {
       toast.error("Failed to generate video. Please try again.");
     } finally {
       setIsSubmitting(false);
+      setPendingSubmitData(null);
     }
+  };
+
+  const handleAllowNotify = () => {
+    setShowNotifyDialog(false);
+    Notification.requestPermission().then(() => {
+      localStorage.setItem(NOTIFICATION_ASKED_KEY, "1");
+      if (pendingSubmitData) {
+        processSubmission(pendingSubmitData);
+      }
+    });
+  };
+
+  const handleSkipNotify = () => {
+    setShowNotifyDialog(false);
+    localStorage.setItem(NOTIFICATION_ASKED_KEY, "1");
+    if (pendingSubmitData) {
+      processSubmission(pendingSubmitData);
+    }
+  };
+
+  const handleSubmit = async (data: SubmitData) => {
+    if (!session?.user) {
+      try {
+        sessionStorage.setItem(PENDING_PROMPT_KEY, data.prompt);
+        if (data.images?.[0]) {
+          const reader = new FileReader();
+          reader.onloadend = () => {
+            sessionStorage.setItem(PENDING_IMAGE_KEY, reader.result as string);
+          };
+          reader.readAsDataURL(data.images[0]);
+        }
+      } catch (error) {
+        console.warn("Failed to store pending input:", error);
+      }
+      signInModal.onOpen();
+      return;
+    }
+
+    if (data.images?.length) {
+      toast.error("Image upload is not available yet.");
+      return;
+    }
+
+    // Check for notification permission
+    if (typeof window !== "undefined" && "Notification" in window) {
+      const asked = localStorage.getItem(NOTIFICATION_ASKED_KEY);
+      if (!asked && Notification.permission === "default") {
+        setPendingSubmitData(data);
+        setShowNotifyDialog(true);
+        return;
+      }
+    }
+
+    processSubmission(data);
   };
 
   return (
@@ -237,6 +269,21 @@ export function HeroSection() {
           </motion.div>
         </div>
       </div>
+
+      <AlertDialog open={showNotifyDialog} onOpenChange={setShowNotifyDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{tNotify("enableNotifications")}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {tNotify("notificationDescription")}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={handleSkipNotify}>{tNotify("maybeLater")}</AlertDialogCancel>
+            <AlertDialogAction onClick={handleAllowNotify}>{tNotify("allow")}</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </section>
   );
 }

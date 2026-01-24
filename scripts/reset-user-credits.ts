@@ -5,10 +5,10 @@
  * ============================================
  *
  * 用法:
- *   pnpm tsx scripts/reset-user-credits.ts <email> [--confirm]
+ *   pnpm script:reset-credits <email> [--confirm]
  *
  * 示例:
- *   pnpm tsx scripts/reset-user-credits.ts user@example.com --confirm
+ *   pnpm script:reset-credits user@example.com --confirm
  *
  * ⚠️  警告：此操作不可逆！会清空用户的所有积分包和积分记录。
  */
@@ -22,8 +22,8 @@ const email = process.argv[2];
 const confirmFlag = process.argv[3];
 
 if (!email) {
-  console.error("❌ Usage: pnpm tsx scripts/reset-user-credits.ts <email> [--confirm]");
-  console.error("   Example: pnpm tsx scripts/reset-user-credits.ts user@example.com --confirm");
+  console.error("❌ Usage: pnpm script:reset-credits <email> [--confirm]");
+  console.error("   Example: pnpm script:reset-credits user@example.com --confirm");
   console.error("");
   console.error("   ⚠️  WARNING: This operation is irreversible!");
   console.error("   Add --confirm flag to proceed.");
@@ -64,7 +64,7 @@ async function run() {
     // 3. 确认操作
     if (confirmFlag !== "--confirm") {
       console.log("❌ Aborted: Please add --confirm flag to proceed.");
-      console.log("   Example: pnpm tsx scripts/reset-user-credits.ts user@example.com --confirm");
+      console.log("   Example: pnpm script:reset-credits user@example.com --confirm");
       process.exit(1);
       return;
     }

@@ -46,7 +46,11 @@
     "creditsHint": "免费积分开始 • 无需信用卡"
   },
   "Notifications": {
-    "generationWillNotify": "生成时间较长，我们会在生成完成后通知你。"
+    "generationWillNotify": "生成时间较长，我们会在生成完成后通知你。",
+    "enableNotifications": "开启通知",
+    "notificationDescription": "视频生成完成后，我们将通过浏览器通知告知您。",
+    "maybeLater": "稍后再说",
+    "allow": "允许"
   },
   "ToolPage": {
     "queueTitle": "生成队列",
@@ -152,6 +156,34 @@
     }
   },
   "CTA": {
+    "badge": "简单流程",
+    "title": "使用方法",
+    "subtitle": "4 步创建您的视频",
+    "description": "使用直观的视频创作工作流程，几分钟内即可开始",
+    "bottomHint": "无需信用卡 • 50 个免费积分开始",
+    "steps": {
+      "prompt": {
+        "title": "描述您的视频",
+        "description": "输入详细的文本提示，描述您想创建的视频",
+        "stat": "平均时间"
+      },
+      "upload": {
+        "title": "上传参考",
+        "description": "可选择添加参考图片来引导 AI（可选）"
+      },
+      "generate": {
+        "title": "AI 生成",
+        "description": "我们的 AI 处理您的请求并创建独特视频",
+        "stat": "生成时间"
+      },
+      "download": {
+        "title": "下载分享",
+        "description": "获取高清视频，随时随地分享",
+        "stat": "最高质量"
+      }
+    }
+  },
+  "CTA": {
     "badge": "限时优惠",
     "title": "准备好创作精彩视频了吗？",
     "subtitle": "加入数千名正在使用 VideoFly 的创作者",
@@ -172,6 +204,35 @@
     "testimonials": {
       "title": "创作者喜爱",
       "subtitle": "看看用户怎么说"
+    }
+  },
+  "FAQ": {
+    "title": "常见问题",
+    "subtitle": "关于 VideoFly 模板的一切",
+    "contact": "还有其他问题？请联系我们",
+    "template": {
+      "question": "什么是 VideoFly 模板？",
+      "answer": "VideoFly 是一个生产级 AI 视频生成 SaaS 模板，基于 Next.js 15、React 19 和 Drizzle ORM 构建。它包含了启动自己的 AI 视频平台所需的一切：用户认证、积分系统、AI 供应商集成、支付处理，以及可直接定制的精美 UI。"
+    },
+    "deployment": {
+      "question": "如何部署这个模板？",
+      "answer": "VideoFly 可以部署到 Vercel、Railway 或任何 Node.js 托管平台。只需连接您的 GitHub 仓库，设置所需的环境变量，然后部署即可。模板在 /docs 文件夹中包含详细文档，指导您完成整个过程。"
+    },
+    "aiModels": {
+      "question": "支持哪些 AI 模型？",
+      "answer": "模板目前支持 Evolink（Sora 2、Wan 2.6、Veo 3.1、Seedance）和 Kie.ai。模块化的供应商架构使添加更多 AI 供应商变得简单。您可以在 config/pricing-user.ts 文件中配置模型和价格。"
+    },
+    "credits": {
+      "question": "积分系统是如何工作的？",
+      "answer": "VideoFly 使用基于 FIFO 的积分系统，采用冻结/结算/释放模式。用户购买积分包或订阅，在生成视频时消耗积分。系统支持积分过期、退款和详细的交易记录。"
+    },
+    "customization": {
+      "question": "我可以自定义 UI 和品牌吗？",
+      "answer": "当然可以！模板基于 Tailwind CSS 4 和 shadcn/ui 组件构建，使定制变得简单直观。所有的颜色、字体和样式都可以通过 Tailwind 配置进行修改。组件结构模块化且有完善的文档。"
+    },
+    "payment": {
+      "question": "集成了哪些支付提供商？",
+      "answer": "VideoFly 以 Creem 为主要支付集成提供商，Stripe 作为备选选项。两者都支持订阅和一次性购买。支付 webhook 系统会自动将积分分配到用户账户。"
     }
   },
   "Footer": {

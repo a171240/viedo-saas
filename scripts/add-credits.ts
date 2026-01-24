@@ -5,13 +5,13 @@
  * ============================================
  *
  * 用法:
- *   pnpm tsx scripts/add-credits.ts <email> <credits> [reason]
+ *   pnpm script:add-credits <email> <credits> [reason]
  *
  * 示例:
- *   pnpm tsx scripts/add-credits.ts user@example.com 100 "管理员赠送"
- *   pnpm tsx scripts/add-credits.ts user@example.com 500
+ *   pnpm script:add-credits user@example.com 100 "管理员赠送"
+ *   pnpm script:add-credits user@example.com 500
  *
- * 注意: 此脚本通过 dotenv-cli 加载 .env.local 环境变量
+ * 注意: 此脚本会自动加载 .env.local 环境变量
  */
 
 import { db } from "@/db";
@@ -25,8 +25,8 @@ const creditsAmount = parseInt(process.argv[3], 10);
 const reason = process.argv[4] || "System add credits";
 
 if (!email || isNaN(creditsAmount) || creditsAmount <= 0) {
-  console.error("❌ Usage: pnpm tsx scripts/add-credits.ts <email> <credits> [reason]");
-  console.error("   Example: pnpm tsx scripts/add-credits.ts user@example.com 100");
+  console.error("❌ Usage: pnpm script:add-credits <email> <credits> [reason]");
+  console.error("   Example: pnpm script:add-credits user@example.com 100");
   process.exit(1);
 }
 
@@ -76,14 +76,23 @@ async function run() {
       return;
     }
 
-    // 4. 记录交易
+    // 4. 计算当前总余额
+    const allPackages = await db
+      .select()
+      .from(creditPackages)
+      .where(eq(creditPackages.userId, user.id));
+
+    // 包含刚创建的这个包（因为它已经被插入了）
+    const totalBalance = allPackages.reduce((sum, pkg) => sum + pkg.remainingCredits, 0);
+
+    // 5. 记录交易
     const transNo = `TXN${Date.now()}${nanoid(6).toUpperCase()}`;
     await db.insert(creditTransactions).values({
       transNo,
       userId: user.id,
       transType: CreditTransType.SYSTEM_ADJUST,
       credits: creditsAmount,
-      balanceAfter: creditsAmount, // 简化处理，实际应计算总余额
+      balanceAfter: totalBalance,
       packageId: pkgResult.id,
       orderNo,
       remark: reason,

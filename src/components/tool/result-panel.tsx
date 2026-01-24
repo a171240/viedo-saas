@@ -263,7 +263,14 @@ export function ResultPanel({
                   {/* Error message for failed videos */}
                   {isFailed && video.errorMessage && (
                     <div className="text-xs text-rose-600 dark:text-rose-400 line-clamp-2 bg-rose-500/10 px-2 py-1 rounded">
-                      {video.errorMessage}
+                      {(() => {
+                        try {
+                          const parsed = JSON.parse(video.errorMessage);
+                          return parsed.error?.message || parsed.message || video.errorMessage;
+                        } catch {
+                          return video.errorMessage;
+                        }
+                      })()}
                     </div>
                   )}
 

@@ -212,7 +212,14 @@ export function CreationCard({
           {/* Error message (failed only) */}
           {isFailed && video.errorMessage && (
             <div className="text-xs text-destructive line-clamp-2">
-              {video.errorMessage}
+              {(() => {
+                try {
+                  const parsed = JSON.parse(video.errorMessage);
+                  return parsed.error?.message || parsed.message || video.errorMessage;
+                } catch {
+                  return video.errorMessage;
+                }
+              })()}
             </div>
           )}
 
