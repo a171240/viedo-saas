@@ -91,6 +91,8 @@ export function HeroSection() {
           quality: toQuality(data.resolution),
           outputNumber: data.outputNumber,
           generateAudio: data.generateAudio,
+          // Pass the first image URL if available (for image-to-video)
+          imageUrl: data.imageUrls?.[0],
         }),
       });
 

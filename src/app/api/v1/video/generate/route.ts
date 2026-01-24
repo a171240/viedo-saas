@@ -6,11 +6,14 @@ import { z } from "zod";
 
 const generateSchema = z.object({
   prompt: z.string().min(1).max(5000),
-  model: z.literal("sora-2"),
-  duration: z.union([z.literal(10), z.literal(15)]),
-  aspectRatio: z.enum(["16:9", "9:16"]).optional(),
-  quality: z.enum(["standard", "high"]).optional(),
+  model: z.string().min(1),
+  duration: z.number().optional(),
+  aspectRatio: z.string().optional(),
+  quality: z.string().optional(),
   imageUrl: z.string().url().optional(),
+  mode: z.string().optional(),
+  outputNumber: z.number().optional().default(1),
+  generateAudio: z.boolean().optional(),
 });
 
 export async function POST(request: NextRequest) {

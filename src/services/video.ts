@@ -11,7 +11,7 @@ export interface GenerateVideoParams {
   userId: string;
   prompt: string;
   model: string; // "sora-2"
-  duration: number; // 10 | 15
+  duration?: number;
   aspectRatio?: string; // "16:9" | "9:16"
   quality?: string; // "standard" | "high"
   imageUrl?: string; // image-to-video
@@ -42,8 +42,10 @@ export class VideoService {
       throw new Error(`Unsupported model: ${params.model}`);
     }
 
+    const effectiveDuration = params.duration || modelConfig.durations[0] || 5;
+
     const creditsRequired = calculateModelCredits(params.model, {
-      duration: params.duration,
+      duration: effectiveDuration,
       quality: params.quality,
     });
 
@@ -68,7 +70,7 @@ export class VideoService {
         status: VideoStatus.PENDING,
         startImageUrl: params.imageUrl || null,
         creditsUsed: creditsRequired,
-        duration: params.duration,
+        duration: effectiveDuration,
         aspectRatio: params.aspectRatio || null,
         provider: modelConfig.provider,
         updatedAt: new Date(),
@@ -114,9 +116,9 @@ export class VideoService {
 
     const callbackUrl = this.callbackBaseUrl
       ? generateSignedCallbackUrl(
-          `${this.callbackBaseUrl}/${modelConfig.provider}`,
-          videoResult.uuid
-        )
+        `${this.callbackBaseUrl}/${modelConfig.provider}`,
+        videoResult.uuid
+      )
       : undefined;
 
     try {

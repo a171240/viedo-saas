@@ -526,6 +526,8 @@ export interface SubmitData {
   prompt: string;
   /** Uploaded image files (if any) */
   images?: File[];
+  /** Image URLs (for template images or pre-uploaded images) */
+  imageUrls?: string[];
   /** Image slot information for multi-image uploads */
   imageSlots?: Array<{ slot: string; file: File }>;
   /** Selected model ID */
