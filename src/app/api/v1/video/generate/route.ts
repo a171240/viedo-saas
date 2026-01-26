@@ -11,8 +11,9 @@ const generateSchema = z.object({
   aspectRatio: z.string().optional(),
   quality: z.string().optional(),
   imageUrl: z.string().url().optional(),
+  imageUrls: z.array(z.string().url()).optional(),
   mode: z.string().optional(),
-  outputNumber: z.number().optional().default(1),
+  outputNumber: z.number().int().min(1).optional().default(1),
   generateAudio: z.boolean().optional(),
 });
 
@@ -30,6 +31,10 @@ export async function POST(request: NextRequest) {
       aspectRatio: data.aspectRatio,
       quality: data.quality,
       imageUrl: data.imageUrl,
+      imageUrls: data.imageUrls,
+      mode: data.mode,
+      outputNumber: data.outputNumber,
+      generateAudio: data.generateAudio,
     });
 
     return apiSuccess(result);

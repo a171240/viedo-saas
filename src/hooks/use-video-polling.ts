@@ -8,7 +8,7 @@ interface UseVideoPollingOptions {
 }
 
 export function useVideoPolling(options: UseVideoPollingOptions = {}) {
-  const { pollInterval = 3000, onCompleted, onFailed } = options;
+  const { pollInterval = 15000, onCompleted, onFailed } = options;
 
   const pollingIntervals = useRef<Map<string, ReturnType<typeof setInterval>>>(
     new Map()

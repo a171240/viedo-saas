@@ -6,6 +6,7 @@ import { getModelConfig, calculateModelCredits } from "../config/credits";
 import { getProvider, type ProviderType, type VideoTaskResponse } from "../ai";
 import { creditService } from "./credit";
 import { generateSignedCallbackUrl } from "@/ai/utils/callback-signature";
+import { emitVideoEvent } from "@/lib/video-events";
 
 export interface GenerateVideoParams {
   userId: string;
@@ -15,6 +16,10 @@ export interface GenerateVideoParams {
   aspectRatio?: string; // "16:9" | "9:16"
   quality?: string; // "standard" | "high"
   imageUrl?: string; // image-to-video
+  imageUrls?: string[]; // image-to-video (multi-image)
+  mode?: string;
+  outputNumber?: number;
+  generateAudio?: boolean;
 }
 
 export interface VideoGenerationResult {
@@ -44,12 +49,16 @@ export class VideoService {
 
     const effectiveDuration = params.duration || modelConfig.durations[0] || 5;
 
+    const outputNumber = Math.max(1, params.outputNumber ?? 1);
     const creditsRequired = calculateModelCredits(params.model, {
       duration: effectiveDuration,
       quality: params.quality,
-    });
+    }) * outputNumber;
 
-    if (params.imageUrl && !modelConfig.supportImageToVideo) {
+    const hasImageInput =
+      (params.imageUrls && params.imageUrls.length > 0) || Boolean(params.imageUrl);
+
+    if (hasImageInput && !modelConfig.supportImageToVideo) {
       throw new Error(`Model ${params.model} does not support image-to-video`);
     }
 
@@ -66,9 +75,14 @@ export class VideoService {
           duration: params.duration,
           aspectRatio: params.aspectRatio,
           quality: params.quality,
+          outputNumber,
+          mode: params.mode,
+          imageUrl: params.imageUrl,
+          imageUrls: params.imageUrls,
+          generateAudio: params.generateAudio,
         },
         status: VideoStatus.PENDING,
-        startImageUrl: params.imageUrl || null,
+        startImageUrl: params.imageUrls?.[0] || params.imageUrl || null,
         creditsUsed: creditsRequired,
         duration: effectiveDuration,
         aspectRatio: params.aspectRatio || null,
@@ -112,22 +126,30 @@ export class VideoService {
       throw new Error(`Insufficient credits. Required: ${creditsRequired}`);
     }
 
-    const provider = getProvider(modelConfig.provider);
+    // ✅ 支持通过环境变量选择 provider
+    // 优先级: 环境变量 > 模型配置
+    const defaultProvider = (process.env.DEFAULT_AI_PROVIDER as ProviderType) || modelConfig.provider;
+    const provider = getProvider(defaultProvider);
 
     const callbackUrl = this.callbackBaseUrl
       ? generateSignedCallbackUrl(
-        `${this.callbackBaseUrl}/${modelConfig.provider}`,
+        `${this.callbackBaseUrl}/${defaultProvider}`,  // ✅ 使用实际选择的 provider
         videoResult.uuid
       )
       : undefined;
 
     try {
       const result = await provider.createTask({
+        model: params.model,
         prompt: params.prompt,
-        duration: params.duration as 10 | 15,
-        aspectRatio: params.aspectRatio as "16:9" | "9:16",
-        quality: params.quality as "standard" | "high",
+        duration: effectiveDuration,  // ✅ 使用计算后的时长
+        aspectRatio: params.aspectRatio,
+        quality: params.quality,
         imageUrl: params.imageUrl,
+        imageUrls: params.imageUrls,
+        mode: params.mode,
+        outputNumber,
+        generateAudio: params.generateAudio,
         callbackUrl,
       });
 
@@ -143,7 +165,7 @@ export class VideoService {
       return {
         videoUuid: videoResult.uuid,
         taskId: result.taskId,
-        provider: modelConfig.provider,
+        provider: defaultProvider,  // ✅ 返回实际使用的 provider
         status: "GENERATING",
         estimatedTime: result.estimatedTime,
         creditsUsed: creditsRequired,
@@ -349,6 +371,14 @@ export class VideoService {
         })
         .where(eq(videos.uuid, videoUuid));
 
+      emitVideoEvent({
+        userId: video.userId,
+        videoUuid,
+        status: "COMPLETED",
+        videoUrl: uploaded.url,
+        thumbnailUrl: result.thumbnailUrl || null,
+      });
+
       return { status: VideoStatus.COMPLETED, videoUrl: uploaded.url };
     });
   }
@@ -385,6 +415,13 @@ export class VideoService {
           updatedAt: new Date(),
         })
         .where(eq(videos.uuid, videoUuid));
+
+      emitVideoEvent({
+        userId: video.userId,
+        videoUuid,
+        status: "FAILED",
+        error: errorMessage || "Generation failed",
+      });
 
       return {
         status: VideoStatus.FAILED,

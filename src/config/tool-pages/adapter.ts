@@ -40,7 +40,7 @@ function getModelColor(modelId: string): string {
   const colorMap: Record<string, string> = {
     "sora-2": "#000000",
     "veo-3.1": "#4285f4",
-    "wan-2.6": "#8b5cf6",
+    "wan2.6": "#8b5cf6",
     "seedance-1.5": "#ec4899",
     "seedance-1.5-pro": "#ec4899",
     "kling-2": "#f59e0b",
@@ -92,9 +92,7 @@ export function adaptToolPageConfigToGeneratorConfig(
     availableVideoModels[0]?.aspectRatios ||
     ["16:9", "9:16", "1:1"];
 
-  const resolutions = generator.settings.qualities ||
-    availableVideoModels[0]?.resolutions ||
-    ["720P", "1080P"];
+  const resolutions = generator.settings.qualities ?? [];
 
   const outputNumbers = generator.settings.outputNumbers?.map((n) => ({
     value: n,

@@ -144,14 +144,14 @@ export const useCreditsStore = create<CreditsState>()(
 
 /** 获取积分余额（自动获取） */
 export function useCredits() {
-  const { balance, isLoading, error, fetchBalance } = useCreditsStore();
+  const { balance, isLoading, error, fetchBalance, optimisticFreeze, optimisticRelease, invalidate } = useCreditsStore();
 
   // 自动获取
   useEffect(() => {
     fetchBalance();
   }, [fetchBalance]);
 
-  return { balance, isLoading, error, refetch: fetchBalance };
+  return { balance, isLoading, error, refetch: fetchBalance, optimisticFreeze, optimisticRelease, invalidate };
 }
 
 /** 获取可用积分数量 */

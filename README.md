@@ -196,6 +196,14 @@ git checkout upstream/main -- src/components/landing
 3. **环境变量** - 模板更新可能新增环境变量，检查 `.env.example`
 4. **数据库迁移** - 如有 schema 变更，执行 `pnpm db:migrate`
 
+## 🧩 近期更新（2026-01-26）
+
+- **模型与参数映射统一**：所有 provider 参数转换集中在 `src/ai/model-mapping.ts`，Veo 3.1 高/低质量自动选择对应模型 ID  
+- **生成参数对齐**：首页与工具页统一支持 `mode / imageUrl(s) / outputNumber / generateAudio`，图片上传走 `/api/v1/upload`  
+- **模型能力修正**：Veo 3.1 固定 8s；Wan 2.6 / Seedance 分辨率与质量映射统一  
+- **状态与通知**：SSE + 15s 轮询，生成完成支持浏览器通知与 toast  
+- **My Creations 体验优化**：4:3 卡片、hover 自动播放、错误信息展示在预览区  
+
 ## 🗺 路线图
 
 - [x] 多 AI 模型支持

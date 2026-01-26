@@ -167,6 +167,7 @@ export const CREDITS_CONFIG = {
             maxDuration: 15,
             durations: [5, 10, 15],
             aspectRatios: ["16:9", "9:16", "1:1", "4:3", "3:4"],
+            qualities: ["720P", "1080P"],
           },
           "veo-3.1": {
             id: "veo-3.1",
@@ -175,7 +176,7 @@ export const CREDITS_CONFIG = {
             description: "models.veo31.description",
             supportImageToVideo: true,
             maxDuration: 8,
-            durations: [4, 6, 8],
+            durations: [8],
             aspectRatios: ["16:9", "9:16"],
           },
           "seedance-1.5-pro": {
@@ -278,7 +279,10 @@ export function calculateModelCredits(
   const extraSeconds = Math.max(0, params.duration - 10);
   let credits = base + extraSeconds * perExtraSecond;
 
-  if (params.quality === "high" && highQualityMultiplier > 1) {
+  const normalizedQuality = params.quality?.toLowerCase();
+  const isHighQuality = normalizedQuality === "high" || normalizedQuality?.includes("1080");
+
+  if (isHighQuality && highQualityMultiplier > 1) {
     credits = Math.round(credits * highQualityMultiplier);
   }
 

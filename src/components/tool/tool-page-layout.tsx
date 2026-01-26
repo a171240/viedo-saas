@@ -19,12 +19,17 @@ import { authClient } from "@/lib/auth/client";
 import { useCredits } from "@/stores/credits-store";
 import { useVideoPolling } from "@/hooks/use-video-polling";
 import { videoTaskStorage } from "@/lib/video-task-storage";
+import { videoHistoryStorage, type VideoHistoryItem } from "@/lib/video-history-storage";
+import { useUpgradeModal } from "@/hooks/use-upgrade-modal";
 import type { Video } from "@/db";
 import type { ToolPageConfig } from "@/config/tool-pages";
-import { GeneratorPanel } from "@/components/tool/generator-panel";
+import { GeneratorPanel, type GeneratorData } from "@/components/tool/generator-panel";
+import { uploadImage } from "@/lib/video-api";
 import { ToolLandingPage } from "@/components/tool/tool-landing-page";
-import { ResultPanelWrapper } from "@/components/tool/result-panel-wrapper";
+import { VideoHistoryPanel } from "@/components/tool/video-history-panel";
 import { toast } from "sonner";
+
+const TOOL_PREFILL_KEY = "videofly_tool_prefill";
 
 // ============================================================================
 // Types
@@ -77,17 +82,28 @@ export function ToolPageLayout({
 }: ToolPageLayoutProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { balance } = useCredits();
+  const { balance, optimisticFreeze, optimisticRelease, invalidate } = useCredits();
+  const { openModal } = useUpgradeModal();
   const videoIdFromQuery = searchParams.get("id");
   const NOTIFICATION_ASKED_KEY = "videofly_notification_asked";
   const tNotify = useTranslations("Notifications");
+  const tTool = useTranslations("ToolPage");
 
   // 状态
   const [user, setUser] = useState<any>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [currentVideos, setCurrentVideos] = useState<Video[]>([]);
   const [generatingIds, setGeneratingIds] = useState<string[]>([]);
+  const [historyItems, setHistoryItems] = useState<VideoHistoryItem[]>([]);
   const [activeTab, setActiveTab] = useState<"generator" | "result">("generator");
+  const [prefillData, setPrefillData] = useState<{
+    prompt?: string;
+    model?: string;
+    duration?: number;
+    aspectRatio?: string;
+    quality?: string;
+    imageUrl?: string;
+  } | null>(null);
 
   const addGeneratingId = useCallback((videoId: string) => {
     setGeneratingIds((prev) => (prev.includes(videoId) ? prev : [videoId, ...prev]));
@@ -97,40 +113,93 @@ export function ToolPageLayout({
     setGeneratingIds((prev) => prev.filter((id) => id !== videoId));
   }, []);
 
-  const { startPolling, isPolling } = useVideoPolling({
-    onCompleted: useCallback(
-      (video) => {
-        setCurrentVideos((prev) => {
-          const exists = prev.find((v) => v.uuid === video.uuid);
-          if (exists) {
-            return prev.map((v) => (v.uuid === video.uuid ? video : v));
+  const handleCompleted = useCallback(
+    (video: Video) => {
+      // 更新历史记录
+      videoHistoryStorage.updateHistory(
+        video.uuid,
+        {
+          status: "completed",
+          videoUrl: video.videoUrl || undefined,
+          thumbnailUrl: video.thumbnailUrl || undefined,
+          duration: video.duration || undefined,
+        },
+        user?.id
+      );
+      setHistoryItems(videoHistoryStorage.getHistory(user?.id));
+
+      // 更新 currentVideos（兼容旧逻辑）
+      setCurrentVideos((prev) => {
+        const exists = prev.find((v) => v.uuid === video.uuid);
+        if (exists) {
+          return prev.map((v) => (v.uuid === video.uuid ? video : v));
+        }
+        return [video, ...prev];
+      });
+      removeGeneratingId(video.uuid);
+      // 刷新积分（生成成功，积分已结算）
+      invalidate();
+      if (user?.id) {
+        videoTaskStorage.updateTask(
+          video.uuid,
+          { status: "completed" },
+          user.id
+        );
+      }
+
+      if (typeof window !== "undefined" && "Notification" in window) {
+        if (Notification.permission === "granted") {
+          try {
+            new Notification(tNotify("videoReadyTitle"), {
+              body: tNotify("videoReadyBody"),
+            });
+          } catch (error) {
+            console.warn("Notification dispatch failed:", error);
+            toast.success(tNotify("videoReadyTitle"));
           }
-          return [video, ...prev];
-        });
-        removeGeneratingId(video.uuid);
-        if (user?.id) {
-          videoTaskStorage.updateTask(
-            video.uuid,
-            { status: "completed" },
-            user.id
-          );
+        } else {
+          toast.success(tNotify("videoReadyTitle"));
         }
-      },
-      [removeGeneratingId, user?.id]
-    ),
-    onFailed: useCallback(
-      ({ videoId }) => {
-        removeGeneratingId(videoId);
-        if (user?.id) {
-          videoTaskStorage.updateTask(
-            videoId,
-            { status: "failed" },
-            user.id
-          );
-        }
-      },
-      [removeGeneratingId, user?.id]
-    ),
+      } else {
+        toast.success(tNotify("videoReadyTitle"));
+      }
+    },
+    [removeGeneratingId, user?.id, invalidate, tNotify]
+  );
+
+  const handleFailed = useCallback(
+    ({ videoId, error }: { videoId: string; error?: string }) => {
+      // 更新历史记录
+      videoHistoryStorage.updateHistory(
+        videoId,
+        {
+          status: "failed",
+        },
+        user?.id
+      );
+      setHistoryItems(videoHistoryStorage.getHistory(user?.id));
+
+      // 移除生成 ID
+      removeGeneratingId(videoId);
+      // 刷新积分（生成失败，积分已释放）
+      invalidate();
+      if (user?.id) {
+        videoTaskStorage.updateTask(
+          videoId,
+          { status: "failed" },
+          user.id
+        );
+      }
+      if (error) {
+        toast.error(error);
+      }
+    },
+    [removeGeneratingId, user?.id, invalidate]
+  );
+
+  const { startPolling, stopPolling, isPolling } = useVideoPolling({
+    onCompleted: handleCompleted,
+    onFailed: handleFailed,
   });
 
   // 检查登录状态
@@ -139,6 +208,48 @@ export function ToolPageLayout({
       setUser(session?.data?.user ?? null);
     });
   }, []);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try {
+      const raw = sessionStorage.getItem(TOOL_PREFILL_KEY);
+      if (!raw) return;
+      const parsed = JSON.parse(raw);
+      setPrefillData({
+        prompt: parsed?.prompt,
+        model: parsed?.model,
+        duration: parsed?.duration,
+        aspectRatio: parsed?.aspectRatio,
+        quality: parsed?.quality,
+        imageUrl: parsed?.imageUrl,
+      });
+      sessionStorage.removeItem(TOOL_PREFILL_KEY);
+    } catch (error) {
+      console.warn("Failed to read tool prefill data:", error);
+    }
+  }, []);
+
+  // 加载历史记录（用户登录时）
+  useEffect(() => {
+    if (!user?.id) return;
+
+    // 从 localStorage 加载历史记录
+    const history = videoHistoryStorage.getHistory(user.id);
+    setHistoryItems(history);
+
+    // 可选：从服务器同步最近 20 条视频
+    fetch(`/api/v1/video/list?limit=20`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.data?.videos) {
+          videoHistoryStorage.syncFromServer(data.data.videos);
+          setHistoryItems(videoHistoryStorage.getHistory(user.id));
+        }
+      })
+      .catch((error) => {
+        console.warn("Failed to sync video history from server:", error);
+      });
+  }, [user?.id]);
 
   useEffect(() => {
     if (!user?.id) return;
@@ -161,8 +272,50 @@ export function ToolPageLayout({
     }
   }, [videoIdFromQuery, user?.id, isPolling, startPolling, addGeneratingId]);
 
+  // SSE: listen for backend completion events
+  useEffect(() => {
+    if (!user?.id) return;
+    if (typeof window === "undefined" || !("EventSource" in window)) return;
+
+    const source = new EventSource("/api/v1/video/events");
+
+    const handleVideoEvent = async (event: MessageEvent) => {
+      try {
+        const payload = JSON.parse(event.data);
+        const videoId = payload.videoUuid as string;
+
+        if (!videoId) return;
+        stopPolling(videoId);
+
+        if (payload.status === "COMPLETED") {
+          const res = await fetch(`/api/v1/video/${videoId}`);
+          if (!res.ok) return;
+          const detail = await res.json();
+          handleCompleted(detail.data as Video);
+        } else if (payload.status === "FAILED") {
+          handleFailed({ videoId, error: payload.error });
+        }
+      } catch (error) {
+        console.warn("SSE event handling failed:", error);
+      }
+    };
+
+    source.addEventListener("video", handleVideoEvent);
+
+    const handleError = () => {
+      source.close();
+    };
+    source.addEventListener("error", handleError);
+
+    return () => {
+      source.removeEventListener("video", handleVideoEvent);
+      source.removeEventListener("error", handleError);
+      source.close();
+    };
+  }, [user?.id, handleCompleted, handleFailed, stopPolling]);
+
   // 处理生成提交
-  const handleSubmit = useCallback(async (data: any) => {
+  const handleSubmit = useCallback(async (data: GeneratorData) => {
     // 检查登录
     if (!user) {
       router.push(`/${locale}/login`);
@@ -174,9 +327,16 @@ export function ToolPageLayout({
     const availableCredits = balance?.availableCredits ?? 0;
 
     if (availableCredits < requiredCredits) {
-      router.push(`/${locale}/pricing`);
+      // 打开升级弹窗
+      openModal({
+        reason: "insufficient_credits",
+        requiredCredits,
+      });
       return;
     }
+
+    // 乐观更新：立即冻结积分（UI 立即反映变化）
+    optimisticFreeze(requiredCredits);
 
     // 开始提交
     setIsSubmitting(true);
@@ -185,9 +345,17 @@ export function ToolPageLayout({
       if (typeof window !== "undefined" && "Notification" in window) {
         const asked = localStorage.getItem(NOTIFICATION_ASKED_KEY);
         if (!asked && Notification.permission === "default") {
-          toast.info(tNotify("generationWillNotify"));
-          Notification.requestPermission().finally(() => {
-            localStorage.setItem(NOTIFICATION_ASKED_KEY, "1");
+          localStorage.setItem(NOTIFICATION_ASKED_KEY, "1");
+          toast.info(tNotify("generationWillNotify"), {
+            description: tNotify("notificationDescription"),
+            action: {
+              label: tNotify("enableNotifications"),
+              onClick: () => {
+                Notification.requestPermission().catch((error) => {
+                  console.warn("Notification permission request failed:", error);
+                });
+              },
+            },
           });
         }
       }
@@ -196,7 +364,11 @@ export function ToolPageLayout({
     }
 
     try {
-      const selectedMode = data.mode || config.generator.mode;
+      const selectedMode = config.generator.mode || toolRoute;
+      const imageUrl = data.imageFile
+        ? await uploadImage(data.imageFile)
+        : data.imageUrl;
+      const imageUrls = imageUrl ? [imageUrl] : undefined;
       const response = await fetch("/api/v1/video/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -207,8 +379,10 @@ export function ToolPageLayout({
           duration: data.duration,
           aspectRatio: data.aspectRatio,
           quality: data.quality,
-          outputNumber: data.outputNumber,
-          generateAudio: data.generateAudio,
+          outputNumber: 1,
+          generateAudio: false,
+          imageUrls,
+          imageUrl,
         }),
       });
 
@@ -219,6 +393,21 @@ export function ToolPageLayout({
 
       const result = await response.json();
       const videoUuid = result.data.videoUuid as string;
+
+      toast.success("Generation started");
+
+      // 添加到历史记录
+      videoHistoryStorage.addHistory({
+        uuid: videoUuid,
+        userId: user.id,
+        prompt: data.prompt,
+        model: data.model,
+        status: "generating",
+        creditsUsed: data.estimatedCredits,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      });
+      setHistoryItems(videoHistoryStorage.getHistory(user.id));
 
       setActiveTab("result");
       addGeneratingId(videoUuid);
@@ -239,10 +428,26 @@ export function ToolPageLayout({
       }
     } catch (error) {
       console.error("Generation error:", error);
-      // 可以在这里显示错误提示
+      // API 调用失败，回滚乐观更新（释放积分）
+      const requiredCredits = data.estimatedCredits || 0;
+      optimisticRelease(requiredCredits);
+      // 显示错误提示
+      toast.error(error instanceof Error ? error.message : "Failed to generate video");
     }
     setIsSubmitting(false);
-  }, [user, locale, router, balance, config, startPolling, addGeneratingId]);
+  }, [
+    user,
+    locale,
+    router,
+    balance,
+    config.generator.mode,
+    toolRoute,
+    startPolling,
+    addGeneratingId,
+    optimisticFreeze,
+    optimisticRelease,
+    tNotify,
+  ]);
 
   // 处理重新生成
   const handleRegenerate = useCallback(() => {
@@ -258,13 +463,19 @@ export function ToolPageLayout({
       if (!response.ok) {
         throw new Error("Failed to delete video");
       }
+
+      // 从历史记录中删除
+      videoHistoryStorage.removeHistory(uuid, user?.id);
+      setHistoryItems(videoHistoryStorage.getHistory(user?.id));
+
+      // 更新 currentVideos（兼容旧逻辑）
       setCurrentVideos((prev) => prev.filter((v) => v.uuid !== uuid));
       toast.success("Video deleted successfully");
     } catch (error) {
       console.error("Delete error:", error);
       toast.error("Failed to delete video");
     }
-  }, []);
+  }, [user?.id]);
 
   // 处理重试失败的视频
   const handleRetry = useCallback(async (uuid: string) => {
@@ -280,7 +491,7 @@ export function ToolPageLayout({
       startPolling(uuid);
       setCurrentVideos((prev) =>
         prev.map((v) =>
-          v.uuid === uuid ? { ...v, status: "generating", errorMessage: null } : v
+          v.uuid === uuid ? { ...v, status: "GENERATING", errorMessage: null } : v
         )
       );
       toast.success("Video retry started");
@@ -307,7 +518,7 @@ export function ToolPageLayout({
                 : "text-muted-foreground hover:text-foreground"
                 }`}
             >
-              Generator
+              {tTool("generator")}
             </button>
             <button
               onClick={() => setActiveTab("result")}
@@ -316,7 +527,7 @@ export function ToolPageLayout({
                 : "text-muted-foreground hover:text-foreground"
                 }`}
             >
-              Result
+              {tTool("result")}
             </button>
           </div>
         )}
@@ -334,6 +545,14 @@ export function ToolPageLayout({
                   toolType={toolRoute as "image-to-video" | "text-to-video" | "reference-to-video"}
                   isLoading={isSubmitting}
                   onSubmit={handleSubmit}
+                  availableModelIds={config.generator.models.available}
+                  defaultModelId={config.generator.models.default}
+                  initialPrompt={prefillData?.prompt}
+                  initialModelId={prefillData?.model}
+                  initialDuration={prefillData?.duration}
+                  initialAspectRatio={prefillData?.aspectRatio}
+                  initialQuality={prefillData?.quality}
+                  initialImageUrl={prefillData?.imageUrl}
                 />
               </div>
 
@@ -366,7 +585,7 @@ export function ToolPageLayout({
 
   // Authenticated Layout: Three-column application mode
   return (
-    <div className="flex flex-1 flex-col h-full overflow-hidden p-4 lg:p-6 gap-6 bg-background">
+    <div className="flex flex-1 flex-col h-full overflow-hidden p-4 lg:p-4 gap-6 bg-background">
       {/* Mobile Tabs */}
       {showMobileTabs && (
         <div className="lg:hidden flex border-b border-border mb-4 shrink-0">
@@ -377,7 +596,7 @@ export function ToolPageLayout({
               : "text-muted-foreground hover:text-foreground"
               }`}
           >
-            Generator
+            {tTool("generator")}
           </button>
           <button
             onClick={() => setActiveTab("result")}
@@ -386,22 +605,30 @@ export function ToolPageLayout({
               : "text-muted-foreground hover:text-foreground"
               }`}
           >
-            Result
+            {tTool("result")}
           </button>
         </div>
       )}
 
-      <div className="grid h-full min-h-0 grid-cols-1 lg:grid-cols-[360px_minmax(0,1fr)] gap-5">
+      <div className="grid min-h-0 h-fit max-h-[calc(100svh-120px)] grid-cols-1 lg:grid-cols-[360px_minmax(0,1fr)] gap-5">
         {/* Generator Panel */}
         <div
           className={`${activeTab === "generator" ? "flex" : "hidden"
             } lg:flex flex-col h-full min-h-0`}
         >
-          <div className="h-full min-h-0 rounded-2xl border border-border bg-card/70 p-3 shadow-md">
+          <div className="h-full min-h-0 rounded-2xl bg-card/70 p-3">
             <GeneratorPanel
               toolType={toolRoute as "image-to-video" | "text-to-video" | "reference-to-video"}
               isLoading={isSubmitting}
               onSubmit={handleSubmit}
+              availableModelIds={config.generator.models.available}
+              defaultModelId={config.generator.models.default}
+              initialPrompt={prefillData?.prompt}
+              initialModelId={prefillData?.model}
+              initialDuration={prefillData?.duration}
+              initialAspectRatio={prefillData?.aspectRatio}
+              initialQuality={prefillData?.quality}
+              initialImageUrl={prefillData?.imageUrl}
             />
           </div>
         </div>
@@ -411,12 +638,10 @@ export function ToolPageLayout({
           className={`${activeTab === "result" ? "flex" : "hidden"
             } lg:flex flex-1 h-full min-h-0`}
         >
-          <ResultPanelWrapper
-            currentVideos={currentVideos}
+          <VideoHistoryPanel
+            historyItems={historyItems}
             generatingIds={generatingIds}
-            onRegenerate={handleRegenerate}
             onDelete={handleDelete}
-            onRetry={handleRetry}
             className="h-full min-h-0"
           />
         </div>

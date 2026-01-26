@@ -12,6 +12,10 @@
       "args": [
         "chrome-devtools-mcp@latest"
       ]
+    },
+    "evolink": {
+      "url": "https://mcp.evolink.ai/sse",
+      "transport": "sse"
     }
   }
 }

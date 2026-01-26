@@ -68,7 +68,7 @@ export default function DemoPage() {
     };
 
     // Poll every 5 seconds
-    const interval = setInterval(pollStatus, 5000);
+    const interval = setInterval(pollStatus, 15000);
     pollStatus();
 
     return () => clearInterval(interval);

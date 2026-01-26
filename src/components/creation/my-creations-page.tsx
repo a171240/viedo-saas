@@ -43,7 +43,6 @@ export function MyCreationsPage({ locale }: MyCreationsPageProps) {
     fetchNextPage,
     isFetchingNextPage,
     deleteVideo,
-    retryVideo,
     isDeleting,
     refetch,
   } = useVideos(filter);
@@ -120,7 +119,6 @@ export function MyCreationsPage({ locale }: MyCreationsPageProps) {
                 video={video}
                 onClick={handleVideoClick}
                 onDelete={deleteVideo}
-                onRetry={retryVideo}
                 isDeleting={isDeleting}
               />
             ))}

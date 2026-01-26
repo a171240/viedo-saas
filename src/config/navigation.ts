@@ -25,16 +25,16 @@ export const sidebarNavigation: NavGroup[] = [
     title: "VIDEO",
     items: [
       {
-        id: "img2vid",
-        title: "Image to Video",
-        href: "/image-to-video",
-        icon: "ImagePlay",
-      },
-      {
         id: "txt2vid",
         title: "Text to Video",
         href: "/text-to-video",
         icon: "Type",
+      },
+      {
+        id: "img2vid",
+        title: "Image to Video",
+        href: "/image-to-video",
+        icon: "ImagePlay",
       },
       {
         id: "ref2vid",
@@ -100,16 +100,16 @@ export const headerModels = [
 // 落地页顶部导航 - Tools 下拉菜单
 export const headerTools = [
   {
-    id: "img2vid",
-    title: "Image to Video",
-    href: "/image-to-video",
-    icon: "ImagePlay",
-  },
-  {
     id: "txt2vid",
     title: "Text to Video",
     href: "/text-to-video",
     icon: "Type",
+  },
+  {
+    id: "img2vid",
+    title: "Image to Video",
+    href: "/image-to-video",
+    icon: "ImagePlay",
   },
   {
     id: "ref2vid",

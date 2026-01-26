@@ -448,13 +448,15 @@ export function VideoGeneratorInput({
 
   // Calculate estimated credits
   const calculatedCredits = useMemo(() => {
+    const resolvedResolution =
+      generationType === "video" && showResolutionControl ? resolution : undefined;
     if (calculateCredits && currentModel) {
       return calculateCredits({
         type: generationType,
         model: currentModel.id,
         outputNumber: currentOutputNumber,
         duration: generationType === "video" ? duration : undefined,
-        resolution: generationType === "video" ? resolution : undefined,
+        resolution: resolvedResolution,
       });
     }
     if (estimatedCredits !== undefined) {
@@ -466,7 +468,7 @@ export function VideoGeneratorInput({
       return calculateVideoCredits({
         model: currentModel as VideoModel,
         duration,
-        resolution,
+        resolution: resolvedResolution,
         outputNumber: currentOutputNumber,
         generateAudio: generateAudio,
       });
@@ -486,6 +488,7 @@ export function VideoGeneratorInput({
     duration,
     resolution,
     generateAudio,
+    showResolutionControl,
   ]);
 
   // Helper to check if icon is a URL
@@ -671,7 +674,10 @@ export function VideoGeneratorInput({
       mode: currentMode.id,
       aspectRatio: currentAspectRatio,
       duration: generationType === "video" ? duration : undefined,
-      resolution: generationType === "video" ? resolution : undefined,
+      resolution:
+        generationType === "video" && showResolutionControl
+          ? resolution
+          : undefined,
       outputNumber: currentOutputNumber,
       style: generationType === "image" && selectedStyle ? selectedStyle.id : undefined,
       generateAudio: modelSupportsAudio ? generateAudio : undefined,

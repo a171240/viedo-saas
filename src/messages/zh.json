@@ -50,9 +50,13 @@
     "enableNotifications": "开启通知",
     "notificationDescription": "视频生成完成后，我们将通过浏览器通知告知您。",
     "maybeLater": "稍后再说",
-    "allow": "允许"
+    "allow": "允许",
+    "videoReadyTitle": "视频已生成",
+    "videoReadyBody": "生成已完成，点击查看。"
   },
   "ToolPage": {
+    "generator": "生成器",
+    "result": "结果",
     "queueTitle": "生成队列",
     "queueEmpty": "暂无进行中的任务",
     "recentTitle": "最近结果",
@@ -251,6 +255,10 @@
     "buyCredits": "购买积分",
     "history": "交易历史",
     "packages": {
+      "starter": {
+        "name": "入门积分包",
+        "description": "适合试用体验"
+      },
       "basic": {
         "name": "基础计划",
         "description": "适合初学者"
@@ -299,6 +307,13 @@
   "PricingCards": {
     "pricing": "定价",
     "slogan": "简单透明的价格",
+    "onetime": "积分包",
+    "monthly": "按月",
+    "yearly": "按年",
+    "off_percent": "40% OFF",
+    "no_products": "暂无可用产品",
+    "per_year": "/年",
+    "per_month": "/月",
     "monthly_bill": "按月付费",
     "annual_bill": "按年付费",
     "mo": "/月",
@@ -318,6 +333,14 @@
   "Sidebar": {
     "upgradeTitle": "升级专业版",
     "upgradeSubtitle": "解锁更快生成与更多额度"
+  },
+  "UpgradeModal": {
+    "default_title": "升级您的方案",
+    "default_description": "选择适合您的方案",
+    "insufficient_credits_title": "积分不足",
+    "insufficient_credits_description": "您需要至少 {credits} 积分来生成此视频。请购买积分包或升级方案以继续。",
+    "expired_title": "积分已过期",
+    "expired_description": "您的积分已过期。请购买新的积分包或订阅方案以继续创作。"
   },
   "UserAccountNav": {
     "dashboard": "控制台",
@@ -501,5 +524,14 @@
         "failed": "失败"
       }
     }
+  },
+  "VideoHistory": {
+    "title": "最近生成",
+    "demoTitle": "示例视频",
+    "generating": "正在生成视频...",
+    "download": "下载",
+    "copyLink": "复制链接",
+    "removeFromHistory": "从历史中移除",
+    "generationFailed": "生成失败"
   }
 }

@@ -190,34 +190,35 @@ export const SUBSCRIPTION_PRODUCTS = [
  */
 export const CREDIT_PACKAGES: CreditPackageConfig[] = [
   {
+    id: "starter",
+    name: "Starter Pack",
+    priceUsd: 9.9,
+    credits: 100,
+    popular: false,
+    enabled: true,
+    allowFreeUser: true, // 免费用户可购买
+    features: ["hd_videos", "fast_generation"],
+  },
+  {
     id: "standard",
     name: "Standard Pack",
     priceUsd: 19.9,
-    credits: 300,
+    credits: 250,
     popular: true, // 推荐
     enabled: true,
-    allowFreeUser: false, // 仅订阅用户可购买
+    allowFreeUser: true,
     features: ["hd_videos", "fast_generation", "no_watermark"],
   },
-  // 可以添加更多积分包
-  // {
-  //   id: "large",
-  //   name: "Large Pack",
-  //   priceUsd: 49.9,
-  //   credits: 1000,
-  //   popular: false,
-  //   enabled: true,
-  //   allowFreeUser: true,  // 所有用户可购买
-  // },
-  // {
-  //   id: "starter",
-  //   name: "Starter Pack",
-  //   priceUsd: 9.9,
-  //   credits: 100,
-  //   popular: false,
-  //   enabled: true,
-  //   allowFreeUser: true,  // 免费用户可购买（小包引流）
-  // },
+  {
+    id: "large",
+    name: "Large Pack",
+    priceUsd: 49.9,
+    credits: 700,
+    popular: false,
+    enabled: true,
+    allowFreeUser: true,
+    features: ["hd_videos", "fast_generation", "no_watermark", "commercial_use"],
+  },
 ];
 
 // ============================================

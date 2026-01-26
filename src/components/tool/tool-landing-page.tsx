@@ -102,7 +102,7 @@ export function ToolLandingPage({
             </h1>
 
             {/* 描述 */}
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto" suppressHydrationWarning>
               {landing.hero.description}
             </p>
 

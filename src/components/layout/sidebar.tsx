@@ -16,6 +16,8 @@ import {
   SheetContent,
   SheetClose,
 } from "@/components/ui/sheet";
+import { useUpgradeModal } from "@/hooks/use-upgrade-modal";
+import { ShineBorder } from "@/registry/magicui/shine-border";
 
 const iconMap = {
   ImagePlay,
@@ -36,9 +38,15 @@ export function Sidebar({ lang = "en", mobileOpen, onMobileClose }: SidebarProps
   const pathname = usePathname();
   const pathWithoutLang = pathname.replace(new RegExp(`^/${lang}`), "");
   const t = useTranslations("Sidebar");
+  const { openModal } = useUpgradeModal();
 
   // 判断是否为免费用户（可根据实际业务调整）
   const isFreeUser = useMemo(() => true, []);
+
+  // 处理升级按钮点击
+  const handleUpgradeClick = () => {
+    openModal({ reason: "upgrade" });
+  };
 
   // 渲染导航项
   const renderNavItem = (item: any, isActive: boolean) => {
@@ -86,30 +94,29 @@ export function Sidebar({ lang = "en", mobileOpen, onMobileClose }: SidebarProps
       {/* 底部升级区域 */}
       {isFreeUser && (
         <div className="px-3 pt-4 border-t border-border/50">
-          <Link
-            href={`/${lang}/pricing`}
-            className="group relative block overflow-hidden rounded-xl border border-primary/30 bg-gradient-to-br from-primary/15 via-background to-primary/5 p-3 shadow-lg shadow-primary/20 transition-all hover:-translate-y-0.5 hover:border-primary/50 hover:shadow-xl hover:shadow-primary/30"
+          <button
+            onClick={handleUpgradeClick}
+            className="group relative w-full block overflow-hidden rounded-xl bg-background p-[1px]"
           >
-            <span
-              aria-hidden
-              className="pointer-events-none absolute -right-6 -top-8 h-24 w-24 rounded-full bg-primary/25 blur-2xl"
+            <ShineBorder
+              shineColor={["#A07CFE", "#FE8FB5", "#FFBE7B"]}
+              borderRadius="12px"
+              borderWidth={1}
             />
-            <span
-              aria-hidden
-              className="pointer-events-none absolute -bottom-8 left-4 h-16 w-16 rounded-full bg-primary/15 blur-2xl"
-            />
-            <div className="relative flex items-center gap-2 mb-1">
-              <span className="flex h-7 w-7 items-center justify-center rounded-full bg-primary/15 text-primary">
-                <Sparkles className="h-4 w-4" />
-              </span>
-              <span className="text-sm font-semibold text-foreground">
-                {t("upgradeTitle")}
-              </span>
+            <div className="relative bg-gradient-to-br from-primary/15 via-background to-primary/5 p-3 rounded-xl transition-all hover:-translate-y-0.5">
+              <div className="relative flex items-center gap-2 mb-1">
+                <span className="flex h-7 w-7 items-center justify-center rounded-full bg-primary/15 text-primary">
+                  <Sparkles className="h-4 w-4" />
+                </span>
+                <span className="text-sm font-semibold text-foreground">
+                  {t("upgradeTitle")}
+                </span>
+              </div>
+              <p className="relative text-xs text-muted-foreground">
+                {t("upgradeSubtitle")}
+              </p>
             </div>
-            <p className="relative text-xs text-muted-foreground">
-              {t("upgradeSubtitle")}
-            </p>
-          </Link>
+          </button>
         </div>
       )}
     </div>
@@ -159,31 +166,29 @@ export function Sidebar({ lang = "en", mobileOpen, onMobileClose }: SidebarProps
       {isFreeUser && (
         <div className="px-3 pt-4 border-t border-border/50">
           <SheetClose asChild>
-            <Link
-              href={`/${lang}/pricing`}
-              onClick={onMobileClose}
-              className="group relative block overflow-hidden rounded-xl border border-primary/30 bg-gradient-to-br from-primary/15 via-background to-primary/5 p-3 shadow-lg shadow-primary/20 transition-all hover:-translate-y-0.5 hover:border-primary/50 hover:shadow-xl hover:shadow-primary/30"
+            <button
+              onClick={handleUpgradeClick}
+              className="group relative w-full block overflow-hidden rounded-xl bg-background p-[1px]"
             >
-              <span
-                aria-hidden
-                className="pointer-events-none absolute -right-6 -top-8 h-24 w-24 rounded-full bg-primary/25 blur-2xl"
+              <ShineBorder
+                shineColor={["#A07CFE", "#FE8FB5", "#FFBE7B"]}
+                borderRadius="12px"
+                borderWidth={1}
               />
-              <span
-                aria-hidden
-                className="pointer-events-none absolute -bottom-8 left-4 h-16 w-16 rounded-full bg-primary/15 blur-2xl"
-              />
-              <div className="relative flex items-center gap-2 mb-1">
-                <span className="flex h-7 w-7 items-center justify-center rounded-full bg-primary/15 text-primary">
-                  <Sparkles className="h-4 w-4" />
-                </span>
-                <span className="text-sm font-semibold text-foreground">
-                  {t("upgradeTitle")}
-                </span>
+              <div className="relative bg-gradient-to-br from-primary/15 via-background to-primary/5 p-3 rounded-xl transition-all hover:-translate-y-0.5">
+                <div className="relative flex items-center gap-2 mb-1">
+                  <span className="flex h-7 w-7 items-center justify-center rounded-full bg-primary/15 text-primary">
+                    <Sparkles className="h-4 w-4" />
+                  </span>
+                  <span className="text-sm font-semibold text-foreground">
+                    {t("upgradeTitle")}
+                  </span>
+                </div>
+                <p className="relative text-xs text-muted-foreground">
+                  {t("upgradeSubtitle")}
+                </p>
               </div>
-              <p className="relative text-xs text-muted-foreground">
-                {t("upgradeSubtitle")}
-              </p>
-            </Link>
+            </button>
           </SheetClose>
         </div>
       )}

@@ -33,7 +33,7 @@ export const textToVideoConfig: ToolPageConfig = {
     },
 
     models: {
-      available: ["sora-2", "veo-3-1", "wan-2-6", "seedance-1-5", "kling-2"],
+      available: ["sora-2", "veo-3.1", "wan2.6", "seedance-1.5-pro"],
       default: "sora-2",
     },
 
@@ -48,13 +48,12 @@ export const textToVideoConfig: ToolPageConfig = {
     settings: {
       showDuration: true,
       showAspectRatio: true,
-      showQuality: true,
+      showQuality: false,
       showOutputNumber: false,
       showAudioGeneration: true,
 
       durations: [5, 10, 15],
       aspectRatios: ["16:9", "9:16", "1:1", "4:3", "3:4", "21:9"],
-      qualities: ["standard", "high"],
     },
   },
 

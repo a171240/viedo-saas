@@ -1,9 +1,9 @@
 import { getCurrentUser } from "@/lib/auth";
 import { getTranslations } from "next-intl/server";
 
-import { CreemPricing } from "@/components/price/creem-pricing";
+import { DarkPricing } from "@/components/price/dark-pricing";
 import { PricingCards } from "@/components/price/pricing-cards";
-import { PricingFaq } from "@/components/price/pricing-faq";
+import { FAQSection } from "@/components/landing/faq-section";
 import { billingProvider } from "@/config/billing-provider";
 import { getUserPlans } from "@/services/billing";
 import type { CreditsDictionary } from "@/hooks/use-credit-packages";
@@ -28,9 +28,9 @@ export default async function PricingPage() {
   const dictCredits = t.raw('Credits') as CreditsDictionary;
 
   return (
-    <div className="flex w-full flex-col gap-16 py-8 md:py-8">
+    <div className="flex w-full flex-col gap-0">
       {isCreem ? (
-        <CreemPricing
+        <DarkPricing
           userId={user?.id}
           dictPrice={dictPrice}
           dictCredits={dictCredits}
@@ -41,8 +41,7 @@ export default async function PricingPage() {
           subscriptionPlan={subscriptionPlan}
         />
       )}
-      <hr className="container" />
-      <PricingFaq />
+      <FAQSection />
     </div>
   );
 }

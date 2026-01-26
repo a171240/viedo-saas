@@ -2,11 +2,16 @@
 
 // Unified video generation parameters
 export interface VideoGenerationParams {
+  model?: string;
   prompt: string;
-  aspectRatio?: "16:9" | "9:16" | "1:1";
-  duration?: 10 | 15;
-  quality?: "standard" | "high";
+  aspectRatio?: string;
+  duration?: number;
+  quality?: string;
   imageUrl?: string;
+  imageUrls?: string[];
+  mode?: string;
+  outputNumber?: number;
+  generateAudio?: boolean;
   removeWatermark?: boolean;
   callbackUrl?: string;
 }

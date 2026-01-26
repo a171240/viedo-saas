@@ -4,9 +4,9 @@
 // Creation Card Component
 // ============================================
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import Link from "next/link";
-import { Play, Clock, AlertCircle, MoreHorizontal, Download, Trash2, RefreshCw } from "lucide-react";
+import { Play, Clock, AlertCircle, MoreHorizontal, Download, Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { cn } from "@/components/ui";
@@ -35,9 +35,7 @@ interface CreationCardProps {
   video: Video;
   onClick: (uuid: string) => void;
   onDelete?: (uuid: string) => void;
-  onRetry?: (uuid: string) => void;
   isDeleting?: boolean;
-  isRetrying?: boolean;
 }
 
 const statusConfig = {
@@ -77,12 +75,11 @@ export function CreationCard({
   video,
   onClick,
   onDelete,
-  onRetry,
   isDeleting,
-  isRetrying,
 }: CreationCardProps) {
   const t = useTranslations("dashboard.myCreations");
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const videoRef = useRef<HTMLVideoElement | null>(null);
 
   const normalizedStatus = (video.status || "pending").toLowerCase() as keyof typeof statusConfig;
   const config = statusConfig[normalizedStatus] ?? statusConfig.pending;
@@ -97,12 +94,8 @@ export function CreationCard({
   const isCompleted = normalizedStatus === "completed";
 
   const handleDelete = async () => {
-    await onDelete?.(video.uuid);
     setShowDeleteDialog(false);
-  };
-
-  const handleRetry = async () => {
-    await onRetry?.(video.uuid);
+    await onDelete?.(video.uuid);
   };
 
   const handleDownload = () => {
@@ -117,6 +110,21 @@ export function CreationCard({
     }
   };
 
+  const handlePreviewStart = () => {
+    if (!isCompleted || !video.videoUrl) return;
+    const element = videoRef.current;
+    if (!element) return;
+    element.currentTime = 0;
+    element.play().catch(() => {});
+  };
+
+  const handlePreviewStop = () => {
+    const element = videoRef.current;
+    if (!element) return;
+    element.pause();
+    element.currentTime = 0;
+  };
+
   return (
     <>
       <div
@@ -125,18 +133,43 @@ export function CreationCard({
           isDeleting && "opacity-50 pointer-events-none"
         )}
         onClick={() => onClick(video.uuid)}
+        onMouseEnter={handlePreviewStart}
+        onMouseLeave={handlePreviewStop}
       >
         {/* Thumbnail / Preview */}
-        <div className="aspect-[9/16] w-full overflow-hidden bg-muted relative">
-          {video.thumbnailUrl ? (
+        <div className="aspect-[4/3] w-full overflow-hidden bg-muted relative">
+          {isCompleted && video.videoUrl ? (
+            <video
+              ref={videoRef}
+              src={video.videoUrl}
+              poster={video.thumbnailUrl || undefined}
+              muted
+              loop
+              playsInline
+              preload="metadata"
+              className="h-full w-full object-contain"
+            />
+          ) : video.thumbnailUrl ? (
             <img
               src={video.thumbnailUrl}
               alt={video.prompt}
-              className="h-full w-full object-cover transition-transform group-hover:scale-105"
+              className="h-full w-full object-contain"
             />
           ) : (
-            <div className="flex h-full w-full items-center justify-center">
+            <div className="flex h-full w-full flex-col items-center justify-center gap-2 px-3 text-center">
               <StatusIcon className="h-12 w-12 text-muted-foreground" />
+              {isFailed && video.errorMessage && (
+                <p className="text-[11px] text-destructive line-clamp-3">
+                  {(() => {
+                    try {
+                      const parsed = JSON.parse(video.errorMessage);
+                      return parsed.error?.message || parsed.message || video.errorMessage;
+                    } catch {
+                      return video.errorMessage;
+                    }
+                  })()}
+                </p>
+              )}
             </div>
           )}
 
@@ -165,43 +198,48 @@ export function CreationCard({
             </div>
           )}
 
-          {/* Action menu (completed only) */}
-          {isCompleted && (
-            <div className="absolute top-2 right-2">
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
-                  <Button
-                    variant="secondary"
-                    size="icon"
-                    className="h-8 w-8 bg-black/50 hover:bg-black/70 text-white border-0"
-                  >
-                    <MoreHorizontal className="h-4 w-4" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
+          {/* Action menu */}
+          <div className="absolute top-2 right-2">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
+                <Button
+                  variant="secondary"
+                  size="icon"
+                  className="h-8 w-8 bg-black/50 hover:bg-black/70 text-white border-0"
+                >
+                  <MoreHorizontal className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                {isCompleted && (
                   <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleDownload(); }}>
                     <Download className="h-4 w-4 mr-2" />
                     {t("actions.download")}
                   </DropdownMenuItem>
-                  <DropdownMenuItem
-                    onClick={(e) => { e.stopPropagation(); setShowDeleteDialog(true); }}
-                    className="text-destructive"
-                  >
-                    <Trash2 className="h-4 w-4 mr-2" />
-                    {t("actions.delete")}
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
-          )}
+                )}
+                <DropdownMenuItem
+                  onClick={(e) => { e.stopPropagation(); setShowDeleteDialog(true); }}
+                  className="text-destructive"
+                >
+                  <Trash2 className="h-4 w-4 mr-2" />
+                  {t("actions.delete")}
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
         </div>
 
         {/* Card info */}
-        <div className="p-3 space-y-2">
+        <div className="p-2 space-y-1.5">
           {/* Model & Aspect Ratio */}
           <div className="flex items-center justify-between text-xs text-muted-foreground">
             <span className="font-medium capitalize">{video.model}</span>
             <span>{video.aspectRatio}</span>
+          </div>
+
+          {/* Prompt */}
+          <div className="text-xs text-foreground/90 line-clamp-2">
+            {video.prompt}
           </div>
 
           {/* Date */}
@@ -209,45 +247,7 @@ export function CreationCard({
             {formatDistanceToNow(new Date(video.createdAt), { addSuffix: true })}
           </div>
 
-          {/* Error message (failed only) */}
-          {isFailed && video.errorMessage && (
-            <div className="text-xs text-destructive line-clamp-2">
-              {(() => {
-                try {
-                  const parsed = JSON.parse(video.errorMessage);
-                  return parsed.error?.message || parsed.message || video.errorMessage;
-                } catch {
-                  return video.errorMessage;
-                }
-              })()}
-            </div>
-          )}
-
-          {/* Action buttons (failed only - directly shown) */}
-          {isFailed && (
-            <div className="flex gap-2 pt-2">
-              <Button
-                variant="outline"
-                size="sm"
-                className="flex-1"
-                onClick={(e) => { e.stopPropagation(); handleRetry(); }}
-                disabled={isRetrying}
-              >
-                <RefreshCw className={cn("h-3 w-3 mr-1", isRetrying && "animate-spin")} />
-                {t("actions.retry")}
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                className="flex-1 text-destructive hover:text-destructive"
-                onClick={(e) => { e.stopPropagation(); setShowDeleteDialog(true); }}
-                disabled={isDeleting}
-              >
-                <Trash2 className="h-3 w-3 mr-1" />
-                {t("actions.delete")}
-              </Button>
-            </div>
-          )}
+          {/* Error is displayed in the preview area for failed videos */}
         </div>
       </div>
 

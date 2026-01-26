@@ -1,17 +1,24 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { Sparkles, Zap, Play } from "lucide-react";
 import { motion } from "framer-motion";
 import { useLocale, useTranslations } from "next-intl";
 import { toast } from "sonner";
 
-import { VideoGeneratorInput, type SubmitData } from "@/components/video-generator";
+import {
+  VideoGeneratorInput,
+  type SubmitData,
+  DEFAULT_CONFIG,
+  DEFAULT_DEFAULTS,
+} from "@/components/video-generator";
 import { BlurFade } from "@/components/magicui/blur-fade";
 import { Meteors } from "@/components/magicui/meteors";
 import { cn } from "@/components/ui";
 import { authClient } from "@/lib/auth/client";
+import { calculateModelCredits, getAvailableModels } from "@/config/credits";
+import { uploadImage } from "@/lib/video-api";
 import { useSigninModal } from "@/hooks/use-signin-modal";
 import { videoTaskStorage } from "@/lib/video-task-storage";
 
@@ -29,6 +36,7 @@ import {
 const PENDING_PROMPT_KEY = "videofly_pending_prompt";
 const PENDING_IMAGE_KEY = "videofly_pending_image";
 const NOTIFICATION_ASKED_KEY = "videofly_notification_asked";
+const TOOL_PREFILL_KEY = "videofly_tool_prefill";
 
 /**
  * Hero Section - 视频生成器优先设计
@@ -49,8 +57,79 @@ export function HeroSection() {
   const [showNotifyDialog, setShowNotifyDialog] = useState(false);
   const [pendingSubmitData, setPendingSubmitData] = useState<SubmitData | null>(null);
 
-  const getToolRouteByMode = (mode: string) => {
+  const generatorConfig = useMemo(() => {
+    const availableIds = new Set(getAvailableModels().map((model) => model.id));
+    const filteredVideoModels = DEFAULT_CONFIG.videoModels.filter((model) => availableIds.has(model.id));
+    return {
+      ...DEFAULT_CONFIG,
+      videoModels: filteredVideoModels.length > 0 ? filteredVideoModels : DEFAULT_CONFIG.videoModels,
+    };
+  }, []);
+
+  const generatorDefaults = useMemo(() => {
+    const preferredModel = generatorConfig.videoModels[0]?.id ?? DEFAULT_DEFAULTS.videoModel;
+    return {
+      ...DEFAULT_DEFAULTS,
+      videoModel: preferredModel,
+    };
+  }, [generatorConfig.videoModels]);
+
+  const defaultDuration = useMemo(() => {
+    const rawDuration = generatorDefaults.duration ?? generatorConfig.durations?.[0];
+    if (!rawDuration) return 10;
+    const parsed = Number.parseInt(String(rawDuration), 10);
+    return Number.isNaN(parsed) ? 10 : parsed;
+  }, [generatorDefaults.duration, generatorConfig.durations]);
+
+  const normalizeMode = (mode?: string) => {
+    if (!mode) return "text-to-video";
     switch (mode) {
+      case "text-image-to-video":
+        return "text-to-video";
+      case "t2v":
+        return "text-to-video";
+      case "i2v":
+        return "image-to-video";
+      case "r2v":
+        return "reference-to-video";
+      default:
+        return mode;
+    }
+  };
+
+  const parseDuration = (duration?: string | number) => {
+    if (typeof duration === "number") return duration;
+    if (!duration) return undefined;
+    const parsed = Number.parseInt(duration, 10);
+    return Number.isNaN(parsed) ? undefined : parsed;
+  };
+
+  const calculateCredits = useCallback((params: {
+    type: "video" | "image";
+    model: string;
+    outputNumber: number;
+    duration?: string;
+    resolution?: string;
+  }) => {
+    if (params.type !== "video") return 0;
+    const parsedDuration = parseDuration(params.duration) ?? defaultDuration;
+    const baseCredits = calculateModelCredits(params.model, {
+      duration: parsedDuration,
+      quality: params.resolution,
+    });
+    return baseCredits * params.outputNumber;
+  }, [defaultDuration, parseDuration]);
+
+  const resolveImageUrls = async (data: SubmitData) => {
+    if (data.images && data.images.length > 0) {
+      return Promise.all(data.images.map((file) => uploadImage(file)));
+    }
+    return data.imageUrls;
+  };
+
+  const getToolRouteByMode = (mode: string) => {
+    const normalized = normalizeMode(mode);
+    switch (normalized) {
       case "image-to-video":
       case "i2v":
         return "image-to-video";
@@ -64,35 +143,26 @@ export function HeroSection() {
     }
   };
 
-  const toDuration = (duration?: string | number) => {
-    if (typeof duration === "number") return duration;
-    if (!duration) return undefined;
-    const parsed = Number.parseInt(duration, 10);
-    return Number.isNaN(parsed) ? undefined : parsed;
-  };
-
-  const toQuality = (resolution?: string) => {
-    if (!resolution) return undefined;
-    return resolution.toLowerCase().includes("1080") ? "high" : "standard";
-  };
-
   const processSubmission = async (data: SubmitData) => {
     setIsSubmitting(true);
     try {
+      const resolvedImageUrls = await resolveImageUrls(data);
+      const normalizedMode = normalizeMode(data.mode);
       const response = await fetch("/api/v1/video/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           prompt: data.prompt,
           model: data.model,
-          mode: data.mode,
-          duration: toDuration(data.duration),
+          mode: normalizedMode,
+          duration: parseDuration(data.duration),
           aspectRatio: data.aspectRatio,
-          quality: toQuality(data.resolution),
+          quality: data.quality ?? data.resolution,
           outputNumber: data.outputNumber,
           generateAudio: data.generateAudio,
-          // Pass the first image URL if available (for image-to-video)
-          imageUrl: data.imageUrls?.[0],
+          imageUrls: resolvedImageUrls,
+          // Keep compatibility for providers that only expect a single image
+          imageUrl: resolvedImageUrls?.[0],
         }),
       });
 
@@ -102,7 +172,26 @@ export function HeroSection() {
       }
 
       const result = await response.json();
-      const toolRoute = getToolRouteByMode(data.mode);
+      const toolRoute = getToolRouteByMode(normalizedMode);
+      toast.success("Generation started");
+      try {
+        if (typeof window !== "undefined") {
+          sessionStorage.setItem(
+            TOOL_PREFILL_KEY,
+            JSON.stringify({
+              prompt: data.prompt,
+              model: data.model,
+              mode: normalizedMode,
+              duration: parseDuration(data.duration),
+              aspectRatio: data.aspectRatio,
+              quality: data.quality ?? data.resolution,
+              imageUrl: resolvedImageUrls?.[0],
+            })
+          );
+        }
+      } catch (storageError) {
+        console.warn("Failed to store tool prefill data:", storageError);
+      }
       if (session?.user?.id) {
         videoTaskStorage.addTask({
           userId: session.user.id,
@@ -110,7 +199,7 @@ export function HeroSection() {
           taskId: result.data.taskId,
           prompt: data.prompt,
           model: data.model,
-          mode: data.mode,
+          mode: normalizedMode,
           status: "generating",
           createdAt: Date.now(),
           notified: false,
@@ -153,7 +242,17 @@ export function HeroSection() {
   };
 
   const handleSubmit = async (data: SubmitData) => {
-    if (!session?.user) {
+    let activeUser = session?.user ?? null;
+    if (!activeUser) {
+      try {
+        const fresh = await authClient.getSession();
+        activeUser = fresh?.data?.user ?? null;
+      } catch (error) {
+        console.warn("Failed to refresh session:", error);
+      }
+    }
+
+    if (!activeUser) {
       try {
         sessionStorage.setItem(PENDING_PROMPT_KEY, data.prompt);
         if (data.images?.[0]) {
@@ -167,11 +266,6 @@ export function HeroSection() {
         console.warn("Failed to store pending input:", error);
       }
       signInModal.onOpen();
-      return;
-    }
-
-    if (data.images?.length) {
-      toast.error("Image upload is not available yet.");
       return;
     }
 
@@ -262,8 +356,11 @@ export function HeroSection() {
 
             {/* 视频生成器 - 不需要外层容器，直接使用组件 */}
             <VideoGeneratorInput
+              config={generatorConfig}
+              defaults={generatorDefaults}
               isLoading={isSubmitting}
               disabled={isSubmitting}
+              calculateCredits={calculateCredits}
               onSubmit={handleSubmit}
             />
 

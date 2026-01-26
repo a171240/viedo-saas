@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useTransition } from "react";
 import { Menu, Globe } from "lucide-react";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useTranslations, useLocale } from "next-intl";
 
 import { Button } from "@/components/ui/button";
@@ -41,6 +41,7 @@ import { Gem, ImagePlay, Type, Video, BookOpen } from "lucide-react";
 import { LocaleLink } from "@/i18n/navigation";
 import type { User } from "@/lib/auth/client";
 import { useSigninModal } from "@/hooks/use-signin-modal";
+import { authClient } from "@/lib/auth/client";
 
 const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
   ImagePlay,
@@ -53,8 +54,15 @@ export function LandingHeader({ user }: { user?: User | null }) {
   const t = useTranslations();
   const locale = useLocale();
   const pathname = usePathname();
+  const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [scrolled, setScrolled] = useState(false);
+
+  const handleSignOut = async () => {
+    await authClient.signOut();
+    router.push(`/${locale}`);
+    router.refresh();
+  };
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
@@ -244,9 +252,7 @@ export function LandingHeader({ user }: { user?: User | null }) {
                   <DropdownMenuSeparator className="bg-border/50" />
                   <DropdownMenuItem
                     className="text-destructive cursor-pointer hover:bg-destructive/10"
-                    onClick={() => {
-                      window.location.href = `/${locale}/login`;
-                    }}
+                    onClick={handleSignOut}
                   >
                     {t('Common.logout')}
                   </DropdownMenuItem>
@@ -407,6 +413,12 @@ export function LandingHeader({ user }: { user?: User | null }) {
                       >
                         {t('Header.settings')}
                       </LocaleLink>
+                      <button
+                        onClick={handleSignOut}
+                        className="p-2 text-left text-destructive hover:bg-destructive/10 rounded-md transition-colors"
+                      >
+                        {t('Common.logout')}
+                      </button>
                     </div>
                   ) : (
                     <Button variant="outline" onClick={signInModal.onOpen}>

@@ -121,12 +121,10 @@ export const DEFAULT_VIDEO_MODELS: VideoModel[] = [
     description: "Google's video generation with reference support",
     maxDuration: "8 sec",
     creditCost: 60,
-    // API: duration supports 4, 6, 8 sec
-    durations: ["4s", "6s", "8s"],
+    // API: duration supports 8 sec (current integration)
+    durations: ["8s"],
     // API: aspect_ratio supports 16:9, 9:16
     aspectRatios: ["16:9", "9:16"],
-    // API: 720p/1080p
-    resolutions: ["720P", "1080P"],
     // API: supports TEXT and FIRST&LAST modes, max 2 images
     maxImages: 2,
     // API: n=1~4
@@ -254,10 +252,10 @@ export const DEFAULT_IMAGE_ASPECT_RATIOS = ["1:1", "16:9", "3:2", "2:3", "3:4", 
 // Different models support different durations - common options listed here
 // sora-2: 10s, 15s
 // wan2.6: 5s, 10s, 15s
-// veo-3.1: 4s, 6s, 8s
+// veo-3.1: 8s (current integration)
 // seedance-1.5-pro: 4s-12s
 export const DEFAULT_DURATIONS = ["4s", "5s", "6s", "8s", "10s", "12s", "15s"];
-export const DEFAULT_RESOLUTIONS = ["720P", "1080P"];
+export const DEFAULT_RESOLUTIONS: string[] = [];
 
 // ============================================================================
 // Output Numbers (with Pro support)

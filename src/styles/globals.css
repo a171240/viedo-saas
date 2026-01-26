@@ -29,6 +29,27 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* Ensure interactive controls show pointer cursor globally */
+:where(
+  button,
+  [role="button"],
+  input[type="button"],
+  input[type="submit"],
+  input[type="reset"]
+) {
+  cursor: pointer;
+}
+
+:where(
+  button:disabled,
+  [role="button"][aria-disabled="true"],
+  input[type="button"]:disabled,
+  input[type="submit"]:disabled,
+  input[type="reset"]:disabled
+) {
+  cursor: not-allowed;
+}
+
 @theme inline {
   /* ===== 基础颜色 ===== */
   --color-background: var(--background);
@@ -471,6 +492,16 @@ body {
 @keyframes border-beam {
   100% {
     offset-distance: 100%;
+  }
+}
+
+/* Shine 边框动画 */
+@keyframes shine {
+  0% {
+    background-position: 0% 50%;
+  }
+  100% {
+    background-position: 200% 50%;
   }
 }
 

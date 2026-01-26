@@ -1,4 +1,5 @@
 import { betterAuth } from "better-auth";
+import { createAuthMiddleware } from "better-auth/api";
 import { creem } from "@creem_io/better-auth";
 import { magicLink } from "better-auth/plugins";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
@@ -207,6 +208,25 @@ export const auth = betterAuth({
 
   // Plugins
   plugins,
+
+  // Hooks - 自动赠送新用户积分
+  hooks: {
+    after: createAuthMiddleware(async (ctx) => {
+      // 检查是否是注册相关的路径
+      if (ctx.path?.startsWith("/sign-up") || ctx.path?.startsWith("/sign-in")) {
+        const newSession = ctx.context?.newSession;
+        if (newSession?.user?.id) {
+          try {
+            await creditService.grantNewUserCredits(newSession.user.id);
+            console.log(`[Auth] Granted new user credits to: ${newSession.user.id}`);
+          } catch (error) {
+            console.error("[Auth] Failed to grant new user credits:", error);
+            // 不抛出错误，避免影响注册流程
+          }
+        }
+      }
+    }),
+  },
 
   // Google OAuth
   socialProviders: {

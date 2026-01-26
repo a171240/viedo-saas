@@ -4,11 +4,21 @@ import { useEffect, useMemo, useState, useTransition } from "react";
 import Balancer from "react-wrap-balancer";
 
 import { creem } from "@/lib/auth/client";
-import { Button, buttonVariants } from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
 import * as Icons from "@/components/ui/icons";
-import { Switch } from "@/components/ui/switch";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
 import { cn } from "@/components/ui";
 import { toast } from "sonner";
+import { Check } from "lucide-react";
 
 import { useSigninModal } from "@/hooks/use-signin-modal";
 import {
@@ -19,13 +29,13 @@ import {
   type LocalizedPackage,
 } from "@/hooks/use-credit-packages";
 
-type BillingPeriod = "month" | "year";
-
 interface CreemPricingProps {
   userId?: string;
   dictPrice: Record<string, string>;
   dictCredits: CreditsDictionary;
 }
+
+type PricingTab = "onetime" | "monthly" | "yearly";
 
 function formatPrice(cents: number): string {
   const value = (cents / 100).toFixed(cents % 100 === 0 ? 0 : 2);
@@ -37,20 +47,22 @@ export function CreemPricing({
   dictPrice,
   dictCredits,
 }: CreemPricingProps) {
-  const [billingPeriod, setBillingPeriod] = useState<BillingPeriod>("month");
+  const [activeTab, setActiveTab] = useState<PricingTab>("onetime");
   const [hasAccess, setHasAccess] = useState(false);
   const [activeProductId, setActiveProductId] = useState<string | null>(null);
   const [isCheckingAccess, setIsCheckingAccess] = useState(false);
   const [isPending, startTransition] = useTransition();
   const signInModal = useSigninModal();
 
-  const subscriptionProducts = useMemo(
+  // 组织产品数据
+  const allSubscriptionProducts = useMemo(
     () =>
       getLocalizedSubscriptionPackages(dictCredits).sort(
         (a, b) => a.credits - b.credits
       ),
     [dictCredits]
   );
+
   const onetimeProducts = useMemo(
     () =>
       getLocalizedOnetimePackages(dictCredits).sort(
@@ -59,10 +71,15 @@ export function CreemPricing({
     [dictCredits]
   );
 
-  const visibleSubscriptions = subscriptionProducts.filter((product) => {
-    const period = product.billingPeriod ?? "month";
-    return period === billingPeriod;
-  });
+  const monthlyProducts = useMemo(
+    () => allSubscriptionProducts.filter((p) => p.billingPeriod === "month"),
+    [allSubscriptionProducts]
+  );
+
+  const yearlyProducts = useMemo(
+    () => allSubscriptionProducts.filter((p) => p.billingPeriod === "year"),
+    [allSubscriptionProducts]
+  );
 
   useEffect(() => {
     if (!userId) return;
@@ -146,184 +163,94 @@ export function CreemPricing({
   };
 
   return (
-    <section className="container flex flex-col items-center text-center">
-      <div className="mx-auto mb-10 flex w-full flex-col gap-5">
-        <p className="text-sm font-medium uppercase tracking-widest text-muted-foreground">
+    <section className="container py-12 md:py-20">
+      {/* 标题区 */}
+      <div className="mx-auto mb-12 max-w-2xl text-center">
+        <p className="mb-4 text-sm font-medium uppercase tracking-widest text-muted-foreground">
           {dictPrice.pricing}
         </p>
         <h2 className="font-heading text-3xl leading-[1.1] md:text-5xl">
           {dictPrice.slogan}
         </h2>
+        <p className="mt-4 text-muted-foreground">
+          选择适合您的积分方案，灵活满足不同需求
+        </p>
       </div>
 
-      <div className="mb-4 flex items-center gap-5">
-        <span>{dictPrice.monthly_bill}</span>
-        <Switch
-          checked={billingPeriod === "year"}
-          onCheckedChange={(checked) =>
-            setBillingPeriod(checked ? "year" : "month")
-          }
-          role="switch"
-          aria-label="switch-year"
-        />
-        <span>{dictPrice.annual_bill}</span>
-      </div>
+      {/* Tab 切换 */}
+      <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as PricingTab)} className="w-full">
+        <TabsList className="mx-auto grid max-w-2xl grid-cols-3">
+          <TabsTrigger value="onetime">一次性积分包</TabsTrigger>
+          <TabsTrigger value="monthly">按月订阅</TabsTrigger>
+          <TabsTrigger value="yearly" className="relative">
+            按年订阅
+            <Badge className="absolute -top-2 -right-2 h-5 px-2 bg-destructive text-xs">
+              40% OFF
+            </Badge>
+          </TabsTrigger>
+        </TabsList>
 
-      <div className="mx-auto grid max-w-screen-lg gap-5 bg-inherit py-5 md:grid-cols-3 lg:grid-cols-3">
-        {visibleSubscriptions.map((product) => {
-          const isCurrent = activeProductId === product.id && hasAccess;
+        {/* 一次性积分包 */}
+        <TabsContent value="onetime" className="mt-8">
+          <PricingGrid
+            products={onetimeProducts}
+            activeProductId={activeProductId}
+            hasAccess={hasAccess}
+            userId={userId}
+            isPending={isPending}
+            isCheckingAccess={isCheckingAccess}
+            dictPrice={dictPrice}
+            dictCredits={dictCredits}
+            onCheckout={handleCheckout}
+            onPortal={handlePortal}
+            signInModal={signInModal}
+          />
+        </TabsContent>
 
-          return (
-            <div
-              className="relative flex flex-col overflow-hidden rounded-xl border"
-              key={product.id}
-            >
-              <div className="min-h-[150px] items-start space-y-4 bg-secondary/70 p-6">
-                <p className="font-urban flex text-sm font-bold uppercase tracking-wider text-muted-foreground">
-                  {product.displayName}
-                </p>
+        {/* 按月订阅 */}
+        <TabsContent value="monthly" className="mt-8">
+          <PricingGrid
+            products={monthlyProducts}
+            activeProductId={activeProductId}
+            hasAccess={hasAccess}
+            userId={userId}
+            isPending={isPending}
+            isCheckingAccess={isCheckingAccess}
+            dictPrice={dictPrice}
+            dictCredits={dictCredits}
+            onCheckout={handleCheckout}
+            onPortal={handlePortal}
+            signInModal={signInModal}
+          />
+        </TabsContent>
 
-                <div className="flex items-end gap-2">
-                  <div className="flex text-left text-3xl font-semibold leading-6">
-                    {formatPrice(product.price.amount)}
-                  </div>
-                  <div className="-mb-1 text-left text-sm font-medium text-muted-foreground">
-                    {billingPeriod === "year" ? "/yr" : dictPrice.mo}
-                  </div>
-                </div>
+        {/* 按年订阅 */}
+        <TabsContent value="yearly" className="mt-8">
+          <PricingGrid
+            products={yearlyProducts}
+            activeProductId={activeProductId}
+            hasAccess={hasAccess}
+            userId={userId}
+            isPending={isPending}
+            isCheckingAccess={isCheckingAccess}
+            dictPrice={dictPrice}
+            dictCredits={dictCredits}
+            onCheckout={handleCheckout}
+            onPortal={handlePortal}
+            signInModal={signInModal}
+          />
+        </TabsContent>
+      </Tabs>
 
-                {product.displayDescription ? (
-                  <div className="text-left text-sm text-muted-foreground">
-                    {product.displayDescription}
-                  </div>
-                ) : null}
-              </div>
-
-              <div className="flex h-full flex-col justify-between gap-10 p-6">
-                <ul className="space-y-2 text-left text-sm font-medium leading-normal">
-                  {product.localizedFeatures.map((feature) => (
-                    <li className="flex items-start" key={feature}>
-                      <Icons.Check className="mr-3 h-5 w-5 shrink-0" />
-                      <p>{feature}</p>
-                    </li>
-                  ))}
-                </ul>
-
-                {userId ? (
-                  isCurrent ? (
-                    <Button
-                      variant="default"
-                      className="w-full"
-                      onClick={handlePortal}
-                    >
-                      {dictPrice.manage_subscription}
-                    </Button>
-                  ) : (
-                    <Button
-                      variant="default"
-                      className="w-full"
-                      disabled={isPending || isCheckingAccess}
-                      onClick={() => handleCheckout(product)}
-                    >
-                      {isPending ? (
-                        <>
-                          <Icons.Spinner className="mr-2 h-4 w-4 animate-spin" />
-                          Loading...
-                        </>
-                      ) : (
-                        dictPrice.upgrade
-                      )}
-                    </Button>
-                  )
-                ) : (
-                  <Button onClick={signInModal.onOpen}>{dictPrice.signup}</Button>
-                )}
-              </div>
-            </div>
-          );
-        })}
-      </div>
-
-      <div className="mx-auto mt-8 flex w-full max-w-screen-lg flex-col gap-6 text-left">
-        <div className="flex items-center justify-between">
-          <h3 className="text-xl font-semibold">{buyCreditsLabel}</h3>
-          {!canPurchasePackages(hasAccess) && userId ? (
-            <span className="text-sm text-muted-foreground">
-              {dictPrice.upgrade}
-            </span>
-          ) : null}
-        </div>
-
-        <div className="grid gap-5 md:grid-cols-3 lg:grid-cols-3">
-          {onetimeProducts.map((product) => {
-            const purchaseDisabled =
-              userId && !canPurchasePackages(hasAccess);
-
-            return (
-              <div
-                className="relative flex flex-col overflow-hidden rounded-xl border"
-                key={product.id}
-              >
-                <div className="min-h-[140px] items-start space-y-4 bg-secondary/70 p-6">
-                  <p className="font-urban text-sm font-bold uppercase tracking-wider text-muted-foreground">
-                    {product.displayName}
-                  </p>
-                  <div className="flex items-end gap-2">
-                    <div className="flex text-left text-3xl font-semibold leading-6">
-                      {formatPrice(product.price.amount)}
-                    </div>
-                  </div>
-                  {product.displayDescription ? (
-                    <div className="text-left text-sm text-muted-foreground">
-                      {product.displayDescription}
-                    </div>
-                  ) : null}
-                </div>
-
-                <div className="flex h-full flex-col justify-between gap-10 p-6">
-                  <ul className="space-y-2 text-left text-sm font-medium leading-normal">
-                    {product.localizedFeatures.map((feature) => (
-                      <li className="flex items-start" key={feature}>
-                        <Icons.Check className="mr-3 h-5 w-5 shrink-0" />
-                        <p>{feature}</p>
-                      </li>
-                    ))}
-                  </ul>
-
-                  {userId ? (
-                    <Button
-                      variant="default"
-                      className="w-full"
-                      disabled={purchaseDisabled || isPending}
-                      onClick={() => handleCheckout(product)}
-                    >
-                      {isPending ? (
-                        <>
-                          <Icons.Spinner className="mr-2 h-4 w-4 animate-spin" />
-                          Loading...
-                        </>
-                      ) : (
-                        buyCreditsLabel
-                      )}
-                    </Button>
-                  ) : (
-                    <Button onClick={signInModal.onOpen}>{dictPrice.signup}</Button>
-                  )}
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </div>
-
-      <p className="mt-10 text-center text-base text-muted-foreground">
+      {/* 底部联系信息 */}
+      <p className="mt-16 text-center text-base text-muted-foreground">
         <Balancer>
           Email{" "}
           <a
-            className={cn(buttonVariants({ variant: "link", className: "p-0" }))}
-            href="mailto:support@videofly.io"
+            className="font-medium text-primary hover:underline"
+            href="mailto:support@videofly.app"
           >
-            support@videofly.io
+            support@videofly.app
           </a>{" "}
           {dictPrice.contact}
           <br />
@@ -331,5 +258,143 @@ export function CreemPricing({
         </Balancer>
       </p>
     </section>
+  );
+}
+
+// ============================================
+// PricingGrid Component
+// ============================================
+
+interface PricingGridProps {
+  products: LocalizedPackage[];
+  activeProductId: string | null;
+  hasAccess: boolean;
+  userId?: string;
+  isPending: boolean;
+  isCheckingAccess: boolean;
+  dictPrice: Record<string, string>;
+  dictCredits: CreditsDictionary;
+  onCheckout: (product: LocalizedPackage) => void;
+  onPortal: () => void;
+  signInModal: { onOpen: () => void };
+}
+
+function PricingGrid({
+  products,
+  activeProductId,
+  hasAccess,
+  userId,
+  isPending,
+  isCheckingAccess,
+  dictPrice,
+  dictCredits,
+  onCheckout,
+  onPortal,
+  signInModal,
+}: PricingGridProps) {
+  const buyCreditsLabel = dictCredits.buy_credits ?? "Buy Credits";
+
+  if (products.length === 0) {
+    return (
+      <div className="py-12 text-center text-muted-foreground">
+        暂无可用产品
+      </div>
+    );
+  }
+
+  return (
+    <div className="mx-auto grid max-w-6xl gap-6 md:grid-cols-3">
+      {products.map((product, index) => {
+        const isRecommended = index === 1 && products.length > 1; // 中间产品为推荐
+        const isCurrent = activeProductId === product.id && hasAccess;
+
+        return (
+          <Card
+            key={product.id}
+            className={cn(
+              "flex flex-col transition-shadow hover:shadow-lg",
+              isRecommended && "border-primary border-2 relative"
+            )}
+          >
+            {isRecommended && (
+              <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 z-10">
+                推荐
+              </Badge>
+            )}
+
+            <CardHeader className={cn("pb-4", isRecommended && "pt-6")}>
+              <CardTitle className="text-lg">{product.displayName}</CardTitle>
+
+              <div className="mt-4">
+                <div className="flex items-baseline gap-1">
+                  <span className="text-3xl font-bold">
+                    {formatPrice(product.price.amount)}
+                  </span>
+                  {product.billingPeriod && (
+                    <span className="text-muted-foreground text-sm">
+                      /{product.billingPeriod === "year" ? "年" : "月"}
+                    </span>
+                  )}
+                </div>
+              </div>
+
+              {product.displayDescription && (
+                <CardDescription>{product.displayDescription}</CardDescription>
+              )}
+            </CardHeader>
+
+            <CardContent className="flex-1">
+              <ul className="space-y-3">
+                {product.localizedFeatures.map((feature) => (
+                  <li key={feature} className="flex items-start gap-2">
+                    <Check className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                    <span className="text-sm">{feature}</span>
+                  </li>
+                ))}
+              </ul>
+            </CardContent>
+
+            <CardFooter>
+              {userId ? (
+                isCurrent ? (
+                  <Button
+                    variant="default"
+                    className="w-full"
+                    onClick={onPortal}
+                  >
+                    {dictPrice.manage_subscription}
+                  </Button>
+                ) : (
+                  <Button
+                    variant={isRecommended ? "default" : "outline"}
+                    className="w-full"
+                    disabled={isPending || isCheckingAccess}
+                    onClick={() => onCheckout(product)}
+                  >
+                    {isPending ? (
+                      <>
+                        <Icons.Spinner className="mr-2 h-4 w-4 animate-spin" />
+                        Loading...
+                      </>
+                    ) : product.billingPeriod ? (
+                      dictPrice.upgrade
+                    ) : (
+                      buyCreditsLabel
+                    )}
+                  </Button>
+                )
+              ) : (
+                <Button
+                  variant={isRecommended ? "default" : "outline"}
+                  onClick={signInModal.onOpen}
+                >
+                  {dictPrice.signup}
+                </Button>
+              )}
+            </CardFooter>
+          </Card>
+        );
+      })}
+    </div>
   );
 }

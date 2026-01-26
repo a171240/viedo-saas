@@ -26,15 +26,15 @@ export const imageToVideoConfig: ToolPageConfig = {
     uiMode: "compact",
 
     defaults: {
-      model: "wan-2-6",
+      model: "wan2.6",
       duration: 10,
       aspectRatio: "16:9",
       outputNumber: 1,
     },
 
     models: {
-      available: ["wan-2-6", "seedance-1-5", "sora-2", "veo-3-1", "kling-2"],
-      default: "wan-2-6",
+      available: ["wan2.6", "seedance-1.5-pro", "sora-2", "veo-3.1"],
+      default: "wan2.6",
     },
 
     features: {

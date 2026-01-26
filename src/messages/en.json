@@ -50,9 +50,13 @@
     "enableNotifications": "Enable Notifications",
     "notificationDescription": "Get notified when your video generation is complete.",
     "maybeLater": "Maybe Later",
-    "allow": "Allow"
+    "allow": "Allow",
+    "videoReadyTitle": "Your video is ready",
+    "videoReadyBody": "Your generation has finished. Tap to view."
   },
   "ToolPage": {
+    "generator": "Generator",
+    "result": "Result",
     "queueTitle": "Queue",
     "queueEmpty": "No active tasks",
     "recentTitle": "Recent",
@@ -223,6 +227,10 @@
     "buyCredits": "Buy Credits",
     "history": "Transaction History",
     "packages": {
+      "starter": {
+        "name": "Starter Pack",
+        "description": "Perfect for trying out"
+      },
       "basic": {
         "name": "Basic Plan",
         "description": "Perfect for beginners"
@@ -271,6 +279,13 @@
   "PricingCards": {
     "pricing": "Pricing",
     "slogan": "Simple, transparent pricing",
+    "onetime": "One-time",
+    "monthly": "Monthly",
+    "yearly": "Yearly",
+    "off_percent": "40% OFF",
+    "no_products": "No products available",
+    "per_year": "/year",
+    "per_month": "/month",
     "monthly_bill": "Monthly",
     "annual_bill": "Yearly",
     "mo": "/mo",
@@ -290,6 +305,14 @@
   "Sidebar": {
     "upgradeTitle": "Upgrade to Pro",
     "upgradeSubtitle": "Unlock faster generation and more credits"
+  },
+  "UpgradeModal": {
+    "default_title": "Upgrade Your Plan",
+    "default_description": "Choose a plan that fits your needs",
+    "insufficient_credits_title": "Insufficient Credits",
+    "insufficient_credits_description": "You need at least {credits} credits to generate this video. Purchase a credit pack or upgrade to continue.",
+    "expired_title": "Credits Expired",
+    "expired_description": "Your credits have expired. Purchase a new pack or subscribe to continue creating."
   },
   "UserAccountNav": {
     "dashboard": "Dashboard",
@@ -473,5 +496,14 @@
         "failed": "Failed"
       }
     }
+  },
+  "VideoHistory": {
+    "title": "Recent Generations",
+    "demoTitle": "Example Videos",
+    "generating": "Generating your video...",
+    "download": "Download",
+    "copyLink": "Copy link",
+    "removeFromHistory": "Remove from history",
+    "generationFailed": "Generation Failed"
   }
 }
