@@ -265,12 +265,31 @@ export function ToolPageLayout({
   useEffect(() => {
     if (!user?.id) return;
     if (!videoIdFromQuery) return;
+
+    // 立即添加到历史记录（即使是正在生成中）
+    const existingItem = historyItems.find(item => item.uuid === videoIdFromQuery);
+    if (!existingItem) {
+      const newItem: VideoHistoryItem = {
+        uuid: videoIdFromQuery,
+        userId: user.id,
+        prompt: prefillData?.prompt || "",
+        model: prefillData?.model || "",
+        status: "generating",
+        creditsUsed: 0,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+
+      videoHistoryStorage.addHistory(newItem);
+      setHistoryItems(videoHistoryStorage.getHistory(user.id));
+    }
+
     setActiveTab("result");
     addGeneratingId(videoIdFromQuery);
     if (!isPolling(videoIdFromQuery)) {
       startPolling(videoIdFromQuery);
     }
-  }, [videoIdFromQuery, user?.id, isPolling, startPolling, addGeneratingId]);
+  }, [videoIdFromQuery, user?.id, isPolling, startPolling, addGeneratingId, prefillData, historyItems]);
 
   // SSE: listen for backend completion events
   useEffect(() => {

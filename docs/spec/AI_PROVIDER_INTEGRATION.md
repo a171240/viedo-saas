@@ -302,7 +302,79 @@ const response = await fetch(`${this.baseUrl}${apiEndpoint}`, ...);
 
 ---
 
-## 🛡️ 错误处理规范
+## ✅ 当前已接入模型对照
+
+> **唯一事实源**: `src/ai/model-mapping.ts`
+> 下面是当前项目已接入模型的完整对照关系（含动态选择规则和参考文档）。
+
+### 模型映射总览
+
+| 统一模型 ID | Evolink 模型 ID | KIE 模型 ID | 特殊端点 | 参考文档 |
+|-------------|----------------|-------------|----------|----------|
+| **sora-2** | `sora-2` | `sora-2-text-to-video`<br/>`sora-2-image-to-video` | ❌ 默认端点 | KIE: [文生](../API_KIE/sora-2-text-to-video.md) \| [图生](../API_KIE/sora-2-image-to-video.md)<br/>Evolink: [PRICING.md](./PRICING.md) |
+| **wan2.6** | `wan2.6-text-to-video`<br/>`wan2.6-image-to-video`<br/>`wan2.6-reference-video` | `wan/2-6-text-to-video`<br/>`wan/2-6-image-to-video`<br/>`wan/2-6-video-to-video` | ❌ 默认端点 | KIE: [文生](../API_KIE/wan/2-6-text-to-video.md) \| [图生](../API_KIE/wan/2-6-image-to-video.md) \| [参考视频](../API_KIE/wan/2-6-video-to-video.md)<br/>Evolink: [PRICING.md](./PRICING.md) |
+| **veo-3.1** | `veo3.1-fast` | `veo3_fast` \| `veo3` | ✅ **KIE**: `/api/v1/veo/generate` | KIE: [veo-3.1.md](../API_KIE/veo-3-1.md)<br/>Evolink: [PRICING.md](./PRICING.md) |
+| **seedance-1.5-pro** | `seedance-1.5-pro` | `bytedance/seedance-1.5-pro` | ❌ 默认端点 | KIE: [seedance-1.5-pro.md](../API_KIE/bytedance/seedance-1.5-pro.md)<br/>Evolink: [PRICING.md](./PRICING.md) |
+
+### 动态模型选择规则
+
+#### Sora 2
+- **KIE**: 根据 `imageUrl` 或 `imageUrls` 是否存在自动选择
+  - 有图片 → `sora-2-image-to-video`
+  - 无图片 → `sora-2-text-to-video`
+- **Evolink**: 固定使用 `sora-2`
+
+#### Wan 2.6
+- **Evolink**: 三种模式
+  - `mode === "reference-to-video"` → `wan2.6-reference-video`
+  - 有 `imageUrl` 或 `imageUrls` → `wan2.6-image-to-video`
+  - 否则 → `wan2.6-text-to-video`
+- **KIE**: 三种模式（对应 Evolink）
+  - `mode === "reference-to-video"` → `wan/2-6-video-to-video`
+  - 有图片 → `wan/2-6-image-to-video`
+  - 否则 → `wan/2-6-text-to-video`
+
+#### Veo 3.1
+- **Evolink**: 固定使用 `veo3.1-fast`
+- **KIE**: 根据 `quality` 动态选择
+  - `quality === "high"` 或 `"1080p"` 或 `"4k"` → `veo3`（质量版）
+  - 否则 → `veo3_fast`（快速版）
+- **特殊端点**: KIE 使用 `/api/v1/veo/generate`（独立于标准端点）
+
+#### Seedance 1.5 Pro
+- **Evolink**: 固定使用 `seedance-1.5-pro`
+- **KIE**: 固定使用 `bytedance/seedance-1.5-pro`
+
+### API 端点对照
+
+| Provider | 标准端点 | Veo 3.1 端点 |
+|----------|---------|-------------|
+| **Evolink** | `/v1/videos/generations` | `/v1/videos/generations`（相同） |
+| **KIE** | `/api/v1/jobs/createTask` | `/api/v1/veo/generate` ⚠️ **不同** |
+
+### Evolink 外部链接
+
+> Evolink 详情页集中在 `docs/spec/PRICING.md`，方便统一维护价格与规格。
+
+- Sora 2: https://evolink.ai/zh/sora-2
+- Wan 2.6: https://evolink.ai/zh/wan-2-6
+- Veo 3.1 Fast Lite: https://evolink.ai/zh/veo-3-1?model=veo-3-1-fast-lite
+- Seedance 1.5 Pro: https://evolink.ai/zh/seedance-1-5-pro
+
+### 参数差异速查
+
+| 统一参数 | Evolink 通用 | KIE Sora 2 | KIE Wan 2.6 | KIE Veo 3.1 | KIE Seedance |
+|---------|------------|-----------|------------|------------|-------------|
+| `prompt` | `prompt` | `input.prompt` | `input.prompt` | `prompt` ⚠️ | `input.prompt` |
+| `aspectRatio` | `aspect_ratio` | `input.aspect_ratio` | `input.aspect_ratio` | `aspect_ratio` ⚠️ | `input.aspect_ratio` |
+| `duration` | `10` (number) | `n_frames` (string) ⚠️ | `input.duration` (string) | ❌ 不支持 | `input.duration` (string) |
+| `quality` | `quality` | `size` (standard/high) ⚠️ | `input.resolution` (720p/1080p) | ❌ 不支持 | `input.resolution` (720p/1080p) |
+| `imageUrl` | `image_urls[]` | `image_urls[]` | `image_urls[]` | `imageUrls[]` ⚠️ | `input_urls[]` ⚠️ |
+| `callbackUrl` | `callback_url` | ❌ 不支持 | ❌ 不支持 | `callBackUrl` ⚠️ | ❌ 不支持 |
+
+**注**: ⚠️ 表示该模型有特殊处理
+
+---
 
 ### HTTP 状态码处理
 
@@ -661,4 +733,3 @@ interface AIVideoProvider {
 **文档版本**: v1.1
 **最后更新**: 2026-01-26
 **维护者**: VideoFly Team
-

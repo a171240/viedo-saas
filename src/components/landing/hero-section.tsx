@@ -146,8 +146,9 @@ export function HeroSection() {
   const processSubmission = async (data: SubmitData) => {
     setIsSubmitting(true);
     try {
-      const resolvedImageUrls = await resolveImageUrls(data);
       const normalizedMode = normalizeMode(data.mode);
+      const shouldIncludeImages = normalizedMode !== "text-to-video";
+      const resolvedImageUrls = shouldIncludeImages ? await resolveImageUrls(data) : undefined;
       const response = await fetch("/api/v1/video/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -160,9 +161,9 @@ export function HeroSection() {
           quality: data.quality ?? data.resolution,
           outputNumber: data.outputNumber,
           generateAudio: data.generateAudio,
-          imageUrls: resolvedImageUrls,
+          imageUrls: shouldIncludeImages ? resolvedImageUrls : undefined,
           // Keep compatibility for providers that only expect a single image
-          imageUrl: resolvedImageUrls?.[0],
+          imageUrl: shouldIncludeImages ? resolvedImageUrls?.[0] : undefined,
         }),
       });
 
@@ -185,7 +186,7 @@ export function HeroSection() {
               duration: parseDuration(data.duration),
               aspectRatio: data.aspectRatio,
               quality: data.quality ?? data.resolution,
-              imageUrl: resolvedImageUrls?.[0],
+              imageUrl: shouldIncludeImages ? resolvedImageUrls?.[0] : undefined,
             })
           );
         }

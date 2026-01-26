@@ -45,7 +45,13 @@ export function Sidebar({ lang = "en", mobileOpen, onMobileClose }: SidebarProps
 
   // 处理升级按钮点击
   const handleUpgradeClick = () => {
-    openModal({ reason: "upgrade" });
+    console.log("Upgrade button clicked");
+    try {
+      openModal({ reason: "upgrade" });
+      console.log("Modal opened");
+    } catch (error) {
+      console.error("Failed to open modal:", error);
+    }
   };
 
   // 渲染导航项
@@ -96,14 +102,15 @@ export function Sidebar({ lang = "en", mobileOpen, onMobileClose }: SidebarProps
         <div className="px-3 pt-4 border-t border-border/50">
           <button
             onClick={handleUpgradeClick}
-            className="group relative w-full block overflow-hidden rounded-xl bg-background p-[1px]"
+            className="group relative w-full text-left overflow-hidden rounded-xl bg-background p-[1px] hover:translate-y-[-2px] transition-transform"
+            type="button"
           >
             <ShineBorder
               shineColor={["#A07CFE", "#FE8FB5", "#FFBE7B"]}
               borderRadius="12px"
               borderWidth={1}
             />
-            <div className="relative bg-gradient-to-br from-primary/15 via-background to-primary/5 p-3 rounded-xl transition-all hover:-translate-y-0.5">
+            <div className="relative bg-gradient-to-br from-primary/15 via-background to-primary/5 p-3 rounded-xl">
               <div className="relative flex items-center gap-2 mb-1">
                 <span className="flex h-7 w-7 items-center justify-center rounded-full bg-primary/15 text-primary">
                   <Sparkles className="h-4 w-4" />
@@ -168,14 +175,15 @@ export function Sidebar({ lang = "en", mobileOpen, onMobileClose }: SidebarProps
           <SheetClose asChild>
             <button
               onClick={handleUpgradeClick}
-              className="group relative w-full block overflow-hidden rounded-xl bg-background p-[1px]"
+              className="group relative w-full text-left overflow-hidden rounded-xl bg-background p-[1px] hover:translate-y-[-2px] transition-transform"
+              type="button"
             >
               <ShineBorder
                 shineColor={["#A07CFE", "#FE8FB5", "#FFBE7B"]}
                 borderRadius="12px"
                 borderWidth={1}
               />
-              <div className="relative bg-gradient-to-br from-primary/15 via-background to-primary/5 p-3 rounded-xl transition-all hover:-translate-y-0.5">
+              <div className="relative bg-gradient-to-br from-primary/15 via-background to-primary/5 p-3 rounded-xl">
                 <div className="relative flex items-center gap-2 mb-1">
                   <span className="flex h-7 w-7 items-center justify-center rounded-full bg-primary/15 text-primary">
                     <Sparkles className="h-4 w-4" />

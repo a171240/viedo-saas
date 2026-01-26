@@ -35,7 +35,7 @@ export function ShineBorder({
       <div
         className="absolute inset-[-100%] w-[50%]"
         style={{
-          background: `linear-gradient(
+          backgroundImage: `linear-gradient(
             115deg,
             transparent 0%,
             var(--shine-color-a) 40%,
@@ -50,7 +50,7 @@ export function ShineBorder({
       <div
         className="absolute inset-[-100%] w-[50%]"
         style={{
-          background: `linear-gradient(
+          backgroundImage: `linear-gradient(
             115deg,
             transparent 0%,
             var(--shine-color-a) 40%,
