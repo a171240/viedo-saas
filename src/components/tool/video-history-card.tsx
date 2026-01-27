@@ -12,6 +12,7 @@ import { Copy, AlertCircle, Clock } from "lucide-react";
 import { cn } from "@/components/ui";
 import { Button } from "@/components/ui/button";
 import type { VideoHistoryItem } from "@/lib/video-history-storage";
+import { toast } from "sonner";
 
 interface VideoHistoryCardProps {
   video: VideoHistoryItem;
@@ -29,20 +30,36 @@ export function VideoHistoryCard({
   const isCompleted = video.status === "completed";
   const isFailed = video.status === "failed";
 
-  // 格式化时间
+  // 格式化时间（显示日期和时间）
   const formatTime = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleTimeString("en-US", {
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: false,
-    });
+    const now = new Date();
+    const isToday = date.toDateString() === now.toDateString();
+
+    if (isToday) {
+      // 今天的视频只显示时间
+      return date.toLocaleTimeString("en-US", {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false,
+      });
+    } else {
+      // 其他日期显示日期和时间
+      return date.toLocaleString("en-US", {
+        month: "short",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false,
+      });
+    }
   };
 
   // 复制提示词
   const handleCopyPrompt = () => {
     if (video.prompt) {
       navigator.clipboard.writeText(video.prompt);
+      toast.success("Prompt copied to clipboard");
     }
   };
 

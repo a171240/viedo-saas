@@ -51,8 +51,9 @@
     "notificationDescription": "Get notified when your video generation is complete.",
     "maybeLater": "Maybe Later",
     "allow": "Allow",
-    "videoReadyTitle": "Your video is ready",
-    "videoReadyBody": "Your generation has finished. Tap to view."
+    "videoReadyTitle": "{siteName} - Your video is ready",
+    "videoReadyBody": "Prompt: {prompt}\nYour generation has finished. Tap to view.",
+    "videoReadyBodyShort": "Your generation has finished. Tap to view."
   },
   "ToolPage": {
     "generator": "Generator",

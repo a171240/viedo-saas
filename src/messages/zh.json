@@ -51,8 +51,9 @@
     "notificationDescription": "视频生成完成后，我们将通过浏览器通知告知您。",
     "maybeLater": "稍后再说",
     "allow": "允许",
-    "videoReadyTitle": "视频已生成",
-    "videoReadyBody": "生成已完成，点击查看。"
+    "videoReadyTitle": "{siteName} - 视频已生成",
+    "videoReadyBody": "提示词：{prompt}\n生成已完成，点击查看。",
+    "videoReadyBodyShort": "生成已完成，点击查看。"
   },
   "ToolPage": {
     "generator": "生成器",

@@ -51,7 +51,7 @@ export const DEFAULT_VIDEO_MODELS: VideoModel[] = [
     color: "#000000",
     description: "OpenAI's advanced video generation model",
     maxDuration: "15 sec",
-    creditCost: 10,
+    creditCost: 2, // 10s 无水印 = 2 积分 (1.6 Credits 向上取整)
     // API: duration supports 10, 15 sec
     durations: ["10s", "15s"],
     // API: aspect_ratio supports 16:9, 9:16
@@ -68,11 +68,11 @@ export const DEFAULT_VIDEO_MODELS: VideoModel[] = [
     icon: "https://videocdn.pollo.ai/model-icon/svg/Group.svg",
     color: "#ff6a00",
     description: "Text/Image/Reference video to video with audio support",
-    maxDuration: "15 sec",
-    creditCost: 156,
-    // Text/Image to Video mode: duration supports 5, 10, 15 sec
+    maxDuration: "10 sec",
+    creditCost: 25, // 5s 720p = 25 积分
+    // Text/Image to Video mode: duration supports 5, 10 sec (❌ 不支持 15s)
     // Reference Video mode: duration supports 5, 10 sec
-    durations: ["5s", "10s", "15s"],
+    durations: ["5s", "10s"],
     // API: aspect_ratio supports 16:9, 9:16, 1:1, 4:3, 3:4
     aspectRatios: ["16:9", "9:16", "1:1", "4:3", "3:4"],
     // API: 720p/1080p
@@ -120,8 +120,8 @@ export const DEFAULT_VIDEO_MODELS: VideoModel[] = [
     color: "#4285f4",
     description: "Google's video generation with reference support",
     maxDuration: "8 sec",
-    creditCost: 60,
-    // API: duration supports 8 sec (current integration)
+    creditCost: 10, // 固定 10 积分 (9.6 Credits 向上取整)
+    // API: duration 只支持 8 sec
     durations: ["8s"],
     // API: aspect_ratio supports 16:9, 9:16
     aspectRatios: ["16:9", "9:16"],
@@ -146,9 +146,9 @@ export const DEFAULT_VIDEO_MODELS: VideoModel[] = [
     color: "#10b981",
     description: "Text/Image/Frames to video with audio",
     maxDuration: "12 sec",
-    creditCost: 16,
+    creditCost: 16, // 最小 4s 720p 有音频 = 16 积分 (4秒 × 4积分/秒)
     // API: duration supports 4-12 sec (any integer)
-    durations: ["4s", "5s", "6s", "8s", "10s", "12s"],
+    durations: ["4s", "5s", "6s", "7s", "8s", "9s", "10s", "11s", "12s"],
     // API: aspect_ratio supports 16:9, 9:16, 1:1, 4:3, 3:4, 21:9
     aspectRatios: ["16:9", "9:16", "1:1", "4:3", "3:4", "21:9"],
     // API: quality 480p, 720p (default), 1080p
@@ -160,7 +160,7 @@ export const DEFAULT_VIDEO_MODELS: VideoModel[] = [
       maxSizeMB: 10,
       formats: ["jpg", "jpeg", "png", "webp"],
     },
-    // Supports audio generation
+    // Supports audio generation (默认开启)
     supportsAudio: true,
   },
 ];
@@ -251,8 +251,8 @@ export const DEFAULT_IMAGE_ASPECT_RATIOS = ["1:1", "16:9", "3:2", "2:3", "3:4", 
 
 // Different models support different durations - common options listed here
 // sora-2: 10s, 15s
-// wan2.6: 5s, 10s, 15s
-// veo-3.1: 8s (current integration)
+// wan2.6: 5s, 10s
+// veo-3.1: 8s
 // seedance-1.5-pro: 4s-12s
 export const DEFAULT_DURATIONS = ["4s", "5s", "6s", "8s", "10s", "12s", "15s"];
 export const DEFAULT_RESOLUTIONS: string[] = [];

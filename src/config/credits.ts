@@ -267,7 +267,7 @@ export function getModelConfig(modelId: string): ModelConfig | null {
   return CREDITS_CONFIG.models[modelId as keyof typeof CREDITS_CONFIG.models] || null;
 }
 
-/** 计算模型积分消耗 */
+/** 计算模型积分消耗（基于 Evolink 1:1 成本） */
 export function calculateModelCredits(
   modelId: string,
   params: { duration: number; quality?: string }
@@ -276,15 +276,55 @@ export function calculateModelCredits(
   if (!config) return 0;
 
   const { base, perExtraSecond = 0, highQualityMultiplier = 1 } = config.creditCost;
-  const extraSeconds = Math.max(0, params.duration - 10);
-  let credits = base + extraSeconds * perExtraSecond;
+  const isHighQuality = params.quality?.toLowerCase() === "high" || params.quality?.includes("1080");
 
-  const normalizedQuality = params.quality?.toLowerCase();
-  const isHighQuality = normalizedQuality === "high" || normalizedQuality?.includes("1080");
+  let credits = 0;
 
-  if (isHighQuality && highQualityMultiplier > 1) {
-    credits = Math.round(credits * highQualityMultiplier);
+  // 根据模型使用不同的计算逻辑
+  switch (modelId) {
+    case "sora-2": {
+      // Sora 2: 固定价格（10s=2积分, 15s=3积分）
+      credits = params.duration === 15 ? 3 : 2;
+      break;
+    }
+
+    case "wan2.6": {
+      // Wan 2.6: 每秒 5 积分（5s=25, 10s=50）
+      credits = params.duration * 5;
+      if (isHighQuality) {
+        credits = credits * 1.67; // 1080p
+      }
+      break;
+    }
+
+    case "veo-3.1": {
+      // Veo 3.1: 固定 10 积分
+      credits = 10;
+      break;
+    }
+
+    case "seedance-1.5-pro": {
+      // Seedance: 按秒计费，720p 有音频 = 4积分/秒
+      let perSecond = 4; // 720p 有音频
+      if (isHighQuality) {
+        perSecond = 8; // 1080p 有音频
+      }
+      credits = params.duration * perSecond;
+      break;
+    }
+
+    default: {
+      // 默认逻辑（兼容旧配置）
+      const extraSeconds = Math.max(0, params.duration - 10);
+      credits = base + extraSeconds * perExtraSecond;
+
+      if (isHighQuality && highQualityMultiplier > 1) {
+        credits = credits * highQualityMultiplier;
+      }
+      break;
+    }
   }
 
-  return Math.round(credits);
+  // 向上取整
+  return Math.ceil(credits);
 }

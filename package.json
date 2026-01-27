@@ -19,7 +19,8 @@
     "email": "email dev --dir src/mail/templates --port 3333",
     "script:add-credits": "dotenv -e .env.local -- tsx scripts/add-credits.ts",
     "script:check-credits": "dotenv -e .env.local -- tsx scripts/check-user-credits.ts",
-    "script:reset-credits": "dotenv -e .env.local -- tsx scripts/reset-user-credits.ts"
+    "script:reset-credits": "dotenv -e .env.local -- tsx scripts/reset-user-credits.ts",
+    "script:test-proxy": "node scripts/test-proxy.mjs"
   },
   "dependencies": {
     "@creem_io/better-auth": "^0.0.12",

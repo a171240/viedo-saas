@@ -18,9 +18,11 @@ import { useTranslations } from "next-intl";
 import { authClient } from "@/lib/auth/client";
 import { useCredits } from "@/stores/credits-store";
 import { useVideoPolling } from "@/hooks/use-video-polling";
+import { useNotificationDeduplication } from "@/hooks/use-notification-deduplication";
 import { videoTaskStorage } from "@/lib/video-task-storage";
 import { videoHistoryStorage, type VideoHistoryItem } from "@/lib/video-history-storage";
 import { useUpgradeModal } from "@/hooks/use-upgrade-modal";
+import { siteConfig } from "@/config/site";
 import type { Video } from "@/db";
 import type { ToolPageConfig } from "@/config/tool-pages";
 import { GeneratorPanel, type GeneratorData } from "@/components/tool/generator-panel";
@@ -84,6 +86,7 @@ export function ToolPageLayout({
   const searchParams = useSearchParams();
   const { balance, optimisticFreeze, optimisticRelease, invalidate } = useCredits();
   const { openModal } = useUpgradeModal();
+  const { shouldNotify, markNotified } = useNotificationDeduplication();
   const videoIdFromQuery = searchParams.get("id");
   const NOTIFICATION_ASKED_KEY = "videofly_notification_asked";
   const tNotify = useTranslations("Notifications");
@@ -147,24 +150,60 @@ export function ToolPageLayout({
         );
       }
 
+      // 通知去重：确保只有一个标签页显示通知
+      if (!shouldNotify(video.uuid)) {
+        return;
+      }
+
+      // 准备提示词（截断过长的提示词）
+      const promptPreview = video.prompt?.length > 50
+        ? `${video.prompt.slice(0, 50)}...`
+        : video.prompt || "";
+
+      // 显示通知（浏览器通知或 toast）
       if (typeof window !== "undefined" && "Notification" in window) {
         if (Notification.permission === "granted") {
           try {
-            new Notification(tNotify("videoReadyTitle"), {
-              body: tNotify("videoReadyBody"),
-            });
+            new Notification(
+              tNotify("videoReadyTitle", { siteName: siteConfig.name }),
+              {
+                body: tNotify("videoReadyBody", { prompt: promptPreview }),
+              }
+            );
           } catch (error) {
             console.warn("Notification dispatch failed:", error);
-            toast.success(tNotify("videoReadyTitle"));
+            toast.success(
+              tNotify("videoReadyTitle", { siteName: siteConfig.name }),
+              {
+                description: tNotify("videoReadyBody", { prompt: promptPreview }),
+              }
+            );
           }
         } else {
-          toast.success(tNotify("videoReadyTitle"));
+          toast.success(
+            tNotify("videoReadyTitle", { siteName: siteConfig.name }),
+            {
+              description: promptPreview
+                ? tNotify("videoReadyBody", { prompt: promptPreview })
+                : tNotify("videoReadyBodyShort"),
+            }
+          );
         }
       } else {
-        toast.success(tNotify("videoReadyTitle"));
+        toast.success(
+          tNotify("videoReadyTitle", { siteName: siteConfig.name }),
+          {
+            description: promptPreview
+              ? tNotify("videoReadyBody", { prompt: promptPreview })
+              : tNotify("videoReadyBodyShort"),
+          }
+        );
       }
+
+      // 标记为已通知，防止其他标签页重复通知
+      markNotified(video.uuid);
     },
-    [removeGeneratingId, user?.id, invalidate, tNotify]
+    [removeGeneratingId, user?.id, invalidate, tNotify, shouldNotify, markNotified]
   );
 
   const handleFailed = useCallback(
@@ -629,7 +668,7 @@ export function ToolPageLayout({
         </div>
       )}
 
-      <div className="grid min-h-0 h-fit max-h-[calc(100svh-120px)] grid-cols-1 lg:grid-cols-[360px_minmax(0,1fr)] gap-5">
+      <div className="grid min-h-0 h-fit max-h-[calc(100svh-120px)] grid-cols-1 lg:grid-cols-[380px_minmax(0,1.2fr)] gap-5">
         {/* Generator Panel */}
         <div
           className={`${activeTab === "generator" ? "flex" : "hidden"

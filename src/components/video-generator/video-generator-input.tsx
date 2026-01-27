@@ -223,6 +223,24 @@ export function VideoGeneratorInput({
     }
   }, [videoModels.length, imageModels.length, generationType]);
 
+  // Reset duration when model changes if current duration is not supported
+  useEffect(() => {
+    if (generationType === "video" && selectedVideoModel?.durations) {
+      if (!selectedVideoModel.durations.includes(duration)) {
+        setDuration(selectedVideoModel.durations[0]);
+      }
+    }
+  }, [selectedVideoModel, duration, generationType]);
+
+  // Reset resolution when model changes if current resolution is not supported
+  useEffect(() => {
+    if (generationType === "video" && selectedVideoModel?.resolutions) {
+      if (!selectedVideoModel.resolutions.includes(resolution)) {
+        setResolution(selectedVideoModel.resolutions[0]);
+      }
+    }
+  }, [selectedVideoModel, resolution, generationType]);
+
   // Refs
   const fileInputRef = useRef<HTMLInputElement>(null);
   const currentUploadSlot = useRef<string>("default");

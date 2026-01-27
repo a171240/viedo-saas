@@ -92,41 +92,48 @@ export function VideoDetailDialog({
   return (
     <>
       <Dialog open={open} onOpenChange={onClose}>
-        <DialogContent className="max-w-5xl p-0 overflow-hidden">
+        <DialogContent
+          className="p-0 overflow-hidden"
+          style={{
+            width: '75vw',
+            maxWidth: '85vw',
+            height: '80vh',
+          }}
+        >
           <DialogTitle className="sr-only">{t("title")}</DialogTitle>
           {/* Close button */}
           <button
             onClick={onClose}
-            className="absolute right-4 top-4 z-10 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground"
+            className="absolute right-4 top-4 z-10 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground bg-background"
           >
             <X className="h-4 w-4" />
             <span className="sr-only">Close</span>
           </button>
 
-          <div className="flex flex-col lg:flex-row">
-            {/* Left: Video Player (~60%) */}
-            <div className="lg:w-[60%] bg-black flex items-center justify-center">
+          <div className="flex flex-col lg:flex-row h-full">
+            {/* Left: Video Player (~65% for better 16:9 display) */}
+            <div className="lg:w-[65%] h-[60vh] lg:h-full bg-black flex items-center justify-center">
               {video.videoUrl ? (
                 <video
                   ref={videoRef}
                   src={video.videoUrl}
                   controls
-                  className="w-full h-full max-h-[70vh] lg:max-h-[80vh]"
+                  className="w-full h-full"
                   playsInline
                 />
               ) : video.thumbnailUrl ? (
                 <img
                   src={video.thumbnailUrl}
                   alt={video.prompt}
-                  className="w-full h-full object-contain max-h-[70vh] lg:max-h-[80vh]"
+                  className="w-full h-full object-contain"
                 />
               ) : (
                 <div className="text-muted-foreground">No video available</div>
               )}
             </div>
 
-            {/* Right: Video Info (~40%) */}
-            <div className="lg:w-[40%] p-6 space-y-6">
+            {/* Right: Video Info (~35%) */}
+            <div className="lg:w-[35%] h-[40vh] lg:h-full p-8 space-y-6 overflow-y-auto">
               {/* Status badge */}
               <div>
                 <Badge

@@ -3,6 +3,8 @@ import { videoService } from "@/services/video";
 import { requireAuth } from "@/lib/api/auth";
 import { apiSuccess, handleApiError } from "@/lib/api/response";
 import { z } from "zod";
+// Import proxy configuration for fetch requests
+import "@/lib/proxy-config";
 
 const generateSchema = z.object({
   prompt: z.string().min(1).max(5000),
