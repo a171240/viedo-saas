@@ -1,12 +1,12 @@
 "use client";
 
-import { Type, Upload, Video, Download, Sparkles, Clock, Zap } from "lucide-react";
+import { Type, Upload, Video, Download, Clock, Zap } from "lucide-react";
 import { motion } from "framer-motion";
 import { useTranslations } from "next-intl";
 
 import { BlurFade } from "@/components/magicui/blur-fade";
-import { NumberTicker } from "@/components/magicui/number-ticker";
 import { cn } from "@/components/ui";
+import { marketingConfig } from "@/config/marketing";
 
 /**
  * How It Works Section - 工作流程展示
@@ -25,7 +25,7 @@ const steps = [
     descKey: "steps.prompt.description",
     gradient: "from-blue-500 to-cyan-500",
     bgColor: "bg-blue-500",
-    stat: { value: 30, suffix: "s", labelKey: "steps.prompt.stat" },
+    stat: null,
   },
   {
     step: "02",
@@ -43,7 +43,7 @@ const steps = [
     descKey: "steps.generate.description",
     gradient: "from-orange-500 to-red-500",
     bgColor: "bg-orange-500",
-    stat: { value: 2, suffix: "min", labelKey: "steps.generate.stat" },
+    stat: null,
   },
   {
     step: "04",
@@ -52,12 +52,13 @@ const steps = [
     descKey: "steps.download.description",
     gradient: "from-green-500 to-emerald-500",
     bgColor: "bg-green-500",
-    stat: { value: 1080, suffix: "p", labelKey: "steps.download.stat" },
+    stat: null,
   },
 ];
 
 export function HowItWorks() {
   const t = useTranslations("HowItWorks");
+  const tMarketing = useTranslations("Marketing");
 
   return (
     <section className="relative py-24 md:py-32 overflow-hidden">
@@ -167,27 +168,6 @@ export function HowItWorks() {
                         {t(step.descKey)}
                       </p>
 
-                      {/* 统计数据 (如果有) */}
-                      {step.stat && (
-                        <motion.div
-                          initial={{ opacity: 0, height: 0 }}
-                          whileInView={{ opacity: 1, height: "auto" }}
-                          viewport={{ once: true }}
-                          transition={{ delay: 0.3, duration: 0.5 }}
-                          className="pt-4 border-t border-border/50"
-                        >
-                          <div className="flex items-center gap-2">
-                            <Sparkles className="h-4 w-4 text-primary" />
-                            <span className="text-sm text-muted-foreground">
-                              {t(step.stat.labelKey)}:
-                            </span>
-                            <span className="text-lg font-bold text-foreground">
-                              <NumberTicker value={step.stat.value} />
-                              {step.stat.suffix}
-                            </span>
-                          </div>
-                        </motion.div>
-                      )}
 
                       {/* 悬停时的光晕效果 */}
                       <div
@@ -215,7 +195,7 @@ export function HowItWorks() {
           >
             <div className="inline-flex items-center gap-3 px-6 py-3 rounded-full bg-gradient-to-r from-blue-500/10 via-purple-500/10 to-pink-500/10 border border-border">
               <Zap className="h-5 w-5 text-yellow-500" />
-              <span className="text-sm font-medium">{t("bottomHint")}</span>
+              <span className="text-sm font-medium">{tMarketing(marketingConfig.freeCreditsNoteKey)}</span>
             </div>
           </motion.div>
         </BlurFade>

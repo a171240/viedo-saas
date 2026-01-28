@@ -99,12 +99,6 @@ export const imageToVideoConfig: ToolPageConfig = {
       { name: "Veo 3.1", provider: "Google", color: "#4285f4" },
       { name: "Kling 2", provider: "Kuaishou", color: "#f59e0b" },
     ],
-
-    stats: {
-      videosGenerated: "500K+",
-      usersCount: "50K+",
-      avgRating: 4.8,
-    },
   },
 
   // 多语言 key 前缀

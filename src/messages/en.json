@@ -49,6 +49,11 @@
     },
     "creditsHint": "Free credits to start • No credit card required"
   },
+  "Marketing": {
+    "typicalGenerationTime": "2?5 minutes",
+    "qualityNote": "Up to 1080p (model-dependent)",
+    "freeCreditsNote": "50 free credits ? no credit card required"
+  },
   "Notifications": {
     "generationWillNotify": "Generation may take a while. We'll notify you when it's ready.",
     "enableNotifications": "Enable Notifications",

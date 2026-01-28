@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Sparkles, Zap, Play } from "lucide-react";
 import { motion } from "framer-motion";
@@ -17,7 +17,9 @@ import { BlurFade } from "@/components/magicui/blur-fade";
 import { Meteors } from "@/components/magicui/meteors";
 import { cn } from "@/components/ui";
 import { authClient } from "@/lib/auth/client";
+import { fetchDevBypassUser, isDevBypassEnabled } from "@/lib/auth/dev-bypass-client";
 import { calculateModelCredits, getAvailableModels } from "@/config/credits";
+import { marketingConfig } from "@/config/marketing";
 import { uploadImage } from "@/lib/video-api";
 import { useSigninModal } from "@/hooks/use-signin-modal";
 import { videoTaskStorage } from "@/lib/video-task-storage";
@@ -49,6 +51,7 @@ const TOOL_PREFILL_KEY = "videofly_tool_prefill";
 export function HeroSection() {
   const t = useTranslations("Hero");
   const tNotify = useTranslations("Notifications");
+  const tMarketing = useTranslations("Marketing");
   const locale = useLocale();
   const router = useRouter();
   const signInModal = useSigninModal();
@@ -56,6 +59,14 @@ export function HeroSection() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showNotifyDialog, setShowNotifyDialog] = useState(false);
   const [pendingSubmitData, setPendingSubmitData] = useState<SubmitData | null>(null);
+  const [devUser, setDevUser] = useState<any>(null);
+
+  useEffect(() => {
+    if (!isDevBypassEnabled()) return;
+    fetchDevBypassUser().then((user) => {
+      if (user) setDevUser(user);
+    });
+  }, []);
 
   const generatorConfig = useMemo(() => {
     const availableIds = new Set(getAvailableModels().map((model) => model.id));
@@ -193,9 +204,10 @@ export function HeroSection() {
       } catch (storageError) {
         console.warn("Failed to store tool prefill data:", storageError);
       }
-      if (session?.user?.id) {
+      const userId = session?.user?.id ?? devUser?.id;
+      if (userId) {
         videoTaskStorage.addTask({
-          userId: session.user.id,
+          userId,
           videoId: result.data.videoUuid,
           taskId: result.data.taskId,
           prompt: data.prompt,
@@ -243,7 +255,15 @@ export function HeroSection() {
   };
 
   const handleSubmit = async (data: SubmitData) => {
-    let activeUser = session?.user ?? null;
+    let activeUser = (devUser || session?.user) ?? null;
+    if (!activeUser && isDevBypassEnabled()) {
+      const dev = await fetchDevBypassUser();
+      if (dev) {
+        setDevUser(dev);
+        activeUser = dev;
+      }
+    }
+
     if (!activeUser) {
       try {
         const fresh = await authClient.getSession();
@@ -254,6 +274,10 @@ export function HeroSection() {
     }
 
     if (!activeUser) {
+      if (isDevBypassEnabled()) {
+        toast.error("Dev user not available.");
+        return;
+      }
       try {
         sessionStorage.setItem(PENDING_PROMPT_KEY, data.prompt);
         if (data.images?.[0]) {
@@ -366,14 +390,15 @@ export function HeroSection() {
             />
 
             {/* 底部提示 */}
-            <motion.p
+            <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.8 }}
-              className="text-center text-xs text-muted-foreground mt-4"
+              className="text-center text-xs text-muted-foreground mt-4 space-y-1"
             >
-              {t("creditsHint")}
-            </motion.p>
+              <p>{tMarketing(marketingConfig.freeCreditsNoteKey)}</p>
+              <p>{tMarketing(marketingConfig.qualityNoteKey)}</p>
+            </motion.div>
           </motion.div>
         </div>
       </div>

@@ -99,12 +99,6 @@ export const textToVideoConfig: ToolPageConfig = {
       { name: "Seedance 1.5", provider: "ByteDance", color: "#ec4899" },
       { name: "Kling 2", provider: "Kuaishou", color: "#f59e0b" },
     ],
-
-    stats: {
-      videosGenerated: "1M+",
-      usersCount: "100K+",
-      avgRating: 4.9,
-    },
   },
 
   // 多语言 key 前缀

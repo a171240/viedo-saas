@@ -49,6 +49,11 @@
     },
     "creditsHint": "免费积分开始 • 无需信用卡"
   },
+  "Marketing": {
+    "typicalGenerationTime": "2?5 ??",
+    "qualityNote": "?? 1080p???????",
+    "freeCreditsNote": "50 ???? ? ?????"
+  },
   "Notifications": {
     "generationWillNotify": "生成时间较长，我们会在生成完成后通知你。",
     "enableNotifications": "开启通知",

@@ -94,12 +94,6 @@ export const referenceToVideoConfig: ToolPageConfig = {
       { name: "Wan 2.6", provider: "Alibaba", color: "#8b5cf6" },
       { name: "Seedance 1.5", provider: "ByteDance", color: "#ec4899" },
     ],
-
-    stats: {
-      videosGenerated: "100K+",
-      usersCount: "15K+",
-      avgRating: 4.7,
-    },
   },
 
   // 多语言 key 前缀
