@@ -53,7 +53,7 @@ export function MarketingPage({
                   {section.body}
                 </p>
               ) : null}
-              {section.items && section.items.length ? (
+              {section.items?.length ? (
                 <ul className="list-disc space-y-2 pl-5 text-sm text-muted-foreground sm:text-base">
                   {section.items.map((item) => (
                     <li key={item}>{item}</li>

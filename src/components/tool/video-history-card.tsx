@@ -37,25 +37,22 @@ export function VideoHistoryCard({
     const isToday = date.toDateString() === now.toDateString();
 
     if (isToday) {
-      // 今天的视频只显示时间
       return date.toLocaleTimeString("en-US", {
         hour: "2-digit",
         minute: "2-digit",
         hour12: false,
       });
-    } else {
-      // 其他日期显示日期和时间
-      return date.toLocaleString("en-US", {
-        month: "short",
-        day: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-        hour12: false,
-      });
     }
+
+    return date.toLocaleString("en-US", {
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+    });
   };
 
-  // 复制提示词
   const handleCopyPrompt = () => {
     if (video.prompt) {
       navigator.clipboard.writeText(video.prompt);

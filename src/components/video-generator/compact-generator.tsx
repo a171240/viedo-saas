@@ -197,7 +197,7 @@ function CompactRenderer() {
               <div key={slot.id} className="flex flex-col items-center gap-1">
                 {image ? (
                   <div className="relative group">
-                    <button
+                    <button type="button"
                       onClick={() => handlers.handleRemoveImage(slot.id)}
                       className="absolute -top-1 -right-1 z-10 p-0.5 rounded-full bg-zinc-700 hover:bg-zinc-600 opacity-0 group-hover:opacity-100 transition-opacity"
                     >
@@ -214,7 +214,7 @@ function CompactRenderer() {
                     </div>
                   </div>
                 ) : (
-                  <button
+                  <button type="button"
                     onClick={() => handlers.handleUploadClick(slot.id)}
                     className="w-10 h-12 rounded-lg border border-dashed border-zinc-700 hover:border-zinc-500 transition-colors flex items-center justify-center text-zinc-500 hover:text-zinc-400"
                   >
@@ -266,7 +266,7 @@ function CompactRenderer() {
         {features.showModelSelector !== false && computed.currentModel && (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <button className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-zinc-800/50 hover:bg-zinc-700/50 transition-colors text-xs text-zinc-300">
+              <button type="button" className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-zinc-800/50 hover:bg-zinc-700/50 transition-colors text-xs text-zinc-300">
                 {renderModelIcon(computed.currentModel)}
                 <span className="max-w-[80px] truncate">{computed.currentModel.name}</span>
                 <ChevronDown className="w-3 h-3 text-zinc-500" />
@@ -311,7 +311,7 @@ function CompactRenderer() {
         {showSettings && (
           <Popover open={isSettingsOpen} onOpenChange={setIsSettingsOpen}>
             <PopoverTrigger asChild>
-              <button className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-zinc-800/50 hover:bg-zinc-700/50 transition-colors text-xs text-zinc-400">
+              <button type="button" className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-zinc-800/50 hover:bg-zinc-700/50 transition-colors text-xs text-zinc-400">
                 <Settings className="w-3.5 h-3.5" />
                 <span>{texts.settings ?? "Settings"}</span>
               </button>
@@ -326,7 +326,7 @@ function CompactRenderer() {
                       ? computed.effectiveVideoAspectRatios
                       : computed.effectiveImageAspectRatios
                     ).map((ratio: string) => (
-                      <button
+                      <button type="button"
                         key={ratio}
                         onClick={() => handlers.handleAspectRatioChange(ratio)}
                         className={cn(
@@ -348,7 +348,7 @@ function CompactRenderer() {
                   <Label className="text-xs text-zinc-400 mb-1.5 block">{texts.duration}</Label>
                   <div className="grid grid-cols-4 gap-1.5">
                     {computed.effectiveDurations.map((d: string) => (
-                      <button
+                      <button type="button"
                         key={d}
                         onClick={() => actions.setDuration(d)}
                         className={cn(
@@ -371,7 +371,7 @@ function CompactRenderer() {
                   <Label className="text-xs text-zinc-400 mb-1.5 block">{texts.resolution}</Label>
                   <div className="grid grid-cols-4 gap-1.5">
                     {computed.effectiveResolutions.map((r: string) => (
-                      <button
+                      <button type="button"
                         key={r}
                         onClick={() => actions.setResolution(r)}
                         className={cn(
@@ -392,7 +392,7 @@ function CompactRenderer() {
         )}
 
         {/* 生成按钮 */}
-        <button
+        <button type="button"
           onClick={handlers.handleSubmit}
           disabled={!validation.canSubmit}
           className={cn(
@@ -427,7 +427,7 @@ function CompactRenderer() {
               <Label className="text-xs text-zinc-400">{texts.outputNumber}</Label>
               <div className="flex gap-1">
                 {computed.effectiveVideoOutputNumbers.map((option: OutputNumberOption) => (
-                  <button
+                  <button type="button"
                     key={option.value}
                     onClick={() => handlers.handleOutputNumberChange(option)}
                     className={cn(

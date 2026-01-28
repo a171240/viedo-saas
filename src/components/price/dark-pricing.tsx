@@ -220,7 +220,7 @@ interface TabButtonProps {
 
 function TabButton({ active, children, onClick }: TabButtonProps) {
   return (
-    <button
+    <button type="button"
       onClick={onClick}
       className={cn(
         "relative rounded-md px-6 py-2.5 text-sm font-semibold transition-all duration-200",
@@ -365,7 +365,7 @@ function PricingCard({
 
         {userId ? (
           isCurrent ? (
-            <button
+            <button type="button"
               onClick={onPortal}
               className={cn(
                 "w-full rounded-lg py-2.5 text-sm font-semibold transition-colors",
@@ -378,7 +378,7 @@ function PricingCard({
               {dictPrice.manage_subscription}
             </button>
           ) : (
-            <button
+            <button type="button"
               disabled={isPending}
               onClick={() => onCheckout(product)}
               className={cn(
@@ -403,7 +403,7 @@ function PricingCard({
             </button>
           )
         ) : (
-          <button
+          <button type="button"
             onClick={signInModal.onOpen}
             className={cn(
               "w-full rounded-lg py-2.5 text-sm font-semibold transition-colors",

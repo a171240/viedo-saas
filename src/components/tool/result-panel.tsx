@@ -162,7 +162,7 @@ export function ResultPanel({
           {tTool("resultTitle")}
         </div>
         {onRegenerate && (
-          <button
+          <button type="button"
             onClick={onRegenerate}
             className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium border border-border bg-muted/30 text-foreground hover:bg-muted/50 transition-all"
           >

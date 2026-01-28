@@ -569,7 +569,7 @@ export function ToolPageLayout({
         {/* Mobile Tabs */}
         {showMobileTabs && (
           <div className="lg:hidden flex border-b border-border shrink-0">
-            <button
+            <button type="button"
               onClick={() => setActiveTab("generator")}
               className={`flex-1 py-3 text-sm font-medium transition-colors ${activeTab === "generator"
                 ? "text-foreground border-b-2 border-primary"
@@ -578,7 +578,7 @@ export function ToolPageLayout({
             >
               {tTool("generator")}
             </button>
-            <button
+            <button type="button"
               onClick={() => setActiveTab("result")}
               className={`flex-1 py-3 text-sm font-medium transition-colors ${activeTab === "result"
                 ? "text-foreground border-b-2 border-primary"
@@ -647,7 +647,7 @@ export function ToolPageLayout({
       {/* Mobile Tabs */}
       {showMobileTabs && (
         <div className="lg:hidden flex border-b border-border mb-4 shrink-0">
-          <button
+          <button type="button"
             onClick={() => setActiveTab("generator")}
             className={`flex-1 py-3 text-sm font-medium transition-colors ${activeTab === "generator"
               ? "text-foreground border-b-2 border-primary"
@@ -656,7 +656,7 @@ export function ToolPageLayout({
           >
             {tTool("generator")}
           </button>
-          <button
+          <button type="button"
             onClick={() => setActiveTab("result")}
             className={`flex-1 py-3 text-sm font-medium transition-colors ${activeTab === "result"
               ? "text-foreground border-b-2 border-primary"

@@ -142,13 +142,9 @@ export function HeroSection() {
     const normalized = normalizeMode(mode);
     switch (normalized) {
       case "image-to-video":
-      case "i2v":
         return "image-to-video";
       case "reference-to-video":
-      case "r2v":
         return "reference-to-video";
-      case "text-to-video":
-      case "t2v":
       default:
         return "text-to-video";
     }
