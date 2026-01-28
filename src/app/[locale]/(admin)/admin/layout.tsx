@@ -3,12 +3,11 @@ import { redirect } from "next/navigation";
 import { requireAdmin } from "@/lib/auth/admin";
 import { HeaderSimple } from "@/components/layout/header-simple";
 import { AdminSidebar } from "@/components/admin/admin-sidebar";
-import type { Locale } from "@/config/i18n-config";
 
 interface AdminLayoutProps {
   children?: React.ReactNode;
   params: Promise<{
-    locale: Locale;
+    locale: string;
   }>;
 }
 

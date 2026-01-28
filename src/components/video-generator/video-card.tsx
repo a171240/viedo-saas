@@ -217,7 +217,7 @@ export function VideoCard({ video, onDelete, showActions = true }: VideoCardProp
   const createdAt = new Date(video.created_at).toLocaleDateString();
 
   return (
-    <BlurFade in>
+    <BlurFade inView>
       <Card className="group overflow-hidden border-zinc-800 bg-zinc-900/50 hover:bg-zinc-900/80 transition-colors duration-300">
         <VideoThumbnail video={video} />
 

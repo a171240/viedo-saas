@@ -30,7 +30,8 @@ if (PROXY_URL) {
       console.log(`📡 [Proxy] Global proxy configured: ${PROXY_URL}`);
     }
   } catch (error) {
-    console.warn(`⚠️  [Proxy] Failed to configure undici proxy:`, error.message);
+    const message = error instanceof Error ? error.message : String(error);
+    console.warn(`⚠️  [Proxy] Failed to configure undici proxy:`, message);
   }
 } else {
   console.log(`ℹ️  [Proxy] No HTTP_PROXY/HTTPS_PROXY environment variable found`);

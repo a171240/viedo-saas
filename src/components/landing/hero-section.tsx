@@ -70,10 +70,11 @@ export function HeroSection() {
 
   const generatorConfig = useMemo(() => {
     const availableIds = new Set(getAvailableModels().map((model) => model.id));
-    const filteredVideoModels = DEFAULT_CONFIG.videoModels.filter((model) => availableIds.has(model.id));
+    const baseVideoModels = DEFAULT_CONFIG.videoModels ?? [];
+    const filteredVideoModels = baseVideoModels.filter((model) => availableIds.has(model.id));
     return {
       ...DEFAULT_CONFIG,
-      videoModels: filteredVideoModels.length > 0 ? filteredVideoModels : DEFAULT_CONFIG.videoModels,
+      videoModels: filteredVideoModels.length > 0 ? filteredVideoModels : baseVideoModels,
     };
   }, []);
 

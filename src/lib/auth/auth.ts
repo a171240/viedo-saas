@@ -24,14 +24,21 @@ const toLogString = (value: unknown) => {
   if (typeof value === "string") return value;
   const normalized =
     value instanceof Error
-      ? {
-          name: value.name,
-          message: value.message,
-          stack: value.stack,
-          status: (value as Record<string, unknown>).status,
-          statusText: (value as Record<string, unknown>).statusText,
-          error: (value as Record<string, unknown>).error,
-        }
+      ? (() => {
+          const extra = value as Error & {
+            status?: unknown;
+            statusText?: unknown;
+            error?: unknown;
+          };
+          return {
+            name: value.name,
+            message: value.message,
+            stack: value.stack,
+            status: extra.status,
+            statusText: extra.statusText,
+            error: extra.error,
+          };
+        })()
       : value;
   const seen = new WeakSet();
   try {

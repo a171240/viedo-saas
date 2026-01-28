@@ -1,6 +1,6 @@
 import { Inter as FontSans } from "next/font/google";
 import localFont from "next/font/local";
-import { getMessages } from "next-intl/server";
+import { getLocale, getMessages } from "next-intl/server";
 
 import "@/styles/globals.css";
 
@@ -73,16 +73,12 @@ export const metadata = {
 
 interface RootLayoutProps {
   children: React.ReactNode;
-  params: Promise<{
-    locale: string;
-  }>;
 }
 
 export default async function RootLayout({
   children,
-  params,
 }: RootLayoutProps) {
-  const { locale } = await params;
+  const locale = await getLocale();
   const messages = await getMessages();
 
   return (

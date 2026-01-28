@@ -109,7 +109,6 @@ export function Sidebar({ lang = "en", mobileOpen, onMobileClose }: SidebarProps
           >
             <ShineBorder
               shineColor={["#A07CFE", "#FE8FB5", "#FFBE7B"]}
-              borderRadius="12px"
               borderWidth={1}
             />
             <div className="relative bg-gradient-to-br from-primary/15 via-background to-primary/5 p-3 rounded-xl">
@@ -182,7 +181,6 @@ export function Sidebar({ lang = "en", mobileOpen, onMobileClose }: SidebarProps
             >
               <ShineBorder
                 shineColor={["#A07CFE", "#FE8FB5", "#FFBE7B"]}
-                borderRadius="12px"
                 borderWidth={1}
               />
               <div className="relative bg-gradient-to-br from-primary/15 via-background to-primary/5 p-3 rounded-xl">
@@ -215,7 +213,7 @@ export function Sidebar({ lang = "en", mobileOpen, onMobileClose }: SidebarProps
       {/* Mobile Sidebar */}
       {mobileOpen && (
         <Sheet open={mobileOpen} onOpenChange={onMobileClose ? () => onMobileClose() : undefined}>
-          <SheetContent side="left" className="w-[280px] p-0">
+          <SheetContent position="left" className="w-[280px] p-0">
             <div className="flex flex-col h-full">
               <SheetHeader className="sr-only">
                 <SheetTitle>{t("title")}</SheetTitle>

@@ -103,7 +103,7 @@ function UpgradeModalContent() {
   const getDescription = () => {
     switch (reason) {
       case "insufficient_credits":
-        return t("insufficient_credits_description", { credits: requiredCredits });
+        return t("insufficient_credits_description", { credits: requiredCredits ?? 0 });
       case "expired":
         return t("expired_description");
       default:

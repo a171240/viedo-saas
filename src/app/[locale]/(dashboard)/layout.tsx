@@ -4,12 +4,12 @@ import { requireAuth } from "@/lib/auth";
 import { HeaderSimple } from "@/components/layout/header-simple";
 import { Sidebar } from "@/components/layout/sidebar";
 import { UpgradeModal } from "@/components/upgrade/upgrade-modal";
-import { i18n, type Locale } from "@/config/i18n-config";
+import { i18n } from "@/config/i18n-config";
 
 interface DashboardLayoutProps {
   children?: React.ReactNode;
   params: Promise<{
-    locale: Locale;
+    locale: string;
   }>;
 }
 

@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/db";
 import { videos } from "@/db/schema";
 import { eq, or, sql } from "drizzle-orm";
-import { getProvider } from "@/ai";
+import { getProvider, type ProviderType, type VideoTaskResponse } from "@/ai";
 
 /**
  * 恢复卡住的视频任务
@@ -45,15 +45,18 @@ export async function GET(request: NextRequest) {
       status: string;
       evolinkStatus: string;
       action: string;
+      videoUrl?: string;
+      thumbnailUrl?: string;
+      error?: string;
     }> = [];
 
     // 检查每个视频的实际状态
     for (const video of stuckVideos) {
-      if (!video.external_task_id) {
+      if (!video.externalTaskId || !video.provider) {
         results.push({
           uuid: video.uuid,
           status: video.status,
-          evolinkStatus: "no_task_id",
+          evolinkStatus: "missing_task",
           action: "skipped",
         });
         continue;
@@ -61,8 +64,8 @@ export async function GET(request: NextRequest) {
 
       try {
         // 从 evolink 获取状态
-        const provider = getProvider("evolink");
-        const taskStatus = await provider.getTaskStatus(video.external_task_id);
+        const provider = getProvider(video.provider as ProviderType);
+        const taskStatus = await provider.getTaskStatus(video.externalTaskId);
 
         if (taskStatus.status === "completed" && taskStatus.videoUrl) {
           // 任务已完成，返回信息
@@ -155,20 +158,22 @@ export async function POST(request: NextRequest) {
 
     // 手动触发完成流程
     const { videoService } = await import("@/services/video");
-    await videoService.tryCompleteGeneration({
-      videoUuid,
-      provider: video.provider || "evolink",
-      payload: {
-        id: video.external_task_id || "",
-        status: "completed",
-        progress: 100,
-        results: [videoUrl],
-        data: {
-          video_url: videoUrl,
-          thumbnail_url: thumbnailUrl,
-        },
-      },
-    });
+    const provider = (video.provider as ProviderType) || "evolink";
+    const taskId = video.externalTaskId || `manual_${videoUuid}`;
+    const result: VideoTaskResponse = {
+      taskId,
+      provider,
+      status: "completed",
+      videoUrl,
+      thumbnailUrl: thumbnailUrl || undefined,
+    };
+    const videoServiceAny = videoService as unknown as {
+      tryCompleteGeneration: (
+        videoUuid: string,
+        result: VideoTaskResponse
+      ) => Promise<unknown>;
+    };
+    await videoServiceAny.tryCompleteGeneration(videoUuid, result);
 
     return NextResponse.json({
       success: true,
