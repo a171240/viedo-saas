@@ -433,6 +433,10 @@
         "name": "Starter Pack",
         "description": "Perfect for trying out"
       },
+      "large": {
+        "name": "Large Pack",
+        "description": "Best for heavy usage"
+      },
       "basic": {
         "name": "Basic Plan",
         "description": "Perfect for beginners"
@@ -481,6 +485,20 @@
   "PricingCards": {
     "pricing": "Pricing",
     "slogan": "Simple, transparent pricing",
+    "subscription": "Subscription",
+    "credit_packs": "Credit Packs",
+    "one_time": "One-time",
+    "buy_credits": "Buy Credits",
+    "credits_per_month": "Credits per month: {credits}",
+    "credits_one_time": "One-time credits: {credits}",
+    "credit_expiry": "Valid for {days} days",
+    "parallel_tasks": "Parallel tasks",
+    "commercial_use": "Commercial use",
+    "watermark": "Watermark",
+    "watermark_removed": "No watermark",
+    "watermark_included": "Watermark included",
+    "yes": "Yes",
+    "no": "No",
     "onetime": "One-time",
     "monthly": "Monthly",
     "yearly": "Yearly",

@@ -1,4 +1,4 @@
-import { env } from "@/env.mjs";
+﻿import { env } from "@/env.mjs";
 
 export interface SubscriptionPlanTranslation {
   id: string;
@@ -6,6 +6,10 @@ export interface SubscriptionPlanTranslation {
   description: string;
   benefits: string[];
   limitations: string[];
+  credits: number;
+  parallelTasks: number;
+  commercialUse: boolean;
+  noWatermark: boolean;
   prices: {
     monthly: number;
     yearly: number;
@@ -22,13 +26,21 @@ export const priceDataMap: Record<string, SubscriptionPlanTranslation[]> = {
       id: "starter",
       title: "入门版",
       description: "适合初学者",
-      benefits: ["每月最多1个集群", "基础分析和报告", "访问基础功能"],
+      benefits: [
+        "每月最多 1 个集群",
+        "基础分析和报告",
+        "访问基础功能",
+      ],
       limitations: [
-        "无法优先获取新功能",
-        "有限的客户支持",
+        "无法优先获得新功能",
+        "客户支持有限",
         "无法自定义品牌",
         "对商业资源的访问受限",
       ],
+      credits: 50,
+      parallelTasks: 1,
+      commercialUse: false,
+      noWatermark: false,
       prices: {
         monthly: 0,
         yearly: 0,
@@ -43,13 +55,20 @@ export const priceDataMap: Record<string, SubscriptionPlanTranslation[]> = {
       title: "专业版",
       description: "解锁高级功能",
       benefits: [
-        "每月最多3个集群",
+        "每月最多 3 个集群",
         "高级分析和报告",
         "访问商业模板",
         "优先客户支持",
         "独家网络研讨会和培训",
       ],
-      limitations: ["无法自定义品牌", "对商业资源的访问受限"],
+      limitations: [
+        "无法自定义品牌",
+        "对商业资源的访问受限",
+      ],
+      credits: 500,
+      parallelTasks: 2,
+      commercialUse: true,
+      noWatermark: true,
       prices: {
         monthly: 30,
         yearly: 288,
@@ -61,16 +80,20 @@ export const priceDataMap: Record<string, SubscriptionPlanTranslation[]> = {
     },
     {
       id: "business",
-      title: "商业版",
-      description: "适合高级用户",
+      title: "企业版",
+      description: "适合高阶用户",
       benefits: [
-        "每月最多10个集群",
+        "每月最多 10 个集群",
         "实时分析和报告",
-        "访问所有模板，包括自定义品牌",
+        "访问所有模板（含自定义品牌）",
         "全天候商业客户支持",
-        "个性化的配置和账户管理",
+        "个性化配置和账号管理",
       ],
       limitations: [],
+      credits: 2000,
+      parallelTasks: 3,
+      commercialUse: true,
+      noWatermark: true,
       prices: {
         monthly: 60,
         yearly: 600,
@@ -97,6 +120,10 @@ export const priceDataMap: Record<string, SubscriptionPlanTranslation[]> = {
         "No custom branding",
         "Limited access to business resources",
       ],
+      credits: 50,
+      parallelTasks: 1,
+      commercialUse: false,
+      noWatermark: false,
       prices: {
         monthly: 0,
         yearly: 0,
@@ -121,6 +148,10 @@ export const priceDataMap: Record<string, SubscriptionPlanTranslation[]> = {
         "No custom branding",
         "Limited access to business resources",
       ],
+      credits: 500,
+      parallelTasks: 2,
+      commercialUse: true,
+      noWatermark: true,
       prices: {
         monthly: 30,
         yearly: 288,
@@ -142,6 +173,10 @@ export const priceDataMap: Record<string, SubscriptionPlanTranslation[]> = {
         "Personalized configuration and account management",
       ],
       limitations: [],
+      credits: 2000,
+      parallelTasks: 3,
+      commercialUse: true,
+      noWatermark: true,
       prices: {
         monthly: 60,
         yearly: 600,

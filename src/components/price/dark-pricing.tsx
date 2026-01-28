@@ -1,8 +1,6 @@
-"use client";
+﻿"use client";
 
 import { useMemo, useState, useTransition } from "react";
-import Balancer from "react-wrap-balancer";
-import { IconCheck, IconX } from "@tabler/icons-react";
 import { useTranslations } from "next-intl";
 
 import { creem } from "@/lib/auth/client";
@@ -17,6 +15,7 @@ import {
   type CreditsDictionary,
   type LocalizedPackage,
 } from "@/hooks/use-credit-packages";
+import { getProductExpiryDays } from "@/config/credits";
 
 interface DarkPricingProps {
   userId?: string;
@@ -24,9 +23,15 @@ interface DarkPricingProps {
   dictCredits: CreditsDictionary;
 }
 
-type PricingTab = "onetime" | "monthly" | "yearly";
+type PricingTab = "subscription" | "credit_packs";
+
 type FeatureItem = {
   text: string;
+  included: boolean;
+};
+
+type PlanSpec = {
+  label: string;
   included: boolean;
 };
 
@@ -35,16 +40,13 @@ function formatPrice(cents: number): string {
   return `$${value}`;
 }
 
-// 定义标准功能列表（所有产品功能的并集）
 function getStandardFeatures(products: LocalizedPackage[]): FeatureItem[] {
-  // 收集所有产品的功能
-  const allFeatures = products.flatMap(p => p.localizedFeatures);
-  // 去重
+  const allFeatures = products.flatMap((p) => p.localizedFeatures);
   const uniqueFeatures = Array.from(new Set(allFeatures));
 
-  return uniqueFeatures.map(feature => ({
+  return uniqueFeatures.map((feature) => ({
     text: feature,
-    included: false, // 默认为 false，每个产品会自己设置
+    included: false,
   }));
 }
 
@@ -54,13 +56,12 @@ export function DarkPricing({
   dictCredits,
 }: DarkPricingProps) {
   const t = useTranslations("PricingCards");
-  const [activeTab, setActiveTab] = useState<PricingTab>("onetime");
+  const [activeTab, setActiveTab] = useState<PricingTab>("subscription");
   const [hasAccess, setHasAccess] = useState(false);
   const [activeProductId, setActiveProductId] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
   const signInModal = useSigninModal();
 
-  // 组织产品数据
   const allSubscriptionProducts = useMemo(
     () =>
       getLocalizedSubscriptionPackages(dictCredits).sort(
@@ -69,22 +70,18 @@ export function DarkPricing({
     [dictCredits]
   );
 
+  const subscriptionProducts = useMemo(
+    () =>
+      allSubscriptionProducts.filter((p) => p.billingPeriod === "month"),
+    [allSubscriptionProducts]
+  );
+
   const onetimeProducts = useMemo(
     () =>
       getLocalizedOnetimePackages(dictCredits).sort(
         (a, b) => a.credits - b.credits
       ),
     [dictCredits]
-  );
-
-  const monthlyProducts = useMemo(
-    () => allSubscriptionProducts.filter((p) => p.billingPeriod === "month"),
-    [allSubscriptionProducts]
-  );
-
-  const yearlyProducts = useMemo(
-    () => allSubscriptionProducts.filter((p) => p.billingPeriod === "year"),
-    [allSubscriptionProducts]
   );
 
   const handleCheckout = (product: LocalizedPackage) => {
@@ -140,69 +137,52 @@ export function DarkPricing({
     window.location.href = data.url;
   };
 
-  // 获取当前 tab 的产品
   const getCurrentProducts = () => {
     switch (activeTab) {
-      case "onetime":
+      case "subscription":
+        return subscriptionProducts;
+      case "credit_packs":
         return onetimeProducts;
-      case "monthly":
-        return monthlyProducts;
-      case "yearly":
-        return yearlyProducts;
       default:
         return [];
     }
   };
 
   const currentProducts = getCurrentProducts();
-  const buyCreditsLabel = dictCredits.buy_credits ?? "Buy Credits";
+  const buyCreditsLabel = dictCredits.buy_credits ?? t("buy_credits");
 
-  // 计算标准功能列表（所有产品的功能并集）
   const standardFeatures = useMemo(() => {
     return getStandardFeatures(currentProducts);
   }, [currentProducts]);
 
   return (
     <section className="container mx-auto flex flex-col items-center text-center py-6 md:py-6">
-      {/* Tab 切换 */}
       <div className="mb-6 mx-auto flex justify-center">
         <div className="inline-flex rounded-lg bg-muted p-1">
           <TabButton
-            active={activeTab === "onetime"}
-            onClick={() => setActiveTab("onetime")}
+            active={activeTab === "subscription"}
+            onClick={() => setActiveTab("subscription")}
           >
-            {t("onetime")}
+            {t("subscription")}
           </TabButton>
           <TabButton
-            active={activeTab === "monthly"}
-            onClick={() => setActiveTab("monthly")}
+            active={activeTab === "credit_packs"}
+            onClick={() => setActiveTab("credit_packs")}
           >
-            {t("monthly")}
-          </TabButton>
-          <TabButton
-            active={activeTab === "yearly"}
-            onClick={() => setActiveTab("yearly")}
-            showBadge
-          >
-            {t("yearly")}
-            <span className="ml-1.5 rounded-md bg-destructive px-2 py-0.5 text-[10px] font-bold text-destructive-foreground">
-              {t("off_percent")}
-            </span>
+            {t("credit_packs")}
           </TabButton>
         </div>
       </div>
 
-      {/* 价格卡片 */}
       {currentProducts.length > 0 ? (
         <div className="mx-auto grid max-w-screen-lg gap-5 bg-inherit py-5 md:grid-cols-3 lg:grid-cols-3">
           {currentProducts.map((product, index) => {
             const isRecommended = index === 1 && currentProducts.length > 1;
             const isCurrent = activeProductId === product.id && hasAccess;
 
-            // 为每个产品生成对齐后的功能列表
-            const alignedFeatures = standardFeatures.map(feature => ({
+            const alignedFeatures = standardFeatures.map((feature) => ({
               ...feature,
-              included: product.localizedFeatures.some(f => f === feature.text),
+              included: product.localizedFeatures.some((f) => f === feature.text),
             }));
 
             return (
@@ -216,7 +196,6 @@ export function DarkPricing({
                 isPending={isPending}
                 buyCreditsLabel={buyCreditsLabel}
                 dictPrice={dictPrice}
-                dictCredits={dictCredits}
                 onCheckout={handleCheckout}
                 onPortal={handlePortal}
                 signInModal={signInModal}
@@ -233,24 +212,18 @@ export function DarkPricing({
   );
 }
 
-// ============================================
-// Tab Button Component
-// ============================================
-
 interface TabButtonProps {
   active: boolean;
   children: React.ReactNode;
   onClick: () => void;
-  showBadge?: boolean;
 }
 
-function TabButton({ active, children, onClick, showBadge }: TabButtonProps) {
+function TabButton({ active, children, onClick }: TabButtonProps) {
   return (
     <button
       onClick={onClick}
       className={cn(
         "relative rounded-md px-6 py-2.5 text-sm font-semibold transition-all duration-200",
-        !showBadge && "pr-6",
         active
           ? "bg-primary text-primary-foreground shadow-md scale-105"
           : "text-muted-foreground hover:bg-muted/50 hover:text-foreground"
@@ -261,10 +234,6 @@ function TabButton({ active, children, onClick, showBadge }: TabButtonProps) {
   );
 }
 
-// ============================================
-// Pricing Card Component
-// ============================================
-
 interface PricingCardProps {
   product: LocalizedPackage;
   features: FeatureItem[];
@@ -274,7 +243,6 @@ interface PricingCardProps {
   isPending: boolean;
   buyCreditsLabel: string;
   dictPrice: Record<string, string>;
-  dictCredits: CreditsDictionary;
   onCheckout: (product: LocalizedPackage) => void;
   onPortal: () => void;
   signInModal: { onOpen: () => void };
@@ -289,12 +257,34 @@ function PricingCard({
   isPending,
   buyCreditsLabel,
   dictPrice,
-  dictCredits,
   onCheckout,
   onPortal,
   signInModal,
 }: PricingCardProps) {
   const t = useTranslations("PricingCards");
+
+  const buildPlanSpecs = (): PlanSpec[] => {
+    const yesLabel = t("yes");
+    const noLabel = t("no");
+
+    return [
+      {
+        label: `${t("parallel_tasks")}: ${product.parallelTasks ?? 1}`,
+        included: true,
+      },
+      {
+        label: `${t("commercial_use")}: ${product.commercialUse ? yesLabel : noLabel}`,
+        included: !!product.commercialUse,
+      },
+      {
+        label: `${t("watermark")}: ${product.noWatermark ? t("watermark_removed") : t("watermark_included")}`,
+        included: !!product.noWatermark,
+      },
+    ];
+  };
+
+  const planSpecs = buildPlanSpecs();
+  const expiryDays = product.type === "one-time" ? getProductExpiryDays(product) : null;
 
   return (
     <div
@@ -314,17 +304,28 @@ function PricingCard({
               {formatPrice(product.price.amount)}
             </div>
             <div className="-mb-1 ml-2 text-left text-sm font-medium text-muted-foreground">
-              {product.billingPeriod ? (product.billingPeriod === "year" ? t("per_year") : t("per_month")) : ""}
+              {product.type === "subscription"
+                ? product.billingPeriod === "year"
+                  ? t("per_year")
+                  : t("per_month")
+                : t("one_time")}
             </div>
           </div>
         </div>
 
-        {/* 显示积分数 */}
-        {product.credits && (
+        {product.credits ? (
           <div className="text-left text-sm text-muted-foreground">
-            {dictCredits.title || "Credits"}: {product.credits.toLocaleString()}
+            {product.type === "subscription"
+              ? t("credits_per_month", { credits: product.credits.toLocaleString() })
+              : t("credits_one_time", { credits: product.credits.toLocaleString() })}
           </div>
-        )}
+        ) : null}
+
+        {expiryDays ? (
+          <div className="text-left text-sm text-muted-foreground">
+            {t("credit_expiry", { days: expiryDays })}
+          </div>
+        ) : null}
 
         {product.displayDescription ? (
           <div className="text-left text-sm text-muted-foreground">
@@ -335,6 +336,19 @@ function PricingCard({
 
       <div className="flex h-full flex-col justify-between gap-10 p-6">
         <ul className="space-y-2 text-left text-sm font-medium leading-normal">
+          {planSpecs.map((feature) => (
+            <li className="flex items-start" key={feature.label}>
+              {feature.included ? (
+                <Icons.Check className="mr-3 h-5 w-5 shrink-0 text-primary" />
+              ) : (
+                <Icons.Close className="mr-3 h-5 w-5 shrink-0 text-destructive" />
+              )}
+              <p className={cn(feature.included ? "text-foreground" : "text-muted-foreground")}>
+                {feature.label}
+              </p>
+            </li>
+          ))}
+
           {features.map((feature, idx) => (
             <li className="flex items-start" key={idx}>
               {feature.included ? (

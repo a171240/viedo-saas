@@ -21,6 +21,9 @@ export interface CreditPackageConfig {
   disabled?: boolean;
   expireDays?: number;       // 覆盖默认过期天数
   features?: string[];       // 功能列表（用于展示）
+  parallelTasks?: number;
+  commercialUse?: boolean;
+  noWatermark?: boolean;
   /** 是否允许免费用户购买（仅积分包有效） */
   allowFreeUser?: boolean;
 }
@@ -113,6 +116,9 @@ export const CREDITS_CONFIG = {
           popular: product.popular,
           expireDays: isYearly ? 365 : undefined,
           features: product.features || [],
+          parallelTasks: product.parallelTasks,
+          commercialUse: product.commercialUse,
+          noWatermark: product.noWatermark,
         },
       ];
     })
@@ -135,6 +141,9 @@ export const CREDITS_CONFIG = {
         popular: pkg.popular,
         expireDays: CREDIT_EXPIRATION.purchaseDays,
         features: pkg.features || [],
+        parallelTasks: pkg.parallelTasks,
+        commercialUse: pkg.commercialUse,
+        noWatermark: pkg.noWatermark,
         // allowFreeUser: 是否允许免费用户购买（前端使用）
         allowFreeUser: pkg.allowFreeUser ?? true, // 默认允许
       },

@@ -39,6 +39,7 @@ export default async function PricingPage() {
         <PricingCards
           userId={user?.id}
           subscriptionPlan={subscriptionPlan}
+          dictCredits={dictCredits}
         />
       )}
       <FAQSection />

@@ -461,6 +461,11 @@
         "name": "入门积分包",
         "description": "适合试用体验"
       },
+      "large": {
+        "name": "???",
+        "description": "??????"
+      },
+
       "basic": {
         "name": "基础计划",
         "description": "适合初学者"
@@ -509,6 +514,20 @@
   "PricingCards": {
     "pricing": "定价",
     "slogan": "简单透明的价格",
+    "subscription": "??",
+    "credit_packs": "???",
+    "one_time": "???",
+    "buy_credits": "????",
+    "credits_per_month": "?????{credits}",
+    "credits_one_time": "??????{credits}",
+    "credit_expiry": "??? {days} ?",
+    "parallel_tasks": "????",
+    "commercial_use": "????",
+    "watermark": "??",
+    "watermark_removed": "???",
+    "watermark_included": "????",
+    "yes": "?",
+    "no": "?",
     "onetime": "积分包",
     "monthly": "按月",
     "yearly": "按年",

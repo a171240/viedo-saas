@@ -49,6 +49,9 @@ export interface SubscriptionProductConfig {
   popular?: boolean;
   enabled: boolean;
   features?: string[];
+  parallelTasks?: number;
+  commercialUse?: boolean;
+  noWatermark?: boolean;
 }
 
 /** 积分包配置 */
@@ -62,6 +65,9 @@ export interface CreditPackageConfig {
   /** 是否允许免费用户购买（可选，默认 true） */
   allowFreeUser?: boolean;
   features?: string[];
+  parallelTasks?: number;
+  commercialUse?: boolean;
+  noWatermark?: boolean;
 }
 
 // ============================================
@@ -119,6 +125,9 @@ export const SUBSCRIPTION_PRODUCTS = [
     popular: false,
     enabled: true,
     features: ["hd_videos", "fast_generation"],
+    parallelTasks: 1,
+    commercialUse: false,
+    noWatermark: false,
   },
   {
     id: "pro_monthly",
@@ -129,6 +138,9 @@ export const SUBSCRIPTION_PRODUCTS = [
     popular: true, // 推荐
     enabled: true,
     features: ["hd_videos", "fast_generation", "no_watermark", "commercial_use"],
+    parallelTasks: 2,
+    commercialUse: true,
+    noWatermark: true,
   },
   {
     id: "team_monthly",
@@ -139,6 +151,9 @@ export const SUBSCRIPTION_PRODUCTS = [
     popular: false,
     enabled: true,
     features: ["hd_videos", "fast_generation", "no_watermark", "commercial_use", "priority_support", "api_access"],
+    parallelTasks: 3,
+    commercialUse: true,
+    noWatermark: true,
   },
 
   // ===== 年付订阅 =====
@@ -151,6 +166,9 @@ export const SUBSCRIPTION_PRODUCTS = [
     popular: false,
     enabled: true,
     features: ["hd_videos", "fast_generation"],
+    parallelTasks: 1,
+    commercialUse: false,
+    noWatermark: false,
   },
   {
     id: "pro_yearly",
@@ -161,6 +179,9 @@ export const SUBSCRIPTION_PRODUCTS = [
     popular: true,
     enabled: true,
     features: ["hd_videos", "fast_generation", "no_watermark", "commercial_use"],
+    parallelTasks: 2,
+    commercialUse: true,
+    noWatermark: true,
   },
   {
     id: "team_yearly",
@@ -171,6 +192,9 @@ export const SUBSCRIPTION_PRODUCTS = [
     popular: false,
     enabled: true,
     features: ["hd_videos", "fast_generation", "no_watermark", "commercial_use", "priority_support", "api_access"],
+    parallelTasks: 3,
+    commercialUse: true,
+    noWatermark: true,
   },
 ];
 
@@ -198,6 +222,9 @@ export const CREDIT_PACKAGES: CreditPackageConfig[] = [
     enabled: true,
     allowFreeUser: true, // 免费用户可购买
     features: ["hd_videos", "fast_generation"],
+    parallelTasks: 1,
+    commercialUse: false,
+    noWatermark: false,
   },
   {
     id: "standard",
@@ -208,6 +235,9 @@ export const CREDIT_PACKAGES: CreditPackageConfig[] = [
     enabled: true,
     allowFreeUser: true,
     features: ["hd_videos", "fast_generation", "no_watermark"],
+    parallelTasks: 1,
+    commercialUse: false,
+    noWatermark: true,
   },
   {
     id: "large",
@@ -218,6 +248,9 @@ export const CREDIT_PACKAGES: CreditPackageConfig[] = [
     enabled: true,
     allowFreeUser: true,
     features: ["hd_videos", "fast_generation", "no_watermark", "commercial_use"],
+    parallelTasks: 1,
+    commercialUse: true,
+    noWatermark: true,
   },
 ];
 
