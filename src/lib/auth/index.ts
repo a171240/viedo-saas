@@ -2,6 +2,7 @@
 // For client components, import from "@/lib/auth/client" instead
 
 import type { User } from "./auth";
+import { getDevBypassUser, isDevBypassEnabled } from "./dev-bypass";
 
 // Re-export auth instance (server-only)
 export { auth, type Session, type User } from "./auth";
@@ -12,6 +13,11 @@ export { auth, type Session, type User } from "./auth";
  * @see https://www.better-auth.com/docs/integrations/next
  */
 export async function getCurrentUser(): Promise<User | null> {
+  if (isDevBypassEnabled()) {
+    const devUser = await getDevBypassUser();
+    if (devUser) return devUser as User;
+  }
+
   // Dynamic import to avoid issues with pages directory
   const { headers } = await import("next/headers");
   const { auth } = await import("./auth");
@@ -26,6 +32,24 @@ export async function getCurrentUser(): Promise<User | null> {
  * Must be called from App Router (uses next/headers)
  */
 export async function getServerSession() {
+  if (isDevBypassEnabled()) {
+    const devUser = await getDevBypassUser();
+    if (devUser) {
+      const now = new Date();
+      return {
+        user: devUser,
+        session: {
+          id: "dev-session",
+          userId: devUser.id,
+          token: "dev-token",
+          expiresAt: new Date(now.getTime() + 1000 * 60 * 60 * 24),
+          createdAt: now,
+          updatedAt: now,
+        },
+      };
+    }
+  }
+
   const { headers } = await import("next/headers");
   const { auth } = await import("./auth");
   const session = await auth.api.getSession({

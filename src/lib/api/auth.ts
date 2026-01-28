@@ -1,12 +1,18 @@
 import { auth, type User } from "@/lib/auth";
 
 import { ApiError } from "./error";
+import { getDevBypassUser, isDevBypassEnabled } from "@/lib/auth/dev-bypass";
 
 /**
  * Get authenticated user from request headers
  * Returns null if not authenticated
  */
 export async function getAuthUser(request: Request): Promise<User | null> {
+  if (isDevBypassEnabled()) {
+    const devUser = await getDevBypassUser();
+    if (devUser) return devUser as User;
+  }
+
   const session = await auth.api.getSession({
     headers: request.headers,
   });

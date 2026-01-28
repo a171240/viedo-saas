@@ -350,13 +350,30 @@ export class VideoService {
         })
         .where(eq(videos.uuid, videoUuid));
 
-      const storage = getStorage();
-      const key = `videos/${videoUuid}/${Date.now()}.mp4`;
-      const uploaded = await storage.downloadAndUpload({
-        sourceUrl: result.videoUrl!,
-        key,
-        contentType: "video/mp4",
-      });
+      const allowOriginalUrl =
+        process.env.ALLOW_ORIGINAL_VIDEO_URL === "true" ||
+        process.env.NODE_ENV !== "production";
+
+      let finalVideoUrl = result.videoUrl!;
+
+      try {
+        const storage = getStorage();
+        const key = `videos/${videoUuid}/${Date.now()}.mp4`;
+        const uploaded = await storage.downloadAndUpload({
+          sourceUrl: result.videoUrl!,
+          key,
+          contentType: "video/mp4",
+        });
+        finalVideoUrl = uploaded.url;
+      } catch (error) {
+        if (!allowOriginalUrl) {
+          throw error;
+        }
+        console.warn(
+          "[Video] Storage upload failed, using original provider URL:",
+          error instanceof Error ? error.message : error
+        );
+      }
 
       await creditService.settle(videoUuid);
 
@@ -364,7 +381,7 @@ export class VideoService {
         .update(videos)
         .set({
           status: VideoStatus.COMPLETED,
-          videoUrl: uploaded.url,
+          videoUrl: finalVideoUrl,
           thumbnailUrl: result.thumbnailUrl || null,
           completedAt: new Date(),
           updatedAt: new Date(),
@@ -375,11 +392,11 @@ export class VideoService {
         userId: video.userId,
         videoUuid,
         status: "COMPLETED",
-        videoUrl: uploaded.url,
+        videoUrl: finalVideoUrl,
         thumbnailUrl: result.thumbnailUrl || null,
       });
 
-      return { status: VideoStatus.COMPLETED, videoUrl: uploaded.url };
+      return { status: VideoStatus.COMPLETED, videoUrl: finalVideoUrl };
     });
   }
 

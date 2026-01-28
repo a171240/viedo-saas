@@ -16,6 +16,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { authClient } from "@/lib/auth/client";
+import { fetchDevBypassUser, isDevBypassEnabled } from "@/lib/auth/dev-bypass-client";
 import { useCredits } from "@/stores/credits-store";
 import { useVideoPolling } from "@/hooks/use-video-polling";
 import { useNotificationDeduplication } from "@/hooks/use-notification-deduplication";
@@ -243,6 +244,13 @@ export function ToolPageLayout({
 
   // 检查登录状态
   useEffect(() => {
+    if (isDevBypassEnabled()) {
+      fetchDevBypassUser().then((devUser) => {
+        if (devUser) setUser(devUser);
+      });
+      return;
+    }
+
     authClient.getSession().then((session) => {
       setUser(session?.data?.user ?? null);
     });
@@ -374,10 +382,22 @@ export function ToolPageLayout({
 
   // 处理生成提交
   const handleSubmit = useCallback(async (data: GeneratorData) => {
+    let currentUser = user;
     // 检查登录
-    if (!user) {
-      router.push(`/${locale}/login`);
-      return;
+    if (!currentUser) {
+      if (isDevBypassEnabled()) {
+        const devUser = await fetchDevBypassUser();
+        if (devUser) {
+          setUser(devUser);
+          currentUser = devUser;
+        } else {
+          toast.error("Dev user not available.");
+          return;
+        }
+      } else {
+        router.push(`/${locale}/login`);
+        return;
+      }
     }
 
     // 检查积分
@@ -457,7 +477,7 @@ export function ToolPageLayout({
       // 添加到历史记录
       videoHistoryStorage.addHistory({
         uuid: videoUuid,
-        userId: user.id,
+        userId: currentUser.id,
         prompt: data.prompt,
         model: data.model,
         status: "generating",
@@ -465,15 +485,15 @@ export function ToolPageLayout({
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       });
-      setHistoryItems(videoHistoryStorage.getHistory(user.id));
+      setHistoryItems(videoHistoryStorage.getHistory(currentUser.id));
 
       setActiveTab("result");
       addGeneratingId(videoUuid);
       startPolling(videoUuid);
 
-      if (user?.id) {
+      if (currentUser?.id) {
         videoTaskStorage.addTask({
-          userId: user.id,
+          userId: currentUser.id,
           videoId: videoUuid,
           taskId: result.data.taskId,
           prompt: data.prompt,
