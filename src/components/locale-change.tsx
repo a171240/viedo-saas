@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { useLocalePathname, useLocaleRouter } from "@/i18n/navigation";
+import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -12,11 +13,17 @@ import {
 } from "@/components/ui/dropdown-menu";
 import * as Icons from "@/components/ui/icons";
 
-import { i18n, localeMap } from "@/config/i18n-config";
+import { i18n } from "@/config/i18n-config";
 
 export function LocaleChange() {
   const router = useLocaleRouter();
   const pathname = useLocalePathname();
+  const tLocale = useTranslations("Locale");
+
+  const localeLabels: Record<string, string> = {
+    en: tLocale("english"),
+    zh: tLocale("chinese"),
+  };
 
   function onClick(locale: string) {
     router.push(pathname, { locale });
@@ -36,7 +43,7 @@ export function LocaleChange() {
             return (
               // <Link href={redirectedPathName(locale)}>{locale}</Link>
               <DropdownMenuItem key={locale} onClick={() => onClick(locale)}>
-                <span>{localeMap[locale]}</span>
+                <span>{localeLabels[locale] ?? locale}</span>
               </DropdownMenuItem>
             );
           })}

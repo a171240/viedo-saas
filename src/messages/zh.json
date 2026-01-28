@@ -17,6 +17,10 @@
     "error": "出错了",
     "success": "成功"
   },
+  "Locale": {
+    "english": "EN",
+    "chinese": "??"
+  },
   "Header": {
     "models": "模型",
     "tools": "工具",

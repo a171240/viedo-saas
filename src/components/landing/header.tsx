@@ -52,6 +52,7 @@ const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
 export function LandingHeader({ user }: { user?: User | null }) {
   const signInModal = useSigninModal();
   const t = useTranslations();
+  const tLocale = useTranslations("Locale");
   const locale = useLocale();
   const pathname = useLocalePathname();
   const router = useLocaleRouter();
@@ -191,7 +192,7 @@ export function LandingHeader({ user }: { user?: User | null }) {
               <DropdownMenuTrigger asChild>
                 <button className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors">
                   <Globe className="h-4 w-4" />
-                  <span className="hidden sm:inline">{locale.toUpperCase()}</span>
+                  <span className="hidden sm:inline">{locale === "zh" ? tLocale("chinese") : tLocale("english")}</span>
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent
@@ -202,13 +203,13 @@ export function LandingHeader({ user }: { user?: User | null }) {
                   onClick={() => switchLocale("en")}
                   className="cursor-pointer hover:bg-accent"
                 >
-                  {locale === "zh" ? "English" : "英文"}
+                  {tLocale("english")}
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   onClick={() => switchLocale("zh")}
                   className="cursor-pointer hover:bg-accent"
                 >
-                  {locale === "zh" ? "中文" : "中文"}
+                  {tLocale("chinese")}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -376,14 +377,14 @@ export function LandingHeader({ user }: { user?: User | null }) {
                       onClick={() => switchLocale("en")}
                       className="text-sm hover:text-foreground transition-colors"
                     >
-                      {locale === "zh" ? "English" : "英文"}
+                      {tLocale("chinese")}
                     </button>
                     <span className="text-muted-foreground">/</span>
                     <button
                       onClick={() => switchLocale("zh")}
                       className="text-sm hover:text-foreground transition-colors"
                     >
-                      {locale === "zh" ? "中文" : "中文"}
+                      {tLocale("chinese")}
                     </button>
                   </div>
                 </div>

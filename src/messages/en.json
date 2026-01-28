@@ -17,6 +17,10 @@
     "error": "Something went wrong",
     "success": "Success"
   },
+  "Locale": {
+    "english": "EN",
+    "chinese": "??"
+  },
   "Header": {
     "models": "Models",
     "tools": "Tools",

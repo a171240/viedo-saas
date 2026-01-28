@@ -19,7 +19,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { userMenuItems } from "@/config/navigation";
-import { i18n, localeMap } from "@/config/i18n-config";
+import { i18n } from "@/config/i18n-config";
 
 interface HeaderSimpleProps {
   user?: Pick<User, "name" | "image" | "email"> | null;
@@ -40,6 +40,7 @@ export function HeaderSimple({
   const pathname = useLocalePathname();
   const tCommon = useTranslations("Common");
   const tHeader = useTranslations("Header");
+  const tLocale = useTranslations("Locale");
   const currentLocale = lang || "en";
 
   const switchLocale = (nextLocale: string) => {
@@ -81,7 +82,7 @@ export function HeaderSimple({
               >
                 <Globe className="h-4 w-4" />
                 <span className="text-xs font-semibold">
-                  {currentLocale.toUpperCase()}
+                  {currentLocale === "zh" ? tLocale("chinese") : tLocale("english")}
                 </span>
               </Button>
             </DropdownMenuTrigger>
@@ -98,7 +99,9 @@ export function HeaderSimple({
                     locale === currentLocale && "bg-muted"
                   )}
                 >
-                  <span>{localeMap[locale]}</span>
+                  <span>
+                    {locale === "zh" ? tLocale("chinese") : tLocale("english")}
+                  </span>
                 </DropdownMenuItem>
               ))}
             </DropdownMenuContent>

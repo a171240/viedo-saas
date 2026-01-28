@@ -25,21 +25,19 @@ const legacyRedirects: Record<string, string> = {
  * - Redirects to correct locale
  *
  * URL structure:
- * - English (default): /about, /pricing
- * - Other locales: /zh/about, /ko/pricing
+ * - All locales are prefixed (e.g. /en/about, /zh/pricing)
  */
 export default function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // Check for legacy dashboard routes (without locale prefix)
-  for (const [from, to] of Object.entries(legacyRedirects)) {
-    if (pathname === from || pathname.startsWith(from + "/")) {
-      // Preserve the rest of the path if any
-      const rest = pathname.slice(from.length);
-      const url = request.nextUrl.clone();
-      url.pathname = to + rest;
-      return NextResponse.redirect(url);
-    }
+  const hasLocalePrefix = routing.locales.some(
+    (locale) => pathname === `/${locale}` || pathname.startsWith(`/${locale}/`)
+  );
+
+  if (!hasLocalePrefix) {
+    const url = request.nextUrl.clone();
+    url.pathname = `/${routing.defaultLocale}${pathname === "/" ? "" : pathname}`;
+    return NextResponse.redirect(url);
   }
 
   // Check for legacy dashboard routes (with locale prefix)

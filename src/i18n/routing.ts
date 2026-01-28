@@ -19,7 +19,7 @@ export const routing = defineRouting({
     name: LOCALE_COOKIE_NAME,
   },
   // The prefix to use for the locale in the URL
-  // 'as-needed' means: default locale (en) has no prefix, others have prefix
-  // e.g., /about (en), /zh/about (zh)
-  localePrefix: "as-needed",
+  // 'always' means all locales are prefixed in the URL
+  // e.g., /en/about, /zh/about
+  localePrefix: "always",
 });
