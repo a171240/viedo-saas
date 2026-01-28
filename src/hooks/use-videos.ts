@@ -167,22 +167,39 @@ export function useDownloadVideo() {
  * Auto-refresh processing videos
  */
 export function useRefreshProcessingVideos(
-  videos: Array<{ status?: string }>,
+  videos: Array<{ status?: string; uuid?: string }>,
   refetch: () => void,
   interval: number = 5000
 ) {
-  const hasProcessing = videos.some((v) => {
-    const status = (v.status || "").toLowerCase();
-    return status === "generating" || status === "uploading" || status === "pending";
-  });
+  const processingIds = videos
+    .filter((v) => {
+      const status = (v.status || "").toLowerCase();
+      return status === "generating" || status === "uploading" || status === "pending";
+    })
+    .map((v) => v.uuid)
+    .filter(Boolean) as string[];
 
   useEffect(() => {
-    if (!hasProcessing) return;
+    if (processingIds.length === 0) return;
 
-    const timer = setInterval(() => {
-      refetch();
-    }, interval);
+    let active = true;
 
-    return () => clearInterval(timer);
-  }, [hasProcessing, interval, refetch]);
+    const tick = async () => {
+      await Promise.allSettled(
+        processingIds.map((uuid) => fetch(`/api/v1/video/${uuid}/status`))
+      );
+
+      if (active) {
+        refetch();
+      }
+    };
+
+    tick();
+    const timer = setInterval(tick, interval);
+
+    return () => {
+      active = false;
+      clearInterval(timer);
+    };
+  }, [processingIds.join(","), interval, refetch]);
 }
