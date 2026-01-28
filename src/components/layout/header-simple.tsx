@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { useLocalePathname, useLocaleRouter } from "@/i18n/navigation";
 import { Gem, Globe, Menu } from "lucide-react";
 import { useTranslations } from "next-intl";
 
@@ -36,15 +36,14 @@ export function HeaderSimple({
 }: HeaderSimpleProps) {
   const { balance } = useCredits();
   const signInModal = useSigninModal();
-  const router = useRouter();
-  const pathname = usePathname();
+  const router = useLocaleRouter();
+  const pathname = useLocalePathname();
   const tCommon = useTranslations("Common");
   const tHeader = useTranslations("Header");
   const currentLocale = lang || "en";
 
   const switchLocale = (nextLocale: string) => {
-    const pathWithoutLocale = pathname.replace(/^\/[a-z]{2}/, "") || "/";
-    router.push(`/${nextLocale}${pathWithoutLocale}`);
+    router.push(pathname, { locale: nextLocale });
   };
 
   const menuLabelMap: Record<string, string> = {

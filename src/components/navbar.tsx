@@ -77,7 +77,7 @@ export function NavBar({
           <div className="hidden md:flex lg:flex xl:flex">
             <GitHubStar />
           </div>
-          <LocaleChange url={"/"} />
+          <LocaleChange />
           {!user ? (
             <>
               <Button variant="outline" size="sm" onClick={signInModal.onOpen}>

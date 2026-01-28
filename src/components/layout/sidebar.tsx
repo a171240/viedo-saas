@@ -15,6 +15,8 @@ import {
   Sheet,
   SheetContent,
   SheetClose,
+  SheetHeader,
+  SheetTitle,
 } from "@/components/ui/sheet";
 import { useUpgradeModal } from "@/hooks/use-upgrade-modal";
 import { ShineBorder } from "@/registry/magicui/shine-border";
@@ -215,6 +217,9 @@ export function Sidebar({ lang = "en", mobileOpen, onMobileClose }: SidebarProps
         <Sheet open={mobileOpen} onOpenChange={onMobileClose ? () => onMobileClose() : undefined}>
           <SheetContent side="left" className="w-[280px] p-0">
             <div className="flex flex-col h-full">
+              <SheetHeader className="sr-only">
+                <SheetTitle>{t("title")}</SheetTitle>
+              </SheetHeader>
               <MobileNav />
             </div>
           </SheetContent>

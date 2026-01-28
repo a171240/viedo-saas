@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useTransition } from "react";
 import { Menu, Globe } from "lucide-react";
-import { usePathname, useRouter } from "next/navigation";
+import { useLocalePathname, useLocaleRouter } from "@/i18n/navigation";
 import { useTranslations, useLocale } from "next-intl";
 
 import { Button } from "@/components/ui/button";
@@ -53,8 +53,8 @@ export function LandingHeader({ user }: { user?: User | null }) {
   const signInModal = useSigninModal();
   const t = useTranslations();
   const locale = useLocale();
-  const pathname = usePathname();
-  const router = useRouter();
+  const pathname = useLocalePathname();
+  const router = useLocaleRouter();
   const [isPending, startTransition] = useTransition();
   const [scrolled, setScrolled] = useState(false);
 
@@ -73,10 +73,7 @@ export function LandingHeader({ user }: { user?: User | null }) {
   // Language switcher function
   const switchLocale = (newLocale: string) => {
     startTransition(() => {
-      // Get the path without locale prefix
-      const pathWithoutLocale = pathname.replace(/^\/[a-z]{2}/, "") || "/";
-      // Navigate to new locale
-      window.location.href = `/${newLocale}${pathWithoutLocale}`;
+      router.push(pathname, { locale: newLocale });
     });
   };
 

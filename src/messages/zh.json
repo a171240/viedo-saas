@@ -332,6 +332,7 @@
     "faq_detail": "查找关于我们定价的常见问题答案"
   },
   "Sidebar": {
+    "title": "导航菜单",
     "upgradeTitle": "升级专业版",
     "upgradeSubtitle": "解锁更快生成与更多额度"
   },
