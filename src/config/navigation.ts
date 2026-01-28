@@ -18,6 +18,12 @@ export interface NavGroup {
   items: NavItem[];
 }
 
+export interface FooterGroup {
+  id: string;
+  items: Array<Pick<NavItem, "id" | "href">>;
+}
+
+
 // 左侧导航菜单 (工具页和管理页使用)
 export const sidebarNavigation: NavGroup[] = [
   {
@@ -132,4 +138,33 @@ export const userMenuItems = [
   { id: "creations", title: "My Creations", href: "/my-creations", icon: "FolderOpen" },
   { id: "credits", title: "Credits", href: "/credits", icon: "Gem" },
   { id: "settings", title: "Account", href: "/settings", icon: "User" },
+];
+
+export const footerNavigation: FooterGroup[] = [
+  {
+    id: "product",
+    items: [
+      { id: "imageToVideo", href: "/image-to-video" },
+      { id: "textToVideo", href: "/text-to-video" },
+      { id: "referenceToVideo", href: "/reference-to-video" },
+      { id: "pricing", href: "/pricing" },
+    ],
+  },
+  {
+    id: "company",
+    items: [
+      { id: "about", href: "/about" },
+      { id: "blog", href: "/blog" },
+      { id: "careers", href: "/careers" },
+      { id: "contact", href: "/contact" },
+    ],
+  },
+  {
+    id: "legal",
+    items: [
+      { id: "privacy", href: "/privacy" },
+      { id: "terms", href: "/terms" },
+      { id: "cookies", href: "/cookies" },
+    ],
+  },
 ];

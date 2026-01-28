@@ -216,7 +216,199 @@
     "product": "Product",
     "company": "Company",
     "legal": "Legal",
-    "copyright": "© {year} VideoFly. All rights reserved."
+    "tagline": "Transform your ideas into stunning videos with AI.",
+    "madeWith": "Made with",
+    "madeBy": "by VideoFly Team",
+    "copyright": "? {year} VideoFly. All rights reserved.",
+    "links": {
+      "imageToVideo": "Image to Video",
+      "textToVideo": "Text to Video",
+      "referenceToVideo": "Reference to Video",
+      "pricing": "Pricing",
+      "about": "About",
+      "blog": "Blog",
+      "careers": "Careers",
+      "contact": "Contact",
+      "privacy": "Privacy Policy",
+      "terms": "Terms of Service",
+      "cookies": "Cookie Policy"
+    }
+  },
+  "About": {
+    "title": "About VideoFly",
+    "description": "We help teams turn product ideas into short, high-performing video ads with AI.",
+    "sections": {
+      "mission": {
+        "title": "Our mission",
+        "body": "Make video creation fast, reliable, and measurable for growth teams."
+      },
+      "whatWeBuild": {
+        "title": "What we build",
+        "body": "A workflow-first AI video studio focused on product-to-video ads, from brief to storyboard to variations."
+      },
+      "values": {
+        "title": "Our values",
+        "items": {
+          "clarity": "Clarity over hype",
+          "trust": "Trust and compliance first",
+          "focus": "Focus on outcomes, not demos",
+          "shipping": "Ship fast, learn faster"
+        }
+      },
+      "contact": {
+        "title": "Contact",
+        "body": "Have a question or partnership idea? Reach us at {email}.",
+        "action": "Contact us"
+      }
+    }
+  },
+  "Contact": {
+    "title": "Contact",
+    "description": "Tell us about your product, use case, or support issue.",
+    "sections": {
+      "support": {
+        "title": "Support",
+        "body": "Email us at {email}. We typically respond within 1?2 business days.",
+        "action": "Email support"
+      },
+      "sales": {
+        "title": "Sales & partnerships",
+        "body": "If you're evaluating VideoFly for your team, include your target platform, timeline, and expected volume."
+      },
+      "security": {
+        "title": "Security & privacy",
+        "body": "Report security issues to {email}."
+      }
+    },
+    "footerNote": "Please avoid sharing sensitive information in the first email."
+  },
+  "Privacy": {
+    "title": "Privacy Policy",
+    "description": "A short summary of how we collect and use data.",
+    "sections": {
+      "summary": {
+        "title": "Summary",
+        "body": "We collect account, usage, and billing data to provide the service and improve performance."
+      },
+      "data": {
+        "title": "Data we collect",
+        "items": {
+          "account": "Account details like name and email",
+          "usage": "Usage data such as prompts, settings, and generation logs",
+          "billing": "Billing and transaction records"
+        }
+      },
+      "use": {
+        "title": "How we use data",
+        "items": {
+          "deliver": "Provide video generation and account services",
+          "improve": "Improve quality, reliability, and safety",
+          "support": "Respond to support requests and prevent abuse"
+        }
+      },
+      "choices": {
+        "title": "Your choices",
+        "body": "You can request access, correction, or deletion of your data by contacting us."
+      },
+      "contact": {
+        "title": "Contact",
+        "body": "Questions about privacy? Email {email}.",
+        "action": "Contact us"
+      }
+    },
+    "footerNote": "This summary is for convenience and does not replace the full policy."
+  },
+  "Terms": {
+    "title": "Terms of Service",
+    "description": "The rules for using VideoFly.",
+    "sections": {
+      "usage": {
+        "title": "Using the service",
+        "body": "Use VideoFly responsibly and comply with applicable laws and platform policies."
+      },
+      "billing": {
+        "title": "Billing & credits",
+        "body": "Subscriptions and credit packs grant usage rights according to your plan. Credits are consumed by generation."
+      },
+      "content": {
+        "title": "Content and ownership",
+        "body": "You retain ownership of your input content. Generated outputs are provided to you subject to your plan."
+      },
+      "liability": {
+        "title": "Limitation of liability",
+        "body": "VideoFly is provided as-is without warranties. We are not liable for indirect or consequential damages."
+      },
+      "contact": {
+        "title": "Contact",
+        "body": "Questions about these terms? Email {email}.",
+        "action": "Contact us"
+      }
+    },
+    "footerNote": "These terms may change as the product evolves."
+  },
+  "Cookies": {
+    "title": "Cookie Policy",
+    "description": "How we use cookies and similar technologies.",
+    "sections": {
+      "necessary": {
+        "title": "Necessary cookies",
+        "body": "Required for authentication, security, and core site functionality."
+      },
+      "analytics": {
+        "title": "Analytics cookies",
+        "body": "Help us understand usage so we can improve performance and UX."
+      },
+      "manage": {
+        "title": "Manage preferences",
+        "items": {
+          "browser": "Adjust cookie settings in your browser at any time",
+          "banner": "Use the cookie banner to opt in or out of analytics"
+        }
+      },
+      "contact": {
+        "title": "Contact",
+        "body": "Questions about cookies? Email {email}."
+      }
+    },
+    "footerNote": "Cookie choices are stored on your device."
+  },
+  "Blog": {
+    "title": "Blog",
+    "description": "Insights, playbooks, and product updates.",
+    "sections": {
+      "comingSoon": {
+        "title": "Coming soon",
+        "body": "We are preparing our first articles. Join the list to get updates.",
+        "action": "Notify me"
+      },
+      "topics": {
+        "title": "What you'll see",
+        "items": {
+          "workflow": "Workflow-first prompt strategy",
+          "templates": "Prompt templates and creative frameworks",
+          "performance": "Benchmarks, experiments, and growth learnings"
+        }
+      }
+    }
+  },
+  "Careers": {
+    "title": "Careers",
+    "description": "We are building the workflow-first AI video studio for growth teams.",
+    "sections": {
+      "openings": {
+        "title": "No openings right now",
+        "body": "We are not hiring at the moment. If you think we should meet, send a brief intro.",
+        "action": "Contact us"
+      },
+      "values": {
+        "title": "How we work",
+        "items": {
+          "ownership": "Own outcomes, not just tasks",
+          "customer": "Obsess over customer results",
+          "speed": "Move fast with high standards"
+        }
+      }
+    }
   },
   "Credits": {
     "title": "Credits",

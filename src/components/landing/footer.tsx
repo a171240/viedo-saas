@@ -1,44 +1,23 @@
 "use client";
 
 import { Github, Twitter, Heart } from "lucide-react";
-import { useTranslations, useLocale } from "next-intl";
+import { useTranslations } from "next-intl";
 
-import { cn } from "@/components/ui";
 import { LocaleLink } from "@/i18n/navigation";
+import { footerNavigation } from "@/config/navigation";
 
 export function LandingFooter() {
-  const t = useTranslations('Footer');
-  const locale = useLocale();
+  const t = useTranslations("Footer");
   const currentYear = new Date().getFullYear();
 
-  const footerSections = [
-    {
-      title: t('product'),
-      links: [
-        { title: "Image to Video", href: "/image-to-video" },
-        { title: "Text to Video", href: "/text-to-video" },
-        { title: "Reference to Video", href: "/reference-to-video" },
-        { title: "Pricing", href: "/pricing" },
-      ],
-    },
-    {
-      title: t('company'),
-      links: [
-        { title: "About", href: "/about" },
-        { title: "Blog", href: "/blog" },
-        { title: "Careers", href: "/careers" },
-        { title: "Contact", href: "/contact" },
-      ],
-    },
-    {
-      title: t('legal'),
-      links: [
-        { title: "Privacy Policy", href: "/privacy" },
-        { title: "Terms of Service", href: "/terms" },
-        { title: "Cookie Policy", href: "/cookies" },
-      ],
-    },
-  ];
+  const footerSections = footerNavigation.map((section) => ({
+    title: t(section.id),
+    links: section.items.map((item) => ({
+      title: t(`links.${item.id}`),
+      href: item.href,
+    })),
+  }));
+
 
   const socialLinks = [
     {
@@ -67,7 +46,7 @@ export function LandingFooter() {
               🎬 VideoFly
             </LocaleLink>
             <p className="text-sm text-muted-foreground mb-4">
-              Transform your ideas into stunning videos with AI.
+              {t("tagline")}
             </p>
             {/* Social Links */}
             <div className="flex items-center gap-3">
@@ -113,12 +92,12 @@ export function LandingFooter() {
         {/* Bottom Bar */}
         <div className="flex flex-col sm:flex-row items-center justify-between pt-8 border-t border-border">
           <p className="text-sm text-muted-foreground">
-            {t('copyright', { year: currentYear })}
+            {t("copyright", { year: currentYear })}
           </p>
           <p className="text-sm text-muted-foreground flex items-center gap-1">
-            Made with
+            {t("madeWith")}
             <Heart className="h-4 w-4 fill-pink-500 text-pink-500" />
-            by VideoFly Team
+            {t("madeBy")}
           </p>
         </div>
       </div>
