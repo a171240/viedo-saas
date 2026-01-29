@@ -38,6 +38,7 @@ export interface ModelConfig {
   durations: number[];
   aspectRatios: string[];
   qualities?: string[];
+  supportsAudio?: boolean;
   creditCost: {
     base: number;            // 基础积分（10s）
     perExtraSecond?: number; // 每额外秒积分
@@ -68,6 +69,7 @@ import {
   CREDIT_PACKAGES,
   VIDEO_MODEL_PRICING,
 } from "./pricing-user";
+import { MODEL_CAPABILITIES } from "./model-capabilities";
 
 // ============================================
 // 转换函数：用户配置 -> 内部格式
@@ -215,6 +217,18 @@ export const CREDITS_CONFIG = {
         const baseConfig = baseConfigs[modelId];
         if (!baseConfig) return null;
 
+        const capabilities = MODEL_CAPABILITIES[modelId];
+        const mergedConfig = {
+          ...baseConfig,
+          durations: capabilities?.supportedDurations ?? baseConfig.durations,
+          aspectRatios: capabilities?.supportedRatios ?? baseConfig.aspectRatios,
+          qualities: capabilities?.supportedResolutions ?? baseConfig.qualities,
+          supportsAudio: capabilities?.supportsAudio ?? baseConfig.supportsAudio,
+          maxDuration: capabilities?.supportedDurations?.length
+            ? Math.max(...capabilities.supportedDurations)
+            : baseConfig.maxDuration,
+        };
+
         const creditCost: {
           base: number;
           perExtraSecond: number;
@@ -231,7 +245,7 @@ export const CREDITS_CONFIG = {
         return [
           modelId,
           {
-            ...baseConfig,
+            ...mergedConfig,
             creditCost,
           },
         ];

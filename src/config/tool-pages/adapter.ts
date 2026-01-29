@@ -29,7 +29,7 @@ function convertToVideoModel(modelConfig: any): VideoModel {
     durations: modelConfig.durations?.map((d: number) => `${d}s`),
     aspectRatios: modelConfig.aspectRatios,
     resolutions: modelConfig.qualities,
-    supportsAudio: false,
+    supportsAudio: modelConfig.supportsAudio ?? false,
   };
 }
 
