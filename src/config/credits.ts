@@ -45,6 +45,17 @@ export interface ModelConfig {
   };
 }
 
+export interface CreditBreakdown {
+  baseCredits: number;
+  baseSeconds?: number;
+  extraSeconds: number;
+  perExtraSecond: number;
+  resolutionMultiplier: number;
+  outputMultiplier: number;
+  total: number;
+  isFixed?: boolean;
+}
+
 // ============================================
 // 用户配置导入
 // ============================================
@@ -336,4 +347,77 @@ export function calculateModelCredits(
 
   // 向上取整
   return Math.ceil(credits);
+}
+
+/** 生成积分明细（用于前端展示） */
+export function getCreditBreakdown(
+  modelId: string,
+  params: { duration: number; quality?: string; outputNumber?: number }
+): CreditBreakdown | null {
+  const config = getModelConfig(modelId);
+  if (!config) return null;
+
+  const outputMultiplier = Math.max(1, params.outputNumber ?? 1);
+  const isHighQuality =
+    params.quality?.toLowerCase() === "high" || params.quality?.includes("1080");
+  const resolutionMultiplier = isHighQuality
+    ? config.creditCost.highQualityMultiplier ?? 1
+    : 1;
+
+  let baseCredits = config.creditCost.base ?? 0;
+  let perExtraSecond = config.creditCost.perExtraSecond ?? 0;
+  let extraSeconds = 0;
+  let baseSeconds: number | undefined = undefined;
+  let subtotal = 0;
+  let isFixed = false;
+
+  const minDuration = config.durations?.length
+    ? Math.min(...config.durations)
+    : 0;
+
+  switch (modelId) {
+    case "sora-2": {
+      baseCredits = params.duration === 15 ? 3 : 2;
+      baseSeconds = params.duration;
+      perExtraSecond = 0;
+      extraSeconds = 0;
+      subtotal = baseCredits;
+      isFixed = true;
+      break;
+    }
+    case "veo-3.1": {
+      baseCredits = 10;
+      baseSeconds = config.maxDuration ?? params.duration;
+      perExtraSecond = 0;
+      extraSeconds = 0;
+      subtotal = baseCredits;
+      isFixed = true;
+      break;
+    }
+    default: {
+      if (baseCredits === 0 && perExtraSecond > 0) {
+        baseSeconds = 0;
+        extraSeconds = params.duration;
+        subtotal = extraSeconds * perExtraSecond;
+      } else {
+        baseSeconds = minDuration || undefined;
+        extraSeconds = Math.max(0, params.duration - (minDuration || 0));
+        subtotal = baseCredits + extraSeconds * perExtraSecond;
+      }
+    }
+  }
+
+  subtotal = subtotal * resolutionMultiplier;
+  const total = Math.ceil(subtotal) * outputMultiplier;
+
+  return {
+    baseCredits,
+    baseSeconds,
+    extraSeconds,
+    perExtraSecond,
+    resolutionMultiplier,
+    outputMultiplier,
+    total,
+    isFixed,
+  };
 }

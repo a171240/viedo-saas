@@ -33,7 +33,7 @@
 
 import * as React from "react";
 import { useState, useRef, useCallback, useMemo, useEffect } from "react";
-import { useLocale } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import {
   ChevronDown,
   Plus,
@@ -50,6 +50,7 @@ import {
   Loader2,
   MoreHorizontal,
   Volume2,
+  Info,
 } from "lucide-react";
 import { cn } from "@/components/ui";
 import {
@@ -99,6 +100,7 @@ import {
 
 // Credit Calculator
 import { calculateVideoCredits } from "@/lib/credit-calculator";
+import { getCreditBreakdown } from "@/config/credits";
 
 // ============================================================================
 // Main Component
@@ -139,6 +141,7 @@ export function VideoGeneratorInput({
 }: VideoGeneratorInputProps) {
   // Merge user config with defaults
   const locale = useLocale();
+  const tBreakdown = useTranslations("CreditsBreakdown");
   const config = useMemo(() => mergeConfig(userConfig, locale), [userConfig, locale]);
   const defaults = useMemo(() => mergeDefaults(userDefaults), [userDefaults]);
   const texts = useMemo(() => getTexts(locale, userTexts), [locale, userTexts]);
@@ -470,6 +473,15 @@ export function VideoGeneratorInput({
   const calculatedCredits = useMemo(() => {
     const resolvedResolution =
       generationType === "video" && showResolutionControl ? resolution : undefined;
+    const durationSeconds = Number.parseInt(duration, 10);
+    const breakdown =
+      generationType === "video" && currentModel && Number.isFinite(durationSeconds)
+        ? getCreditBreakdown(currentModel.id, {
+            duration: durationSeconds,
+            quality: resolvedResolution,
+            outputNumber: currentOutputNumber,
+          })
+        : null;
     if (calculateCredits && currentModel) {
       return calculateCredits({
         type: generationType,
@@ -481,6 +493,9 @@ export function VideoGeneratorInput({
     }
     if (estimatedCredits !== undefined) {
       return estimatedCredits;
+    }
+    if (breakdown) {
+      return breakdown.total;
     }
 
     // Use the unified credit calculator for video generation
@@ -511,6 +526,26 @@ export function VideoGeneratorInput({
     showResolutionControl,
   ]);
 
+  const creditBreakdown = useMemo(() => {
+    if (generationType !== "video" || !currentModel) return null;
+    const durationSeconds = Number.parseInt(duration, 10);
+    if (!Number.isFinite(durationSeconds)) return null;
+    const resolvedResolution =
+      generationType === "video" && showResolutionControl ? resolution : undefined;
+    return getCreditBreakdown(currentModel.id, {
+      duration: durationSeconds,
+      quality: resolvedResolution,
+      outputNumber: currentOutputNumber,
+    });
+  }, [
+    generationType,
+    currentModel,
+    duration,
+    resolution,
+    showResolutionControl,
+    currentOutputNumber,
+  ]);
+
   // Helper to check if icon is a URL
   const isIconUrl = (icon: string) => {
     return icon.startsWith("http://") || icon.startsWith("https://") || icon.startsWith("/");
@@ -524,6 +559,11 @@ export function VideoGeneratorInput({
   // Helper to get model color (defaults to a neutral color)
   const getModelColor = (model: VideoModel | ImageModel) => {
     return model.color ?? "#71717a";
+  };
+
+  const formatMultiplier = (value: number) => {
+    const rounded = Math.round(value * 100) / 100;
+    return Number.isInteger(rounded) ? `${rounded}` : `${rounded}`;
   };
 
   // Render model icon (supports both URL and single character)
@@ -1377,10 +1417,64 @@ export function VideoGeneratorInput({
             </div>
 
             {/* Credits & Submit */}
-            <div className="flex items-center gap-3">
-              <span className="text-sm text-zinc-400">
-                {calculatedCredits} {texts.credits}
-              </span>
+          <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2 text-sm text-zinc-400">
+                <span>
+                  {calculatedCredits} {texts.credits}
+                </span>
+                {creditBreakdown && (
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <button
+                        type="button"
+                        aria-label={tBreakdown("label")}
+                        className="inline-flex items-center justify-center w-5 h-5 rounded-full border border-zinc-700 text-zinc-400 hover:text-white hover:border-zinc-500 transition-colors"
+                      >
+                        <Info className="w-3.5 h-3.5" />
+                      </button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-72 bg-zinc-900 border-zinc-800 text-zinc-200" align="end">
+                      <div className="text-sm font-semibold text-white">{tBreakdown("label")}</div>
+                      <p className="mt-1 text-xs text-zinc-500">{tBreakdown("backendFinal")}</p>
+                      <div className="mt-3 space-y-2 text-xs">
+                        <div className="flex items-center justify-between gap-4">
+                          <span>
+                            {creditBreakdown.baseSeconds
+                              ? tBreakdown("baseWithSeconds", { seconds: creditBreakdown.baseSeconds })
+                              : tBreakdown("base")}
+                          </span>
+                          <span className="text-zinc-100">
+                            {creditBreakdown.baseCredits} {texts.credits}
+                          </span>
+                        </div>
+                        <div className="flex items-center justify-between gap-4">
+                          <span>{tBreakdown("extraSeconds")}</span>
+                          <span className="text-zinc-100">
+                            {creditBreakdown.extraSeconds} × {creditBreakdown.perExtraSecond} ={" "}
+                            {creditBreakdown.extraSeconds * creditBreakdown.perExtraSecond}
+                          </span>
+                        </div>
+                        <div className="flex items-center justify-between gap-4">
+                          <span>{tBreakdown("resolutionMultiplier")}</span>
+                          <span className="text-zinc-100">
+                            ×{formatMultiplier(creditBreakdown.resolutionMultiplier)}
+                          </span>
+                        </div>
+                        <div className="flex items-center justify-between gap-4">
+                          <span>{tBreakdown("outputMultiplier")}</span>
+                          <span className="text-zinc-100">×{creditBreakdown.outputMultiplier}</span>
+                        </div>
+                        <div className="flex items-center justify-between gap-4 border-t border-zinc-800 pt-2 font-medium">
+                          <span>{tBreakdown("total")}</span>
+                          <span className="text-white">
+                            {creditBreakdown.total} {texts.credits}
+                          </span>
+                        </div>
+                      </div>
+                    </PopoverContent>
+                  </Popover>
+                )}
+              </div>
               <button type="button"
                 onClick={handleSubmit}
                 disabled={!canSubmit}

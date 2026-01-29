@@ -15,8 +15,8 @@ import { useState, useCallback, useMemo, useEffect } from "react";
 import { useTranslations } from "next-intl";
 import { cn } from "@/components/ui";
 import { DEFAULT_VIDEO_MODELS } from "@/components/video-generator";
-import { getAvailableModels, calculateModelCredits } from "@/config/credits";
-import { ChevronDown, X, Sparkles, Image as ImageIcon, Clock, Check } from "lucide-react";
+import { getAvailableModels, calculateModelCredits, getCreditBreakdown } from "@/config/credits";
+import { ChevronDown, X, Sparkles, Image as ImageIcon, Clock, Check, Info } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -25,6 +25,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuLabel,
 } from "@/components/ui/dropdown-menu";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
 // ============================================================================
 // Types
@@ -86,6 +87,7 @@ export function GeneratorPanel({
 }: GeneratorPanelProps) {
   const t = useTranslations("ToolGenerator");
   const tRoot = useTranslations();
+  const tBreakdown = useTranslations("CreditsBreakdown");
   const models = getAvailableModels();
   const [prompt, setPrompt] = useState(initialPrompt || "");
   const [selectedModel, setSelectedModel] = useState(initialModelId || defaultModelId || models[0]?.id || "");
@@ -207,11 +209,31 @@ export function GeneratorPanel({
 
   const estimatedCredits = useMemo(() => {
     if (!selectedModel) return 0;
+    const breakdown = getCreditBreakdown(selectedModel, {
+      duration,
+      quality: currentModel?.qualities?.includes(quality) ? quality : undefined,
+      outputNumber: 1,
+    });
+    if (breakdown) return breakdown.total;
     return calculateModelCredits(selectedModel, {
       duration,
       quality: currentModel?.qualities?.includes(quality) ? quality : undefined,
     });
   }, [selectedModel, duration, quality, currentModel]);
+
+  const creditBreakdown = useMemo(() => {
+    if (!selectedModel) return null;
+    return getCreditBreakdown(selectedModel, {
+      duration,
+      quality: currentModel?.qualities?.includes(quality) ? quality : undefined,
+      outputNumber: 1,
+    });
+  }, [selectedModel, duration, quality, currentModel]);
+
+  const formatMultiplier = (value: number) => {
+    const rounded = Math.round(value * 100) / 100;
+    return Number.isInteger(rounded) ? `${rounded}` : `${rounded}`;
+  };
 
   const handleSubmit = useCallback(() => {
     const hasPrompt = prompt.trim().length > 0;
@@ -515,6 +537,58 @@ export function GeneratorPanel({
             <div className="flex items-center gap-2">
               <div className="w-1.5 h-1.5 rounded-full bg-yellow-500" />
               <span className="text-foreground font-medium">{estimatedCredits} {t("labels.credits")}</span>
+              {creditBreakdown && (
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <button
+                      type="button"
+                      aria-label={tBreakdown("label")}
+                      className="inline-flex items-center justify-center w-5 h-5 rounded-full border border-border text-muted-foreground hover:text-foreground transition-colors"
+                    >
+                      <Info className="w-3.5 h-3.5" />
+                    </button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-72 bg-background border-border text-foreground" align="end">
+                    <div className="text-sm font-semibold">{tBreakdown("label")}</div>
+                    <p className="mt-1 text-xs text-muted-foreground">{tBreakdown("backendFinal")}</p>
+                    <div className="mt-3 space-y-2 text-xs">
+                      <div className="flex items-center justify-between gap-4">
+                        <span>
+                          {creditBreakdown.baseSeconds
+                            ? tBreakdown("baseWithSeconds", { seconds: creditBreakdown.baseSeconds })
+                            : tBreakdown("base")}
+                        </span>
+                        <span className="text-foreground">
+                          {creditBreakdown.baseCredits} {t("labels.credits")}
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between gap-4">
+                        <span>{tBreakdown("extraSeconds")}</span>
+                        <span className="text-foreground">
+                          {creditBreakdown.extraSeconds} × {creditBreakdown.perExtraSecond} ={" "}
+                          {creditBreakdown.extraSeconds * creditBreakdown.perExtraSecond}
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between gap-4">
+                        <span>{tBreakdown("resolutionMultiplier")}</span>
+                        <span className="text-foreground">
+                          ×{formatMultiplier(creditBreakdown.resolutionMultiplier)}
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between gap-4">
+                        <span>{tBreakdown("outputMultiplier")}</span>
+                        <span className="text-foreground">×{creditBreakdown.outputMultiplier}</span>
+                      </div>
+                      <div className="flex items-center justify-between gap-4 border-t border-border pt-2 font-medium">
+                        <span>{tBreakdown("total")}</span>
+                        <span className="text-foreground">
+                          {creditBreakdown.total} {t("labels.credits")}
+                        </span>
+                      </div>
+                    </div>
+                  </PopoverContent>
+                </Popover>
+              )}
             </div>
           </div>
 

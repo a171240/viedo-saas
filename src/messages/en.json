@@ -1161,5 +1161,15 @@
         "resetCredits": "Reset credits"
       }
     }
+  },
+  "CreditsBreakdown": {
+    "label": "Credits breakdown",
+    "base": "Base credits",
+    "baseWithSeconds": "Base ({seconds}s)",
+    "extraSeconds": "Extra seconds",
+    "resolutionMultiplier": "Resolution multiplier",
+    "outputMultiplier": "Outputs",
+    "total": "Estimated total",
+    "backendFinal": "Final credits are calculated on the server."
   }
 }

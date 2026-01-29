@@ -1161,5 +1161,15 @@
         "resetCredits": "重置积分"
       }
     }
+  },
+  "CreditsBreakdown": {
+    "label": "积分计算说明",
+    "base": "基础积分",
+    "baseWithSeconds": "基础（{seconds} 秒）",
+    "extraSeconds": "额外时长",
+    "resolutionMultiplier": "分辨率倍率",
+    "outputMultiplier": "输出数量倍率",
+    "total": "预计总计",
+    "backendFinal": "最终扣费以后端为准。"
   }
 }
