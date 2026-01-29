@@ -587,6 +587,22 @@
     },
     "footerNote": "Cookie 选择会保存在你的设备上。"
   },
+  "CookieConsent": {
+    "title": "Cookie 偏好设置",
+    "description": "我们使用必要 Cookie 保障网站运行，并使用可选的分析 Cookie 帮助改进体验。",
+    "necessary": {
+      "title": "必要 Cookie",
+      "description": "始终启用，用于安全、登录与核心功能。"
+    },
+    "analytics": {
+      "title": "分析 Cookie",
+      "description": "帮助我们了解使用情况以改进性能与体验。"
+    },
+    "acceptAll": "全部接受",
+    "rejectAnalytics": "仅必要",
+    "savePreferences": "保存选择",
+    "learnMore": "查看 Cookie 政策"
+  },
   "Blog": {
     "title": "博客",
     "description": "洞察、方法论与产品更新。",

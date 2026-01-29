@@ -587,6 +587,22 @@
     },
     "footerNote": "Cookie choices are stored on your device."
   },
+  "CookieConsent": {
+    "title": "Cookie preferences",
+    "description": "We use necessary cookies to run the site and optional analytics cookies to improve the experience.",
+    "necessary": {
+      "title": "Necessary cookies",
+      "description": "Always on. Required for security, authentication, and core features."
+    },
+    "analytics": {
+      "title": "Analytics cookies",
+      "description": "Help us understand usage so we can improve performance and UX."
+    },
+    "acceptAll": "Accept all",
+    "rejectAnalytics": "Only necessary",
+    "savePreferences": "Save preferences",
+    "learnMore": "Cookie policy"
+  },
   "Blog": {
     "title": "Blog",
     "description": "Insights, playbooks, and product updates.",

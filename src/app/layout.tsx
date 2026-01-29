@@ -4,10 +4,10 @@ import { getLocale, getMessages } from "next-intl/server";
 
 import "@/styles/globals.css";
 
-import { Analytics } from "@vercel/analytics/react";
-import { SpeedInsights } from "@vercel/speed-insights/next";
 import { NextIntlClientProvider } from "next-intl";
 
+import { AnalyticsGate } from "@/components/analytics-gate";
+import { CookieConsentBanner } from "@/components/cookie-consent-banner";
 import { cn } from "@/components/ui";
 import { Toaster } from "@/components/ui/sonner";
 import { QueryProvider } from "@/components/query-provider";
@@ -100,9 +100,9 @@ export default async function RootLayout({
           <NextIntlClientProvider messages={messages}>
             <QueryProvider>
               {children}
-              <Analytics />
-              <SpeedInsights />
+              <AnalyticsGate />
               <Toaster richColors position="top-right" />
+              <CookieConsentBanner />
               <TailwindIndicator />
             </QueryProvider>
           </NextIntlClientProvider>
