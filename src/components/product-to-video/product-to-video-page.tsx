@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
@@ -33,6 +33,7 @@ import { getAvailableModels, getModelConfig, calculateModelCredits } from "@/con
 import { uploadImage } from "@/lib/video-api";
 import { authClient } from "@/lib/auth/client";
 import { toast } from "sonner";
+import PromptStudioDialog from "@/components/prompt-studio/prompt-studio-dialog";
 
 type ImageItem = {
   file: File;
@@ -61,6 +62,8 @@ export function ProductToVideoPage({ locale }: { locale: string }) {
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [modelId, setModelId] = useState(PRODUCT_TO_VIDEO_DEFAULTS.model);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [studioPromptOverride, setStudioPromptOverride] = useState<string | null>(null);
+  const [studioSignature, setStudioSignature] = useState<string | null>(null);
   const [lastResult, setLastResult] = useState<{
     videoUuid: string;
     creditsUsed: number;
@@ -110,7 +113,7 @@ export function ProductToVideoPage({ locale }: { locale: string }) {
     return base * variationCount;
   }, [modelId, effectiveDuration, effectiveQuality, variationCount]);
 
-  const promptPreview = useMemo(() => {
+  const computedPrompt = useMemo(() => {
     if (!productName || !targetAudience || benefits.length < 1) return "";
     return buildProductToVideoPrompt(
       (currentLocale === "zh" ? "zh" : "en"),
@@ -125,6 +128,21 @@ export function ProductToVideoPage({ locale }: { locale: string }) {
       effectiveRatio
     );
   }, [productName, targetAudience, benefits, platform, style, variationCount, effectiveRatio, currentLocale]);
+
+  const promptPreview = studioPromptOverride ?? computedPrompt;
+
+  const formSignature = useMemo(
+    () => JSON.stringify({ productName, targetAudience, benefitsText, platform, style, variationCount }),
+    [productName, targetAudience, benefitsText, platform, style, variationCount]
+  );
+
+  useEffect(() => {
+    if (!studioPromptOverride) return;
+    if (studioSignature && studioSignature !== formSignature) {
+      setStudioPromptOverride(null);
+      setStudioSignature(null);
+    }
+  }, [studioPromptOverride, studioSignature, formSignature]);
 
   const handleImagesChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(event.target.files ?? []);
@@ -195,12 +213,13 @@ export function ProductToVideoPage({ locale }: { locale: string }) {
         },
         effectiveRatio
       );
+      const finalPrompt = studioPromptOverride ?? prompt;
 
       const response = await fetch("/api/v1/video/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          prompt,
+          prompt: finalPrompt,
           model: modelId,
           mode: "product-to-video",
           duration: effectiveDuration,
@@ -245,13 +264,27 @@ export function ProductToVideoPage({ locale }: { locale: string }) {
                 {t("description")}
               </p>
             </div>
-            <Button
-              variant="outline"
-              onClick={() => setShowAdvanced((prev) => !prev)}
-              type="button"
-            >
-              {showAdvanced ? t("actions.hideAdvanced") : t("actions.showAdvanced")}
-            </Button>
+            <div className="flex flex-wrap items-center gap-2">
+              <PromptStudioDialog
+                locale={currentLocale === "zh" ? "zh" : "en"}
+                onApplyPrompt={(value) => {
+                  setStudioPromptOverride(value);
+                  setStudioSignature(formSignature);
+                }}
+                trigger={(
+                  <Button variant="outline" type="button">
+                    {t("promptStudio")}
+                  </Button>
+                )}
+              />
+              <Button
+                variant="outline"
+                onClick={() => setShowAdvanced((prev) => !prev)}
+                type="button"
+              >
+                {showAdvanced ? t("actions.hideAdvanced") : t("actions.showAdvanced")}
+              </Button>
+            </div>
           </div>
 
           <div className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">

@@ -366,7 +366,8 @@
       "benefits": "请至少填写 3 个核心卖点。",
       "images": "请上传至少 1 张商品图片。",
       "maxImages": "最多上传 3 张图片。"
-    }
+    },
+    "promptStudio": "Prompt Studio"
   },
   "ToolGenerator": {
     "pageTitle": {
@@ -1411,6 +1412,43 @@
     "cta": {
       "note": "???????? <highlight>50 ????</highlight> ???",
       "button": "???????"
+    }
+  },
+  "PromptStudio": {
+    "title": "Prompt Studio",
+    "subtitle": "把简要需求转成定位、角度、4x4 选题矩阵和可用的视频提示词。",
+    "templateLabel": "模板",
+    "steps": {
+      "positioning": "定位",
+      "angleMining": "角度库",
+      "calendar": "4x4 日历",
+      "scriptPrompt": "脚本与提示词"
+    },
+    "actions": {
+      "open": "Prompt Studio",
+      "next": "下一步",
+      "back": "上一步",
+      "apply": "使用该提示词"
+    },
+    "sections": {
+      "positioningLine": "定位一句话",
+      "angles": "角度清单",
+      "calendar": "4x4 内容日历",
+      "script": "脚本",
+      "videoPrompt": "视频提示词",
+      "negativePrompt": "反向提示词",
+      "onScreenText": "字幕建议",
+      "shotList": "分镜清单"
+    },
+    "hints": {
+      "fillRequired": "请先填写必填项以生成结果。",
+      "tagHint": "用逗号或换行分隔。"
+    },
+    "stages": {
+      "Acquire": "获客",
+      "Trust": "建立信任",
+      "Convert": "转化",
+      "Retain": "留存"
     }
   }
 }

@@ -12,7 +12,7 @@
  */
 
 import { useState, useCallback, useMemo, useEffect } from "react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { cn } from "@/components/ui";
 import { DEFAULT_VIDEO_MODELS } from "@/components/video-generator";
 import { getAvailableModels, calculateModelCredits, getCreditBreakdown } from "@/config/credits";
@@ -26,6 +26,7 @@ import {
   DropdownMenuLabel,
 } from "@/components/ui/dropdown-menu";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import PromptStudioDialog from "@/components/prompt-studio/prompt-studio-dialog";
 
 // ============================================================================
 // Types
@@ -88,6 +89,8 @@ export function GeneratorPanel({
   const t = useTranslations("ToolGenerator");
   const tRoot = useTranslations();
   const tBreakdown = useTranslations("CreditsBreakdown");
+  const tStudio = useTranslations("PromptStudio");
+  const locale = useLocale();
   const models = getAvailableModels();
   const [prompt, setPrompt] = useState(initialPrompt || "");
   const [selectedModel, setSelectedModel] = useState(initialModelId || defaultModelId || models[0]?.id || "");
@@ -376,6 +379,19 @@ export function GeneratorPanel({
           <div>
             <div className="flex items-center justify-between mb-2">
               <SectionLabel className="mb-0">{t("labels.prompt")}</SectionLabel>
+              <PromptStudioDialog
+                locale={locale === "zh" ? "zh" : "en"}
+                onApplyPrompt={(value) => setPrompt(value)}
+                trigger={(
+                  <button
+                    type="button"
+                    className="inline-flex items-center gap-1 text-xs text-primary hover:text-primary/80 transition-colors"
+                  >
+                    <Sparkles className="w-3.5 h-3.5" />
+                    {tStudio("actions.open")}
+                  </button>
+                )}
+              />
             </div>
             <textarea
               value={prompt}

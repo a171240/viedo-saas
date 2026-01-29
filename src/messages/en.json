@@ -366,7 +366,8 @@
       "benefits": "Please add at least 3 key benefits.",
       "images": "Please upload at least 1 product image.",
       "maxImages": "You can upload up to 3 images."
-    }
+    },
+    "promptStudio": "Prompt Studio"
   },
   "ToolGenerator": {
     "pageTitle": {
@@ -1411,6 +1412,43 @@
     "cta": {
       "note": "Sign up now and get <highlight>50 free credits</highlight> to try!",
       "button": "Login to Get Started"
+    }
+  },
+  "PromptStudio": {
+    "title": "Prompt Studio",
+    "subtitle": "Turn a brief into positioning, angles, a 4x4 calendar, and a ready-to-use video prompt.",
+    "templateLabel": "Template",
+    "steps": {
+      "positioning": "Positioning",
+      "angleMining": "Angle Mining",
+      "calendar": "4x4 Calendar",
+      "scriptPrompt": "Script & Prompt"
+    },
+    "actions": {
+      "open": "Prompt Studio",
+      "next": "Next",
+      "back": "Back",
+      "apply": "Use this prompt"
+    },
+    "sections": {
+      "positioningLine": "Positioning line",
+      "angles": "Angles",
+      "calendar": "4x4 Content Calendar",
+      "script": "Script",
+      "videoPrompt": "Video prompt",
+      "negativePrompt": "Negative prompt",
+      "onScreenText": "On-screen text",
+      "shotList": "Shot list"
+    },
+    "hints": {
+      "fillRequired": "Fill required fields to generate outputs.",
+      "tagHint": "Use commas or new lines."
+    },
+    "stages": {
+      "Acquire": "Acquire",
+      "Trust": "Trust",
+      "Convert": "Convert",
+      "Retain": "Retain"
     }
   }
 }
