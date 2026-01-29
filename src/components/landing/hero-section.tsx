@@ -182,7 +182,7 @@ export function HeroSection() {
 
       const result = await response.json();
       const toolRoute = getToolRouteByMode(normalizedMode);
-      toast.success("Generation started");
+      toast.success(t("toast.generationStarted"));
       try {
         if (typeof window !== "undefined") {
           sessionStorage.setItem(
@@ -218,14 +218,15 @@ export function HeroSection() {
       router.push(`/${locale}/${toolRoute}?id=${result.data.videoUuid}`);
     } catch (error) {
       console.error("Generation error:", error);
-      const message = error instanceof Error ? error.message : "Failed to generate video. Please try again.";
+      const defaultFailed = t("toast.generationFailed");
+      const message = error instanceof Error ? error.message : defaultFailed;
       // Check for common errors and provide helpful messages
       if (message.includes("credits") || message.includes("Credit")) {
-        toast.error("Insufficient credits. Please top up and try again.");
+        toast.error(t("toast.insufficientCredits"));
       } else if (message.includes("database") || message.includes("DATABASE_URL")) {
-        toast.error("Service temporarily unavailable. Please try again later.");
+        toast.error(t("toast.serviceUnavailable"));
       } else {
-        toast.error(message || "Failed to generate video. Please try again.");
+        toast.error(message || defaultFailed);
       }
     } finally {
       setIsSubmitting(false);
@@ -272,7 +273,7 @@ export function HeroSection() {
 
     if (!activeUser) {
       if (isDevBypassEnabled()) {
-        toast.error("Dev user not available.");
+        toast.error(t("toast.devUserMissing"));
         return;
       }
       try {

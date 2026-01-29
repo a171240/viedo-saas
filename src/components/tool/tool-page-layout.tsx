@@ -391,7 +391,7 @@ export function ToolPageLayout({
           setUser(devUser);
           currentUser = devUser;
         } else {
-          toast.error("Dev user not available.");
+          toast.error(tTool("toast.devUserMissing"));
           return;
         }
       } else {
@@ -466,13 +466,13 @@ export function ToolPageLayout({
 
       if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.message || "Failed to generate video");
+        throw new Error(error.message || tTool("toast.generationFailed"));
       }
 
       const result = await response.json();
       const videoUuid = result.data.videoUuid as string;
 
-      toast.success("Generation started");
+      toast.success(tTool("toast.generationStarted"));
 
       // 添加到历史记录
       videoHistoryStorage.addHistory({
@@ -510,7 +510,7 @@ export function ToolPageLayout({
       const requiredCredits = data.estimatedCredits || 0;
       optimisticRelease(requiredCredits);
       // 显示错误提示
-      toast.error(error instanceof Error ? error.message : "Failed to generate video");
+      toast.error(error instanceof Error ? error.message : tTool("toast.generationFailed"));
     }
     setIsSubmitting(false);
   }, [
@@ -525,6 +525,7 @@ export function ToolPageLayout({
     optimisticFreeze,
     optimisticRelease,
     tNotify,
+    tTool,
   ]);
 
   // 处理重新生成
@@ -539,7 +540,7 @@ export function ToolPageLayout({
         method: "DELETE",
       });
       if (!response.ok) {
-        throw new Error("Failed to delete video");
+        throw new Error(tTool("toast.deleteFailed"));
       }
 
       // 从历史记录中删除
@@ -548,12 +549,12 @@ export function ToolPageLayout({
 
       // 更新 currentVideos（兼容旧逻辑）
       setCurrentVideos((prev) => prev.filter((v) => v.uuid !== uuid));
-      toast.success("Video deleted successfully");
+      toast.success(tTool("toast.deleteSuccess"));
     } catch (error) {
       console.error("Delete error:", error);
-      toast.error("Failed to delete video");
+      toast.error(tTool("toast.deleteFailed"));
     }
-  }, [user?.id]);
+  }, [user?.id, tTool]);
 
   // 处理重试失败的视频
   const handleRetry = useCallback(async (uuid: string) => {
@@ -562,7 +563,7 @@ export function ToolPageLayout({
         method: "POST",
       });
       if (!response.ok) {
-        throw new Error("Failed to retry video");
+        throw new Error(tTool("toast.retryFailed"));
       }
       const result = await response.json();
       addGeneratingId(uuid);
@@ -572,12 +573,12 @@ export function ToolPageLayout({
           v.uuid === uuid ? { ...v, status: "GENERATING", errorMessage: null } : v
         )
       );
-      toast.success("Video retry started");
+      toast.success(tTool("toast.retryStarted"));
     } catch (error) {
       console.error("Retry error:", error);
-      toast.error("Failed to retry video");
+      toast.error(tTool("toast.retryFailed"));
     }
-  }, [addGeneratingId, startPolling]);
+  }, [addGeneratingId, startPolling, tTool]);
 
   // 移动端：显示标签导航
   const showMobileTabs = true;
@@ -644,8 +645,8 @@ export function ToolPageLayout({
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                   </div>
-                  <h3 className="text-lg font-medium mb-2">Detailed Preview</h3>
-                  <p className="text-sm max-w-xs">Login to generate and view your high-quality AI videos.</p>
+                  <h3 className="text-lg font-medium mb-2">{tTool("unauthPreview.title")}</h3>
+                  <p className="text-sm max-w-xs">{tTool("unauthPreview.description")}</p>
                 </div>
               </div>
             </div>

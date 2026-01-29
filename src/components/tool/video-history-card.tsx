@@ -7,7 +7,7 @@
  * - 失败：显示错误信息
  */
 
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { Copy, AlertCircle, Clock } from "lucide-react";
 import { cn } from "@/components/ui";
 import { Button } from "@/components/ui/button";
@@ -26,6 +26,7 @@ export function VideoHistoryCard({
   onDelete,
 }: VideoHistoryCardProps) {
   const t = useTranslations("VideoHistory");
+  const locale = useLocale();
 
   const isCompleted = video.status === "completed";
   const isFailed = video.status === "failed";
@@ -36,15 +37,16 @@ export function VideoHistoryCard({
     const now = new Date();
     const isToday = date.toDateString() === now.toDateString();
 
+    const timeLocale = locale === "zh" ? "zh-CN" : "en-US";
     if (isToday) {
-      return date.toLocaleTimeString("en-US", {
+      return date.toLocaleTimeString(timeLocale, {
         hour: "2-digit",
         minute: "2-digit",
         hour12: false,
       });
     }
 
-    return date.toLocaleString("en-US", {
+    return date.toLocaleString(timeLocale, {
       month: "short",
       day: "numeric",
       hour: "2-digit",
@@ -56,7 +58,7 @@ export function VideoHistoryCard({
   const handleCopyPrompt = () => {
     if (video.prompt) {
       navigator.clipboard.writeText(video.prompt);
-      toast.success("Prompt copied to clipboard");
+      toast.success(t("promptCopied"));
     }
   };
 
@@ -88,7 +90,7 @@ export function VideoHistoryCard({
         {/* 顶部行：Prompt + 发起时间 */}
         <div className="flex items-center justify-between">
           <p className="text-sm text-white font-medium line-clamp-1 flex-1">
-            {video.prompt || "Untitled"}
+            {video.prompt || t("untitled")}
           </p>
           <span className="text-xs text-zinc-500 ml-2">
             {formatTime(video.createdAt)}
@@ -140,7 +142,7 @@ export function VideoHistoryCard({
           {/* 顶部行：标题 + 时间 + 复制提示词 */}
           <div className="flex items-center justify-between">
             <p className="text-sm text-white font-medium line-clamp-1 flex-1">
-              {video.prompt || "Untitled"}
+              {video.prompt || t("untitled")}
             </p>
             <div className="flex items-center gap-2 text-zinc-500">
               <span className="text-xs">{formatTime(video.createdAt)}</span>
@@ -149,7 +151,7 @@ export function VideoHistoryCard({
                   type="button"
                   onClick={handleCopyPrompt}
                   className="p-1 hover:text-zinc-300 transition-colors"
-                  title="Copy prompt"
+                  title={t("copyPrompt")}
                 >
                   <Copy className="w-4 h-4" />
                 </button>
@@ -174,7 +176,7 @@ export function VideoHistoryCard({
           <div className="flex-1 min-w-0">
             <p className="text-sm font-medium">{t("generationFailed")}</p>
             <p className="text-xs text-zinc-500 truncate mt-0.5">
-              {video.prompt || "Unknown error"}
+              {video.prompt || t("unknownError")}
             </p>
           </div>
         </div>

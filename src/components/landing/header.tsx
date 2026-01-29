@@ -52,6 +52,7 @@ const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
 export function LandingHeader({ user }: { user?: User | null }) {
   const signInModal = useSigninModal();
   const t = useTranslations();
+  const tHeader = useTranslations("Header");
   const tLocale = useTranslations("Locale");
   const locale = useLocale();
   const pathname = useLocalePathname();
@@ -117,7 +118,7 @@ export function LandingHeader({ user }: { user?: User | null }) {
                           >
                             <div className="text-sm font-medium">{model.title}</div>
                             <p className="text-xs text-muted-foreground">
-                              {model.subtitle}
+                              {tHeader(`modelsList.${model.id}.subtitle`)}
                             </p>
                           </LocaleLink>
                         </NavigationMenuLink>
@@ -142,7 +143,7 @@ export function LandingHeader({ user }: { user?: User | null }) {
                               className="flex items-center gap-3 rounded-md p-2 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
                             >
                               {Icon && <Icon className="h-4 w-4" />}
-                              <span className="text-sm">{tool.title}</span>
+                              <span className="text-sm">{tHeader(`toolsList.${tool.id}`)}</span>
                             </LocaleLink>
                           </NavigationMenuLink>
                         </li>
@@ -321,7 +322,7 @@ export function LandingHeader({ user }: { user?: User | null }) {
                           >
                             <span className="text-sm font-medium">{model.title}</span>
                             <span className="text-xs text-muted-foreground">
-                              {model.subtitle}
+                              {tHeader(`modelsList.${model.id}.subtitle`)}
                             </span>
                           </LocaleLink>
                         ))}
@@ -343,7 +344,7 @@ export function LandingHeader({ user }: { user?: User | null }) {
                               className="flex items-center gap-3 p-2 rounded-md hover:bg-accent transition-colors"
                             >
                               {Icon && <Icon className="h-4 w-4" />}
-                              <span className="text-sm">{tool.title}</span>
+                              <span className="text-sm">{tHeader(`toolsList.${tool.id}`)}</span>
                             </LocaleLink>
                           );
                         })}
@@ -373,14 +374,16 @@ export function LandingHeader({ user }: { user?: User | null }) {
                   {/* Language */}
                   <div className="flex items-center gap-3 p-2">
                     <Globe className="h-4 w-4" />
-                    <button type="button"
+                    <button
+                      type="button"
                       onClick={() => switchLocale("en")}
                       className="text-sm hover:text-foreground transition-colors"
                     >
-                      {tLocale("chinese")}
+                      {tLocale("english")}
                     </button>
                     <span className="text-muted-foreground">/</span>
-                    <button type="button"
+                    <button
+                      type="button"
                       onClick={() => switchLocale("zh")}
                       className="text-sm hover:text-foreground transition-colors"
                     >

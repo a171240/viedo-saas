@@ -72,7 +72,7 @@ export function Sidebar({ lang = "en", mobileOpen, onMobileClose }: SidebarProps
         )}
       >
         {Icon && <Icon className="h-4 w-4 shrink-0" />}
-        <span className="truncate">{item.title}</span>
+        <span className="truncate">{t(`items.${item.id}`)}</span>
       </Link>
     );
   };
@@ -86,7 +86,7 @@ export function Sidebar({ lang = "en", mobileOpen, onMobileClose }: SidebarProps
           <div key={group.id} className="space-y-1">
             {group.title && (
               <div className="px-2 mb-2 text-xs font-medium text-muted-foreground">
-                {group.title}
+                {t(`groups.${group.id}`)}
               </div>
             )}
             <div className="space-y-0.5">
@@ -138,7 +138,7 @@ export function Sidebar({ lang = "en", mobileOpen, onMobileClose }: SidebarProps
           <div key={group.id} className="space-y-1">
             {group.title && (
               <div className="px-2 mb-2 text-xs font-medium text-muted-foreground">
-                {group.title}
+                {t(`groups.${group.id}`)}
               </div>
             )}
             <div className="space-y-0.5">
@@ -160,7 +160,7 @@ export function Sidebar({ lang = "en", mobileOpen, onMobileClose }: SidebarProps
                         const Icon = iconMap[item.icon as keyof typeof iconMap];
                         return Icon && <Icon className="h-4 w-4 shrink-0" />;
                       })()}
-                      <span className="truncate">{item.title}</span>
+                      <span className="truncate">{t(`items.${item.id}`)}</span>
                     </Link>
                   </SheetClose>
                 );

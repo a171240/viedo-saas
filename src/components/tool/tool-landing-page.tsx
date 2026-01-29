@@ -18,6 +18,7 @@
 import { Play, ArrowRight, Sparkles, Check, Users, Video } from "lucide-react";
 import Link from "next/link";
 import { motion } from "framer-motion";
+import { useTranslations } from "next-intl";
 import { cn } from "@/components/ui";
 import { BlurFade } from "@/components/magicui/blur-fade";
 import { ShimmerButton } from "@/components/magicui/shimmer-button";
@@ -69,6 +70,23 @@ export function ToolLandingPage({
   className,
 }: ToolLandingPageProps) {
   const { landing, i18nPrefix } = config;
+  const tCommon = useTranslations("ToolLanding");
+  const tLanding = useTranslations(i18nPrefix);
+
+  const exampleItems = tLanding.raw("examples.items") as Array<{
+    title: string;
+    prompt: string;
+  }>;
+  const featureItems = tLanding.raw("features.items") as string[];
+
+  const localizedExamples = landing.examples.map((example, index) => ({
+    ...example,
+    title: exampleItems?.[index]?.title ?? example.title,
+    prompt: exampleItems?.[index]?.prompt ?? example.prompt,
+  }));
+
+  const localizedFeatures =
+    featureItems && featureItems.length > 0 ? featureItems : landing.features;
 
   return (
     <div className={cn("h-full overflow-y-auto", className)}>
@@ -92,18 +110,18 @@ export function ToolLandingPage({
             >
               <Sparkles className="h-4 w-4 text-blue-500" />
               <span className="text-sm font-medium text-blue-600 dark:text-blue-400">
-                AI-Powered
+                {tCommon("badge")}
               </span>
             </motion.div>
 
             {/* 标题 */}
             <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold">
-              {landing.hero.title}
+              {tLanding("hero.title")}
             </h1>
 
             {/* 描述 */}
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto" suppressHydrationWarning>
-              {landing.hero.description}
+              {tLanding("hero.description")}
             </p>
 
             {/* CTA */}
@@ -117,13 +135,13 @@ export function ToolLandingPage({
                   background="linear-gradient(135deg, #2563EB 0%, #7C3AED 100%)"
                   className="px-8 py-3 text-base font-medium shadow-lg shadow-blue-500/25"
                 >
-                  {landing.hero.ctaText}
+                  {tLanding("hero.ctaText")}
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </ShimmerButton>
               </Link>
-              {landing.hero.ctaSubtext && (
+              {tLanding("hero.ctaSubtext") && (
                 <span className="text-sm text-muted-foreground">
-                  {landing.hero.ctaSubtext}
+                  {tLanding("hero.ctaSubtext")}
                 </span>
               )}
             </div>
@@ -140,9 +158,9 @@ export function ToolLandingPage({
               transition={{ duration: 0.5, delay: 0.1 }}
               className="space-y-4"
             >
-              <h2 className="text-xl font-semibold">Examples</h2>
+              <h2 className="text-xl font-semibold">{tCommon("examplesTitle")}</h2>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {landing.examples.map((example, index: number) => (
+                {localizedExamples.map((example, index: number) => (
                   <motion.div
                     key={index}
                     initial={{ opacity: 0, y: 20 }}
@@ -184,10 +202,10 @@ export function ToolLandingPage({
             >
               <h3 className="font-semibold flex items-center gap-2 text-lg">
                 <Sparkles className="h-5 w-5 text-purple-500" />
-                Features
+                {tCommon("featuresTitle")}
               </h3>
               <ul className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                {landing.features.map((feature, index: number) => (
+                {localizedFeatures.map((feature, index: number) => (
                   <motion.li
                     key={index}
                     initial={{ opacity: 0, x: -10 }}

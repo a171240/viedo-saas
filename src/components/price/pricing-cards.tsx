@@ -288,7 +288,7 @@ export function PricingCards({
 
       <p className="mt-3 text-center text-base text-muted-foreground">
         <Balancer>
-          Email{" "}
+          {t("contact_email")}{" "}
           <a
             className="font-medium text-primary hover:underline"
             href="mailto:support@videofly.app"

@@ -19,7 +19,7 @@
   },
   "Locale": {
     "english": "EN",
-    "chinese": "??"
+    "chinese": "中文"
   },
   "Header": {
     "models": "模型",
@@ -28,7 +28,26 @@
     "docs": "文档",
     "myCreations": "我的作品",
     "credits": "积分",
-    "settings": "设置"
+    "settings": "设置",
+    "toolsList": {
+      "txt2vid": "文本转视频",
+      "img2vid": "图片转视频",
+      "ref2vid": "参考图转视频"
+    },
+    "modelsList": {
+      "sora": {
+        "subtitle": "来自 OpenAI"
+      },
+      "veo": {
+        "subtitle": "来自 Google"
+      },
+      "seedance": {
+        "subtitle": "来自 ByteDance"
+      },
+      "wan": {
+        "subtitle": "来自 Alibaba"
+      }
+    }
   },
   "Hero": {
     "badge": "支持 Sora 2、Veo 3.1 等模型",
@@ -47,12 +66,33 @@
       "users": "位满意用户",
       "rating": "用户评分"
     },
-    "creditsHint": "免费积分开始 • 无需信用卡"
+    "creditsHint": "免费积分开始 • 无需信用卡",
+    "toast": {
+      "generationStarted": "生成已开始",
+      "generationFailed": "生成失败，请重试。",
+      "insufficientCredits": "积分不足，请充值后再试。",
+      "serviceUnavailable": "服务暂时不可用，请稍后再试。",
+      "devUserMissing": "开发者账号不可用。"
+    }
   },
   "Marketing": {
-    "typicalGenerationTime": "2?5 ??",
-    "qualityNote": "?? 1080p???????",
-    "freeCreditsNote": "50 ???? ? ?????"
+    "typicalGenerationTime": "2-5 分钟",
+    "qualityNote": "最高可达 1080p（视模型而定）",
+    "freeCreditsNote": "50 免费积分 - 无需信用卡"
+  },
+  "models": {
+    "sora2": {
+      "description": "OpenAI 先进视频生成模型"
+    },
+    "wan26": {
+      "description": "支持文本/图片/参考图生成视频，并可生成音频"
+    },
+    "veo31": {
+      "description": "Google 视频生成模型，支持参考图"
+    },
+    "seedance": {
+      "description": "支持文本/图片/首尾帧生成视频并可生成音频"
+    }
   },
   "Notifications": {
     "generationWillNotify": "生成时间较长，我们会在生成完成后通知你。",
@@ -77,6 +117,10 @@
     "exploreSubtitle": "暂无社区内容，先从你的创作开始",
     "emptyTitle": "预览会出现在这里",
     "emptySubtitle": "在左侧发起生成后即可显示",
+    "unauthPreview": {
+      "title": "详细预览",
+      "description": "登录后即可生成并查看高质量 AI 视频。"
+    },
     "promptIdeas": "提示词灵感",
     "promptExample1": "霓虹雨夜街景特写，慢动作氛围感。",
     "promptExample2": "金色夕阳下的咖啡馆，轻微横移镜头。",
@@ -88,7 +132,152 @@
     "generatingTag": "生成中",
     "generatingHint": "视频生成中，可继续发起新任务。",
     "modelLabel": "模型",
-    "download": "下载"
+    "download": "下载",
+    "toast": {
+      "devUserMissing": "开发者账号不可用。",
+      "generationStarted": "生成已开始",
+      "generationFailed": "生成失败",
+      "deleteSuccess": "视频已删除",
+      "deleteFailed": "删除失败",
+      "retryStarted": "重试已开始",
+      "retryFailed": "重试失败"
+    },
+    "TextToVideo": {
+      "hero": {
+        "title": "用文本生成惊艳视频",
+        "description": "用一句话描述你的想法，让 AI 把它变成真实视频。从电影级场景到产品展示都能实现。",
+        "ctaText": "开始创作",
+        "ctaSubtext": "免费赠送 50 积分试用"
+      },
+      "examples": {
+        "items": [
+          {
+            "title": "电影感山景",
+            "prompt": "金色夕阳下的雄伟山脉，镜头缓缓穿越山谷"
+          },
+          {
+            "title": "都市夜景延时",
+            "prompt": "纽约夜景延时，车灯形成光轨，楼宇灯火通明"
+          },
+          {
+            "title": "海边日落",
+            "prompt": "平静海面与日落，镜头缓慢拉远，氛围宁静"
+          }
+        ]
+      },
+      "features": {
+        "items": [
+          "一句话描述你想看到的画面",
+          "支持 Sora 2、Veo 3.1 等前沿模型",
+          "最高可达 1080p 电影级画质",
+          "自动生成音频与音效",
+          "多种比例适配不同平台"
+        ]
+      }
+    },
+    "ImageToVideo": {
+      "hero": {
+        "title": "把照片变成动感视频",
+        "description": "上传任意图片，让 AI 生成自然流畅的运动效果。适合社媒、营销和创意项目。",
+        "ctaText": "免费开始",
+        "ctaSubtext": "免费赠送 50 积分试用"
+      },
+      "examples": {
+        "items": [
+          {
+            "title": "照片变成场景",
+            "prompt": "海边女孩行走，头发随风飘动，金色夕阳"
+          },
+          {
+            "title": "产品动画",
+            "prompt": "白色背景上手机旋转，粒子漂浮"
+          },
+          {
+            "title": "抽象艺术动画",
+            "prompt": "色彩与形状流动变换，迷幻风格"
+          }
+        ]
+      },
+      "features": {
+        "items": [
+          "支持 JPG/PNG/WEBP 图片，最大 10MB",
+          "多模型可选，动画风格多样",
+          "最高 1080p 全高清输出",
+          "2-5 分钟快速生成",
+          "包含商用授权"
+        ]
+      }
+    },
+    "ReferenceToVideo": {
+      "hero": {
+        "title": "参考图生成视频",
+        "description": "上传参考图片，AI 在保留主体一致性的前提下生成动效、风格或多版本。",
+        "ctaText": "立即试用",
+        "ctaSubtext": "免费赠送 50 积分"
+      },
+      "examples": {
+        "items": [
+          {
+            "title": "风格迁移",
+            "prompt": "将图片转换为动漫风格，颜色更鲜艳"
+          },
+          {
+            "title": "添加天气效果",
+            "prompt": "为场景添加雨雾氛围"
+          },
+          {
+            "title": "季节切换",
+            "prompt": "把夏季场景转换为冬季飘雪"
+          }
+        ]
+      },
+      "features": {
+        "items": [
+          "上传参考图片（JPG/PNG/WEBP，最大 10MB）",
+          "AI 动态化与风格化处理",
+          "保留主体与构图一致性",
+          "一张参考图生成多种变体",
+          "支持多种艺术风格与效果"
+        ]
+      }
+    }
+  },
+  "ToolLanding": {
+    "badge": "AI 驱动",
+    "examplesTitle": "示例",
+    "featuresTitle": "功能亮点"
+  },
+  "ToolGenerator": {
+    "pageTitle": {
+      "textToVideo": "文本转视频",
+      "imageToVideo": "图片转视频",
+      "referenceToVideo": "参考图转视频",
+      "default": "AI 生成器"
+    },
+    "labels": {
+      "model": "模型",
+      "videoModels": "视频模型",
+      "prompt": "提示词",
+      "referenceImage": "参考图片",
+      "imageSource": "图片来源",
+      "selectedImage": "已选择的图片",
+      "aspectRatio": "画面比例",
+      "videoLength": "视频时长",
+      "resolution": "分辨率",
+      "totalCredits": "预计积分",
+      "credits": "积分"
+    },
+    "placeholders": {
+      "prompt": "描述你想生成的视频，例如：阳光花园里一只猫在玩耍，光线自然、氛围清新……"
+    },
+    "upload": {
+      "title": "上传图片",
+      "hint": "JPG、PNG、WEBP，最大 10MB"
+    },
+    "actions": {
+      "generating": "生成中...",
+      "generateVideo": "开始生成"
+    }
   },
   "Showcase": {
     "badge": "亲眼见证",
@@ -545,7 +734,17 @@
     "contact": "获取支持。",
     "contact_2": "我们随时为你提供帮助。",
     "manage_subscription": "管理订阅",
-    "upgrade": "升级"
+    "upgrade": "升级",
+    "loading": "加载中...",
+    "contact_email": "邮箱",
+    "toast": {
+      "checkoutTitle": "结账失败",
+      "checkoutDescription": "创建结账会话失败。",
+      "checkoutMissingUrl": "未获取到结账链接。",
+      "portalTitle": "门户错误",
+      "portalDescription": "打开客户门户失败。",
+      "portalMissingUrl": "未获取到门户链接。"
+    }
   },
   "PricingFaq": {
     "faq": "常见问题",
@@ -554,7 +753,20 @@
   "Sidebar": {
     "title": "导航菜单",
     "upgradeTitle": "升级专业版",
-    "upgradeSubtitle": "解锁更快生成与更多额度"
+    "upgradeSubtitle": "解锁更快生成与更多额度",
+    "groups": {
+      "video": "视频",
+      "user": "用户",
+      "account": "账户"
+    },
+    "items": {
+      "txt2vid": "文本转视频",
+      "img2vid": "图片转视频",
+      "ref2vid": "参考图转视频",
+      "creations": "我的作品",
+      "credits": "积分",
+      "settings": "账户"
+    }
   },
   "UpgradeModal": {
     "default_title": "升级您的方案",
@@ -751,8 +963,13 @@
     "title": "最近生成",
     "demoTitle": "示例视频",
     "generating": "正在生成视频...",
+    "moreCreations": "更多作品",
     "download": "下载",
     "copyLink": "复制链接",
+    "promptCopied": "提示词已复制",
+    "untitled": "未命名",
+    "copyPrompt": "复制提示词",
+    "unknownError": "未知错误",
     "removeFromHistory": "从历史中移除",
     "generationFailed": "生成失败"
   }

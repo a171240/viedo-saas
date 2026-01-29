@@ -101,15 +101,15 @@ export function DarkPricing({
       });
 
       if (error) {
-        toast.error("Checkout error", {
-          description: error.message ?? "Failed to create checkout session.",
+        toast.error(t("toast.checkoutTitle"), {
+          description: error.message ?? t("toast.checkoutDescription"),
         });
         return;
       }
 
       if (!data || !("url" in data) || !data.url) {
-        toast.error("Checkout error", {
-          description: "Missing checkout URL from Creem.",
+        toast.error(t("toast.checkoutTitle"), {
+          description: t("toast.checkoutMissingUrl"),
         });
         return;
       }
@@ -121,15 +121,15 @@ export function DarkPricing({
   const handlePortal = async () => {
     const { data, error } = await creem.createPortal();
     if (error) {
-      toast.error("Portal error", {
-        description: error.message ?? "Failed to open customer portal.",
+      toast.error(t("toast.portalTitle"), {
+        description: error.message ?? t("toast.portalDescription"),
       });
       return;
     }
 
     if (!data || !("url" in data) || !data.url) {
-      toast.error("Portal error", {
-        description: "Missing portal URL from Creem.",
+      toast.error(t("toast.portalTitle"), {
+        description: t("toast.portalMissingUrl"),
       });
       return;
     }
@@ -393,7 +393,7 @@ function PricingCard({
               {isPending ? (
                 <>
                   <Icons.Spinner className="mr-2 h-4 w-4 animate-spin" />
-                  Loading...
+                  {t("loading")}
                 </>
               ) : product.billingPeriod ? (
                 dictPrice.upgrade

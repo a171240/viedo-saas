@@ -33,6 +33,7 @@
 
 import * as React from "react";
 import { useState, useRef, useCallback, useMemo, useEffect } from "react";
+import { useLocale } from "next-intl";
 import {
   ChevronDown,
   Plus,
@@ -139,7 +140,8 @@ export function VideoGeneratorInput({
   // Merge user config with defaults
   const config = useMemo(() => mergeConfig(userConfig), [userConfig]);
   const defaults = useMemo(() => mergeDefaults(userDefaults), [userDefaults]);
-  const texts = useMemo(() => getTexts(undefined, userTexts), [userTexts]);
+  const locale = useLocale();
+  const texts = useMemo(() => getTexts(locale, userTexts), [locale, userTexts]);
 
   // Extract config values
   const videoModels = config.videoModels ?? [];
@@ -564,10 +566,11 @@ export function VideoGeneratorInput({
       ];
     }
     if (mode?.uploadType === "characters") {
+      const imageSlotLabel = texts.imageSlot ?? "Image";
       return [
-        { id: "char1", label: "Image1", subLabel: "", required: true },
-        { id: "char2", label: "Image2", subLabel: texts.optional ?? "(Opt)", required: false },
-        { id: "char3", label: "Image3", subLabel: texts.optional ?? "(Opt)", required: false },
+        { id: "char1", label: `${imageSlotLabel}1`, subLabel: "", required: true },
+        { id: "char2", label: `${imageSlotLabel}2`, subLabel: texts.optional ?? "(Opt)", required: false },
+        { id: "char3", label: `${imageSlotLabel}3`, subLabel: texts.optional ?? "(Opt)", required: false },
       ];
     }
     return [{ id: "default", label: "", subLabel: "", required: false }];

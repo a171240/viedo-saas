@@ -581,6 +581,7 @@ export interface GeneratorTexts {
   promptTooLong?: string;
 
   // Upload slots
+  imageSlot?: string;
   start?: string;
   end?: string;
   optional?: string;

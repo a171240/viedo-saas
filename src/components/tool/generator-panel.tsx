@@ -12,6 +12,7 @@
  */
 
 import { useState, useCallback, useMemo, useEffect } from "react";
+import { useTranslations } from "next-intl";
 import { cn } from "@/components/ui";
 import { DEFAULT_VIDEO_MODELS } from "@/components/video-generator";
 import { getAvailableModels, calculateModelCredits } from "@/config/credits";
@@ -83,6 +84,8 @@ export function GeneratorPanel({
   initialQuality,
   initialImageUrl,
 }: GeneratorPanelProps) {
+  const t = useTranslations("ToolGenerator");
+  const tRoot = useTranslations();
   const models = getAvailableModels();
   const [prompt, setPrompt] = useState(initialPrompt || "");
   const [selectedModel, setSelectedModel] = useState(initialModelId || defaultModelId || models[0]?.id || "");
@@ -265,10 +268,10 @@ export function GeneratorPanel({
 
   // Get page title
   const getPageTitle = () => {
-    if (toolType === "image-to-video") return "IMAGE TO VIDEO";
-    if (toolType === "text-to-video") return "TEXT TO VIDEO";
-    if (toolType === "reference-to-video") return "REFERENCE IMAGE TO VIDEO";
-    return "AI GENERATOR";
+    if (toolType === "image-to-video") return t("pageTitle.imageToVideo");
+    if (toolType === "text-to-video") return t("pageTitle.textToVideo");
+    if (toolType === "reference-to-video") return t("pageTitle.referenceToVideo");
+    return t("pageTitle.default");
   };
 
   return (
@@ -287,7 +290,7 @@ export function GeneratorPanel({
           {/* Model Selection */}
           <div className="flex items-center justify-between gap-3">
             <span className="text-xs text-muted-foreground font-medium uppercase tracking-wide">
-              MODEL
+              {t("labels.model")}
             </span>
             {currentModel && (
               <DropdownMenu open={isModelDropdownOpen} onOpenChange={setIsModelDropdownOpen}>
@@ -300,7 +303,7 @@ export function GeneratorPanel({
                 </DropdownMenuTrigger>
                 <DropdownMenuContent className="bg-zinc-900 border-zinc-800 w-80 max-h-[400px] overflow-y-scroll custom-scrollbar">
                   <DropdownMenuLabel className="text-zinc-400 text-xs">
-                    Video Models
+                    {t("labels.videoModels")}
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator className="bg-zinc-800" />
                   {availableModels.map((model) => (
@@ -320,7 +323,11 @@ export function GeneratorPanel({
                         )}
                       </div>
                       {model.description && (
-                        <div className="text-xs text-zinc-500 mt-1 ml-8">{model.description}</div>
+                        <div className="text-xs text-zinc-500 mt-1 ml-8">
+                          {model.description.startsWith("models.")
+                            ? tRoot(model.description)
+                            : model.description}
+                        </div>
                       )}
                       <div className="text-xs text-zinc-400 mt-1 ml-8 flex items-center gap-2">
                         {model.maxDuration && (
@@ -332,7 +339,9 @@ export function GeneratorPanel({
                             <span>•</span>
                           </>
                         )}
-                        <span>{model.creditCost?.base ?? ""} credits</span>
+                        {model.creditCost?.base != null && (
+                          <span>{model.creditCost.base} {t("labels.credits")}</span>
+                        )}
                       </div>
                     </DropdownMenuItem>
                   ))}
@@ -344,12 +353,12 @@ export function GeneratorPanel({
           {/* Prompt Section */}
           <div>
             <div className="flex items-center justify-between mb-2">
-              <SectionLabel className="mb-0">PROMPT</SectionLabel>
+              <SectionLabel className="mb-0">{t("labels.prompt")}</SectionLabel>
             </div>
             <textarea
               value={prompt}
               onChange={(e) => setPrompt(e.target.value)}
-              placeholder="Describe the video you want to create, e.g., A cat playing in a sunny garden with natural lighting and fresh atmosphere..."
+              placeholder={t("placeholders.prompt")}
               disabled={isLoading}
               className="w-full min-h-[100px] max-h-[200px] px-4 py-3 rounded-lg bg-muted/40 border border-border text-foreground placeholder:text-muted-foreground/70 resize-none focus:outline-none focus:border-primary transition-colors text-sm leading-relaxed"
               rows={4}
@@ -362,14 +371,14 @@ export function GeneratorPanel({
             currentModel?.supportImageToVideo && (
               <div>
                 <SectionLabel required={toolType === "image-to-video"}>
-                  {toolType === "reference-to-video" ? "REFERENCE IMAGE" : "IMAGE SOURCE"}
+                  {toolType === "reference-to-video" ? t("labels.referenceImage") : t("labels.imageSource")}
                 </SectionLabel>
                 {imageFile || imageUrl ? (
                   <div className="relative group h-32 rounded-lg overflow-hidden border-2 border-zinc-700">
                     {imageUrl ? (
                       <img
                         src={imageUrl}
-                        alt="Selected"
+                        alt={t("labels.selectedImage")}
                         className="w-full h-full object-cover"
                       />
                     ) : (
@@ -392,8 +401,8 @@ export function GeneratorPanel({
                     <div className="w-12 h-12 rounded-full flex items-center justify-center bg-muted/60 group-hover:bg-muted transition-colors">
                       <ImageIcon className="w-6 h-6 text-muted-foreground group-hover:text-primary" />
                     </div>
-                    <p className="text-sm text-muted-foreground mt-3">Upload image</p>
-                    <p className="text-xs text-muted-foreground/70 mt-1">JPG, PNG, WEBP • Max 10MB</p>
+                    <p className="text-sm text-muted-foreground mt-3">{t("upload.title")}</p>
+                    <p className="text-xs text-muted-foreground/70 mt-1">{t("upload.hint")}</p>
                     <input
                       type="file"
                       accept="image/*"
@@ -412,7 +421,7 @@ export function GeneratorPanel({
             {/* Aspect Ratio */}
             {currentModel?.aspectRatios && (
               <div>
-                <SectionLabel>ASPECT RATIO</SectionLabel>
+                <SectionLabel>{t("labels.aspectRatio")}</SectionLabel>
                 <div className="grid grid-cols-3 gap-3">
                   {currentModel.aspectRatios.map((ar) => (
                     <button
@@ -449,7 +458,7 @@ export function GeneratorPanel({
             <div className="grid grid-cols-2 gap-4">
               {currentModel?.durations && (
                 <div>
-                  <SectionLabel>VIDEO LENGTH</SectionLabel>
+                  <SectionLabel>{t("labels.videoLength")}</SectionLabel>
                   <div className="grid grid-cols-3 gap-2">
                     {currentModel.durations.map((d) => (
                       <button
@@ -473,7 +482,7 @@ export function GeneratorPanel({
 
               {currentModel?.qualities && (
                 <div>
-                  <SectionLabel>RESOLUTION</SectionLabel>
+                  <SectionLabel>{t("labels.resolution")}</SectionLabel>
                   <div className="grid grid-cols-3 gap-2">
                     {currentModel.qualities.map((q) => (
                       <button
@@ -502,10 +511,10 @@ export function GeneratorPanel({
         <div className="px-5 py-4 bg-muted/40 border-t border-border space-y-4 shrink-0">
           {/* Credits Display */}
           <div className="flex items-center justify-between">
-            <span className="text-xs text-muted-foreground font-medium uppercase tracking-wide">Total Credits:</span>
+            <span className="text-xs text-muted-foreground font-medium uppercase tracking-wide">{t("labels.totalCredits")}:</span>
             <div className="flex items-center gap-2">
               <div className="w-1.5 h-1.5 rounded-full bg-yellow-500" />
-              <span className="text-foreground font-medium">{estimatedCredits} Credits</span>
+              <span className="text-foreground font-medium">{estimatedCredits} {t("labels.credits")}</span>
             </div>
           </div>
 
@@ -524,12 +533,12 @@ export function GeneratorPanel({
             {isLoading ? (
               <>
                 <div className="w-4 h-4 border-2 border-primary-foreground/40 border-t-primary-foreground rounded-full animate-spin" />
-                Generating...
+                {t("actions.generating")}
               </>
             ) : (
               <>
                 <Sparkles className="w-4 h-4" />
-                Generate Video
+                {t("actions.generateVideo")}
               </>
             )}
           </button>

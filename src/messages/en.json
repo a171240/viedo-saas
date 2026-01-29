@@ -19,7 +19,7 @@
   },
   "Locale": {
     "english": "EN",
-    "chinese": "??"
+    "chinese": "中文"
   },
   "Header": {
     "models": "Models",
@@ -28,7 +28,26 @@
     "docs": "Docs",
     "myCreations": "My Creations",
     "credits": "Credits",
-    "settings": "Settings"
+    "settings": "Settings",
+    "toolsList": {
+      "txt2vid": "Text to Video",
+      "img2vid": "Image to Video",
+      "ref2vid": "Reference Image to Video"
+    },
+    "modelsList": {
+      "sora": {
+        "subtitle": "by OpenAI"
+      },
+      "veo": {
+        "subtitle": "by Google"
+      },
+      "seedance": {
+        "subtitle": "by ByteDance"
+      },
+      "wan": {
+        "subtitle": "by Alibaba"
+      }
+    }
   },
   "Hero": {
     "badge": "Powered by Sora 2, Veo 3.1 & more",
@@ -47,12 +66,33 @@
       "users": "happy users",
       "rating": "user rating"
     },
-    "creditsHint": "Free credits to start • No credit card required"
+    "creditsHint": "Free credits to start - no credit card required",
+    "toast": {
+      "generationStarted": "Generation started",
+      "generationFailed": "Failed to generate video. Please try again.",
+      "insufficientCredits": "Insufficient credits. Please top up and try again.",
+      "serviceUnavailable": "Service temporarily unavailable. Please try again later.",
+      "devUserMissing": "Dev user not available."
+    }
   },
   "Marketing": {
-    "typicalGenerationTime": "2?5 minutes",
+    "typicalGenerationTime": "2-5 minutes",
     "qualityNote": "Up to 1080p (model-dependent)",
-    "freeCreditsNote": "50 free credits ? no credit card required"
+    "freeCreditsNote": "50 free credits - no credit card required"
+  },
+  "models": {
+    "sora2": {
+      "description": "OpenAI's advanced video generation model"
+    },
+    "wan26": {
+      "description": "Text/Image/Reference image to video with audio support"
+    },
+    "veo31": {
+      "description": "Google's video generation with reference support"
+    },
+    "seedance": {
+      "description": "Text/Image/Frames to video with audio"
+    }
   },
   "Notifications": {
     "generationWillNotify": "Generation may take a while. We'll notify you when it's ready.",
@@ -74,12 +114,16 @@
     "resultTitle": "Results",
     "newGeneration": "New Generation",
     "exploreTitle": "Explore Examples",
-    "exploreSubtitle": "No community yet — start yours",
+    "exploreSubtitle": "No community yet - start yours",
     "emptyTitle": "Your preview will appear here",
     "emptySubtitle": "Start a generation on the left to see it here.",
+    "unauthPreview": {
+      "title": "Detailed Preview",
+      "description": "Log in to generate and view your high-quality AI videos."
+    },
     "promptIdeas": "Prompt Ideas",
-    "promptExample1": "A cinematic close‑up of rain on neon streets, slow motion.",
-    "promptExample2": "A cozy café at golden hour, gentle camera pan.",
+    "promptExample1": "A cinematic close-up of rain on neon streets, slow motion.",
+    "promptExample2": "A cozy cafe at golden hour, gentle camera pan.",
     "promptExample3": "A futuristic skyline with soft fog and glowing lights.",
     "tipsTitle": "Tips",
     "tipsLine1": "Be specific about subject, lighting, and motion.",
@@ -88,7 +132,152 @@
     "generatingTag": "Generating",
     "generatingHint": "This video is being generated. You can start another task meanwhile.",
     "modelLabel": "Model",
-    "download": "Download"
+    "download": "Download",
+    "toast": {
+      "devUserMissing": "Dev user not available.",
+      "generationStarted": "Generation started",
+      "generationFailed": "Failed to generate video",
+      "deleteSuccess": "Video deleted successfully",
+      "deleteFailed": "Failed to delete video",
+      "retryStarted": "Video retry started",
+      "retryFailed": "Failed to retry video"
+    },
+    "TextToVideo": {
+      "hero": {
+        "title": "Create Stunning Videos from Text",
+        "description": "Describe your vision in plain text and let AI bring it to life. From cinematic scenes to product showcases, the possibilities are endless.",
+        "ctaText": "Start Creating",
+        "ctaSubtext": "50 free credits to try"
+      },
+      "examples": {
+        "items": [
+          {
+            "title": "Cinematic Mountain Scene",
+            "prompt": "A majestic mountain range at golden hour, camera slowly flying through valleys"
+          },
+          {
+            "title": "Urban City Timelapse",
+            "prompt": "New York City timelapse at night, cars leaving light trails, buildings glowing"
+          },
+          {
+            "title": "Ocean Sunset",
+            "prompt": "Calm ocean waves at sunset, camera slowly zooming out, peaceful atmosphere"
+          }
+        ]
+      },
+      "features": {
+        "items": [
+          "Simply describe what you want to see",
+          "Access to cutting-edge AI models (Sora 2, Veo 3.1, etc.)",
+          "Cinematic quality up to 1080p",
+          "Generate audio and sound effects automatically",
+          "Multiple aspect ratios for any platform"
+        ]
+      }
+    },
+    "ImageToVideo": {
+      "hero": {
+        "title": "Transform Your Images into Stunning Videos",
+        "description": "Upload any photo and watch AI bring it to life with smooth, realistic motion. Perfect for social media, marketing, and creative projects.",
+        "ctaText": "Get Started Free",
+        "ctaSubtext": "50 free credits to try"
+      },
+      "examples": {
+        "items": [
+          {
+            "title": "Photo to Living Scene",
+            "prompt": "A girl walking on the beach, hair flowing in the wind, golden sunset"
+          },
+          {
+            "title": "Product Animation",
+            "prompt": "Smartphone rotating on white background with floating particles"
+          },
+          {
+            "title": "Abstract Art Animation",
+            "prompt": "Swirling colors and shapes morphing smoothly, psychedelic style"
+          }
+        ]
+      },
+      "features": {
+        "items": [
+          "Upload any photo (JPG, PNG, WEBP up to 10MB)",
+          "Multiple AI models for different animation styles",
+          "Full HD output up to 1080p resolution",
+          "Fast generation in 2-5 minutes",
+          "Commercial use rights included"
+        ]
+      }
+    },
+    "ReferenceToVideo": {
+      "hero": {
+        "title": "Turn Reference Images into Videos",
+        "description": "Upload a reference image and let AI animate it with style changes, effects, or variations while keeping the subject consistent.",
+        "ctaText": "Try It Now",
+        "ctaSubtext": "50 free credits to start"
+      },
+      "examples": {
+        "items": [
+          {
+            "title": "Style Transfer",
+            "prompt": "Transform the image into anime style with vibrant colors"
+          },
+          {
+            "title": "Add Weather Effects",
+            "prompt": "Add rain and fog atmosphere to the scene"
+          },
+          {
+            "title": "Change Season",
+            "prompt": "Convert summer scene to winter with snow"
+          }
+        ]
+      },
+      "features": {
+        "items": [
+          "Upload reference images (JPG, PNG, WEBP up to 10MB)",
+          "AI-powered image animation and stylization",
+          "Maintain core subject identity and composition",
+          "Create multiple variations from one reference",
+          "Support for various artistic styles and effects"
+        ]
+      }
+    }
+  },
+  "ToolLanding": {
+    "badge": "AI-Powered",
+    "examplesTitle": "Examples",
+    "featuresTitle": "Features"
+  },
+  "ToolGenerator": {
+    "pageTitle": {
+      "textToVideo": "TEXT TO VIDEO",
+      "imageToVideo": "IMAGE TO VIDEO",
+      "referenceToVideo": "REFERENCE IMAGE TO VIDEO",
+      "default": "AI GENERATOR"
+    },
+    "labels": {
+      "model": "MODEL",
+      "videoModels": "Video Models",
+      "prompt": "PROMPT",
+      "referenceImage": "REFERENCE IMAGE",
+      "imageSource": "IMAGE SOURCE",
+      "selectedImage": "Selected image",
+      "aspectRatio": "ASPECT RATIO",
+      "videoLength": "VIDEO LENGTH",
+      "resolution": "RESOLUTION",
+      "totalCredits": "Total Credits",
+      "credits": "Credits"
+    },
+    "placeholders": {
+      "prompt": "Describe the video you want to create, e.g., A cat playing in a sunny garden with natural lighting and fresh atmosphere..."
+    },
+    "upload": {
+      "title": "Upload image",
+      "hint": "JPG, PNG, WEBP - Max 10MB"
+    },
+    "actions": {
+      "generating": "Generating...",
+      "generateVideo": "Generate Video"
+    }
   },
   "Showcase": {
     "badge": "See It in Action",
@@ -516,7 +705,17 @@
     "contact": "for support.",
     "contact_2": "We're here to help.",
     "manage_subscription": "Manage Subscription",
-    "upgrade": "Upgrade"
+    "upgrade": "Upgrade",
+    "loading": "Loading...",
+    "contact_email": "Email",
+    "toast": {
+      "checkoutTitle": "Checkout error",
+      "checkoutDescription": "Failed to create checkout session.",
+      "checkoutMissingUrl": "Missing checkout URL from Creem.",
+      "portalTitle": "Portal error",
+      "portalDescription": "Failed to open customer portal.",
+      "portalMissingUrl": "Missing portal URL from Creem."
+    }
   },
   "PricingFaq": {
     "faq": "Frequently Asked Questions",
@@ -525,7 +724,20 @@
   "Sidebar": {
     "title": "Navigation",
     "upgradeTitle": "Upgrade to Pro",
-    "upgradeSubtitle": "Unlock faster generation and more credits"
+    "upgradeSubtitle": "Unlock faster generation and more credits",
+    "groups": {
+      "video": "VIDEO",
+      "user": "USER",
+      "account": "ACCOUNT"
+    },
+    "items": {
+      "txt2vid": "Text to Video",
+      "img2vid": "Image to Video",
+      "ref2vid": "Reference Image",
+      "creations": "My Creations",
+      "credits": "Credits",
+      "settings": "Account"
+    }
   },
   "UpgradeModal": {
     "default_title": "Upgrade Your Plan",
@@ -722,8 +934,13 @@
     "title": "Recent Generations",
     "demoTitle": "Example Videos",
     "generating": "Generating your video...",
+    "moreCreations": "More Creations",
     "download": "Download",
     "copyLink": "Copy link",
+    "promptCopied": "Prompt copied to clipboard",
+    "untitled": "Untitled",
+    "copyPrompt": "Copy prompt",
+    "unknownError": "Unknown error",
     "removeFromHistory": "Remove from history",
     "generationFailed": "Generation Failed"
   }
