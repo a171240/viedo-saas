@@ -37,7 +37,7 @@ import {
 import { cn } from "@/components/ui";
 import { useCredits } from "@/stores/credits-store";
 import { headerModels, headerTools, headerDocs } from "@/config/navigation";
-import { Gem, ImagePlay, Type, Video, BookOpen } from "lucide-react";
+import { Gem, ImagePlay, Type, Video, BookOpen, Sparkles } from "lucide-react";
 import { LocaleLink } from "@/i18n/navigation";
 import type { User } from "@/lib/auth/client";
 import { useSigninModal } from "@/hooks/use-signin-modal";
@@ -47,6 +47,7 @@ const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
   ImagePlay,
   Type,
   Video,
+  Sparkles,
 };
 
 export function LandingHeader({ user }: { user?: User | null }) {

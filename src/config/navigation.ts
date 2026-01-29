@@ -31,6 +31,12 @@ export const sidebarNavigation: NavGroup[] = [
     title: "VIDEO",
     items: [
       {
+        id: "productAds",
+        title: "Product to Video Ads",
+        href: "/product-to-video",
+        icon: "Sparkles",
+      },
+      {
         id: "txt2vid",
         title: "Text to Video",
         href: "/text-to-video",
@@ -106,6 +112,12 @@ export const headerModels = [
 // 落地页顶部导航 - Tools 下拉菜单
 export const headerTools = [
   {
+    id: "productAds",
+    title: "Product to Video Ads",
+    href: "/product-to-video",
+    icon: "Sparkles",
+  },
+  {
     id: "txt2vid",
     title: "Text to Video",
     href: "/text-to-video",
@@ -144,6 +156,7 @@ export const footerNavigation: FooterGroup[] = [
   {
     id: "product",
     items: [
+      { id: "productAds", href: "/product-to-video" },
       { id: "imageToVideo", href: "/image-to-video" },
       { id: "textToVideo", href: "/text-to-video" },
       { id: "referenceToVideo", href: "/reference-to-video" },

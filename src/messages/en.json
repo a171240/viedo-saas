@@ -36,6 +36,7 @@
     "credits": "Credits",
     "settings": "Settings",
     "toolsList": {
+      "productAds": "Product to Video Ads",
       "txt2vid": "Text to Video",
       "img2vid": "Image to Video",
       "ref2vid": "Reference Image to Video"
@@ -247,6 +248,39 @@
           "Support for various artistic styles and effects"
         ]
       }
+    },
+    "ProductToVideo": {
+      "hero": {
+        "title": "Turn product images into TikTok-ready video ads",
+        "description": "Script -> Storyboard -> Variations -> Generate. Launch scroll-stopping ads in minutes.",
+        "ctaText": "Start Creating",
+        "ctaSubtext": "50 free credits to try"
+      },
+      "examples": {
+        "items": [
+          {
+            "title": "Minimal Watch Ad",
+            "prompt": "Clean product shots, smooth rotations, crisp lighting"
+          },
+          {
+            "title": "Streetwear Drop",
+            "prompt": "UGC style, fast cuts, bold lifestyle scenes"
+          },
+          {
+            "title": "Skincare Highlight",
+            "prompt": "Soft light, close-up texture, clean packshot"
+          }
+        ]
+      },
+      "features": {
+        "items": [
+          "Upload 1-3 product images",
+          "Auto-generate ad script + storyboard prompt",
+          "Optimized for 9:16 short-form platforms",
+          "Batch variations with different hooks",
+          "Commercial use ready outputs"
+        ]
+      }
     }
   },
   "ToolLanding": {
@@ -262,6 +296,76 @@
     "cta": {
       "text": "Ready to create amazing videos? Sign up now and get started!",
       "button": "Get Started Free"
+    }
+  },
+  "ProductToVideo": {
+    "title": "Product-to-Video Ads",
+    "description": "Turn product images into scroll-stopping short video ads without writing prompts.",
+    "form": {
+      "productImages": "Product images",
+      "productName": "Product name",
+      "targetAudience": "Target audience",
+      "keyBenefits": "Key benefits (3-5)",
+      "platform": "Platform",
+      "style": "Style",
+      "variationCount": "Variation count"
+    },
+    "placeholders": {
+      "productName": "e.g. Glow Serum",
+      "targetAudience": "e.g. Busy professionals, skincare beginners",
+      "keyBenefits": "Benefit 1, Benefit 2, Benefit 3..."
+    },
+    "platforms": {
+      "tiktok": "TikTok/Reels/Shorts (9:16)",
+      "youtube": "YouTube (16:9)"
+    },
+    "styles": {
+      "ugc": "UGC",
+      "luxury": "Luxury",
+      "minimal": "Minimal",
+      "tech": "Tech",
+      "cute": "Cute"
+    },
+    "variations": {
+      "option": "{count} variations"
+    },
+    "actions": {
+      "addImages": "Add",
+      "generate": "Generate",
+      "generating": "Generating...",
+      "showAdvanced": "Advanced",
+      "hideAdvanced": "Hide advanced"
+    },
+    "hints": {
+      "images": "Upload 1-3 images. JPG/PNG/WEBP, max 10MB each.",
+      "benefits": "{count}/5 benefits added"
+    },
+    "advanced": {
+      "title": "Advanced settings",
+      "subtitle": "Adjust the model and generation defaults",
+      "model": "Model",
+      "aspectRatio": "Aspect ratio",
+      "duration": "Duration",
+      "quality": "Quality",
+      "auto": "Auto"
+    },
+    "preview": {
+      "title": "Prompt preview",
+      "placeholder": "Fill in the form to generate a prompt preview.",
+      "hint": "This prompt will be used to generate the video."
+    },
+    "estimatedCredits": "Estimated credits: {credits}",
+    "result": {
+      "title": "Generation started",
+      "subtitle": "Credits used: {credits}",
+      "view": "View in My Creations"
+    },
+    "validation": {
+      "productName": "Please enter a product name.",
+      "targetAudience": "Please enter a target audience.",
+      "benefits": "Please add at least 3 key benefits.",
+      "images": "Please upload at least 1 product image.",
+      "maxImages": "You can upload up to 3 images."
     }
   },
   "ToolGenerator": {
@@ -436,6 +540,7 @@
     "madeBy": "by VideoFly Team",
     "copyright": "? {year} VideoFly. All rights reserved.",
     "links": {
+      "productAds": "Product to Video Ads",
       "imageToVideo": "Image to Video",
       "textToVideo": "Text to Video",
       "referenceToVideo": "Reference Image to Video",
@@ -764,6 +869,7 @@
       "account": "ACCOUNT"
     },
     "items": {
+      "productAds": "Product to Video Ads",
       "txt2vid": "Text to Video",
       "img2vid": "Image to Video",
       "ref2vid": "Reference Image",

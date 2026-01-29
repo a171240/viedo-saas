@@ -28,6 +28,7 @@ const iconMap = {
   FolderOpen,
   Gem,
   User,
+  Sparkles,
 };
 
 interface SidebarProps {
