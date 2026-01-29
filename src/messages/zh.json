@@ -1,4 +1,4 @@
-{
+﻿{
   "Metadata": {
     "title": "VideoFly - AI 视频生成平台",
     "description": "使用 Sora 2、Veo 3.1 等模型在几分钟内创建惊人的 AI 视频"
@@ -142,6 +142,34 @@
     }
   },
   "HowItWorks": {
+    "badge": "简单流程",
+    "title": "使用方法",
+    "subtitle": "4 步创建您的视频",
+    "description": "使用直观的视频创作工作流程，几分钟内即可开始",
+    "bottomHint": "无需信用卡 • 50 个免费积分开始",
+    "steps": {
+      "prompt": {
+        "title": "描述您的视频",
+        "description": "输入详细的文本提示，描述您想创建的视频",
+        "stat": "平均时间"
+      },
+      "upload": {
+        "title": "上传参考",
+        "description": "可选择添加参考图片来引导 AI（可选）"
+      },
+      "generate": {
+        "title": "AI 生成",
+        "description": "我们的 AI 处理您的请求并创建独特视频",
+        "stat": "生成时间"
+      },
+      "download": {
+        "title": "下载分享",
+        "description": "获取高清视频，随时随地分享",
+        "stat": "最高质量"
+      }
+    }
+  },
+  "CTA": {
     "badge": "简单流程",
     "title": "使用方法",
     "subtitle": "4 步创建您的视频",
@@ -483,24 +511,24 @@
       "failed": "失败"
     }
   },
-  "PricingCards": {
+    "PricingCards": {
     "pricing": "定价",
-    "slogan": "简单透明的价格",
-    "subscription": "??",
-    "credit_packs": "???",
-    "one_time": "???",
-    "buy_credits": "????",
-    "credits_per_month": "?????{credits}",
-    "credits_one_time": "??????{credits}",
-    "credit_expiry": "??? {days} ?",
-    "parallel_tasks": "????",
-    "commercial_use": "????",
-    "watermark": "??",
-    "watermark_removed": "???",
-    "watermark_included": "????",
-    "yes": "?",
-    "no": "?",
-    "onetime": "积分包",
+    "slogan": "简单透明的定价",
+    "subscription": "订阅",
+    "credit_packs": "积分包",
+    "one_time": "一次性",
+    "buy_credits": "购买积分",
+    "credits_per_month": "每月积分：{credits}",
+    "credits_one_time": "一次性积分：{credits}",
+    "credit_expiry": "有效期 {days} 天",
+    "parallel_tasks": "并发任务",
+    "commercial_use": "商用授权",
+    "watermark": "水印",
+    "watermark_removed": "无水印",
+    "watermark_included": "包含水印",
+    "yes": "是",
+    "no": "否",
+    "onetime": "一次性",
     "monthly": "按月",
     "yearly": "按年",
     "off_percent": "40% OFF",
@@ -515,7 +543,7 @@
     "go_to_dashboard": "前往控制台",
     "signup": "注册",
     "contact": "获取支持。",
-    "contact_2": "我们随时为您提供帮助。",
+    "contact_2": "我们随时为你提供帮助。",
     "manage_subscription": "管理订阅",
     "upgrade": "升级"
   },
@@ -729,3 +757,4 @@
     "generationFailed": "生成失败"
   }
 }
+
