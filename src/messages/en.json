@@ -16,7 +16,12 @@
     "loading": "Loading...",
     "error": "Something went wrong",
     "success": "Success",
-    "openMenu": "Open menu"
+    "openMenu": "Open menu",
+    "close": "Close",
+    "toggleTheme": "Toggle theme",
+    "light": "Light",
+    "dark": "Dark",
+    "system": "System"
   },
   "Locale": {
     "english": "EN",
@@ -779,7 +784,8 @@
     "terms_notice": "By continuing, you agree to our Terms of Service and Privacy Policy."
   },
   "MainNav": {
-    "introducing": "Introducing VideoFly"
+    "introducing": "Introducing VideoFly",
+    "menu": "Menu"
   },
   "SiteFooter": {
     "copyright": "© {currentYear} VideoFly. All rights reserved."

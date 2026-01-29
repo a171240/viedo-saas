@@ -16,7 +16,12 @@
     "loading": "加载中...",
     "error": "出错了",
     "success": "成功",
-    "openMenu": "打开菜单"
+    "openMenu": "打开菜单",
+    "close": "关闭",
+    "toggleTheme": "切换主题",
+    "light": "浅色",
+    "dark": "深色",
+    "system": "跟随系统"
   },
   "Locale": {
     "english": "EN",
@@ -779,7 +784,8 @@
     "terms_notice": "继续即表示您同意我们的服务条款和隐私政策。"
   },
   "MainNav": {
-    "introducing": "介绍 VideoFly"
+    "introducing": "介绍 VideoFly",
+    "menu": "菜单"
   },
   "SiteFooter": {
     "copyright": "© {currentYear} VideoFly. 保留所有权利。"

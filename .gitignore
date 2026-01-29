@@ -52,3 +52,9 @@ package-lock.json
 
 .env
 .contentlayer/
+
+# local artifacts
+.logs/
+reports/
+test-results/
+tmp-zh.txt
