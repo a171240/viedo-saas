@@ -1,4 +1,4 @@
-﻿{
+{
   "Metadata": {
     "title": "VideoFly - AI 视频生成平台",
     "description": "使用 Sora 2、Veo 3.1 等模型在几分钟内创建惊人的 AI 视频"
@@ -15,7 +15,8 @@
     "edit": "编辑",
     "loading": "加载中...",
     "error": "出错了",
-    "success": "成功"
+    "success": "成功",
+    "openMenu": "打开菜单"
   },
   "Locale": {
     "english": "EN",
@@ -245,7 +246,17 @@
   "ToolLanding": {
     "badge": "AI 驱动",
     "examplesTitle": "示例",
-    "featuresTitle": "功能亮点"
+    "featuresTitle": "功能亮点",
+    "supportedModelsTitle": "由领先 AI 模型驱动",
+    "stats": {
+      "videos": "生成视频数",
+      "users": "满意用户数",
+      "rating": "平均评分"
+    },
+    "cta": {
+      "text": "准备好开始创作了吗？立即注册并开用！",
+      "button": "免费开始"
+    }
   },
   "ToolGenerator": {
     "pageTitle": {
@@ -359,34 +370,6 @@
     }
   },
   "CTA": {
-    "badge": "简单流程",
-    "title": "使用方法",
-    "subtitle": "4 步创建您的视频",
-    "description": "使用直观的视频创作工作流程，几分钟内即可开始",
-    "bottomHint": "无需信用卡 • 50 个免费积分开始",
-    "steps": {
-      "prompt": {
-        "title": "描述您的视频",
-        "description": "输入详细的文本提示，描述您想创建的视频",
-        "stat": "平均时间"
-      },
-      "upload": {
-        "title": "上传参考",
-        "description": "可选择添加参考图片来引导 AI（可选）"
-      },
-      "generate": {
-        "title": "AI 生成",
-        "description": "我们的 AI 处理您的请求并创建独特视频",
-        "stat": "生成时间"
-      },
-      "download": {
-        "title": "下载分享",
-        "description": "获取高清视频，随时随地分享",
-        "stat": "最高质量"
-      }
-    }
-  },
-  "CTA": {
     "badge": "限时优惠",
     "title": "准备好创作精彩视频了吗？",
     "subtitle": "加入数千名正在使用 VideoFly 的创作者",
@@ -439,199 +422,199 @@
     }
   },
   "Footer": {
-    "product": "??",
-    "company": "??",
-    "legal": "??",
-    "tagline": "? AI ?????????????",
-    "madeWith": "?",
-    "madeBy": "??",
-    "copyright": "? {year} VideoFly. ???????",
+    "product": "产品",
+    "company": "公司",
+    "legal": "法律",
+    "tagline": "用 AI 将想法变成精彩视频。",
+    "madeWith": "用",
+    "madeBy": "由 VideoFly 团队打造",
+    "copyright": "© {year} VideoFly. 保留所有权利。",
     "links": {
-      "imageToVideo": "????",
-      "textToVideo": "????",
+      "imageToVideo": "图片转视频",
+      "textToVideo": "文本转视频",
       "referenceToVideo": "参考图转视频",
-      "pricing": "??",
-      "about": "??",
-      "blog": "??",
-      "careers": "??",
-      "contact": "??",
-      "privacy": "????",
-      "terms": "????",
-      "cookies": "Cookie ??"
+      "pricing": "定价",
+      "about": "关于",
+      "blog": "博客",
+      "careers": "招聘",
+      "contact": "联系",
+      "privacy": "隐私政策",
+      "terms": "服务条款",
+      "cookies": "Cookie 政策"
     }
   },
   "About": {
-    "title": "?? VideoFly",
-    "description": "????????????????????????",
+    "title": "关于 VideoFly",
+    "description": "我们帮助团队用 AI 把产品想法变成高转化短视频广告。",
     "sections": {
       "mission": {
-        "title": "??",
-        "body": "????????????????"
+        "title": "我们的使命",
+        "body": "让视频创作对增长团队来说更快、更可靠、可衡量。"
       },
       "whatWeBuild": {
-        "title": "??????",
-        "body": "???????? AI ??????????????????"
+        "title": "我们打造什么",
+        "body": "以工作流为核心的 AI 视频工作室，从 Brief 到分镜到多版本。"
       },
       "values": {
-        "title": "???",
+        "title": "我们的价值观",
         "items": {
-          "clarity": "??????",
-          "trust": "???????",
-          "focus": "??????",
-          "shipping": "????"
+          "clarity": "清晰可信而非噱头",
+          "trust": "信任与合规优先",
+          "focus": "关注结果而非演示",
+          "shipping": "快速交付，持续学习"
         }
       },
       "contact": {
-        "title": "??",
-        "body": "????????????????? {email}?",
-        "action": "????"
+        "title": "联系我们",
+        "body": "有问题或合作想法？欢迎邮件联系 {email}。",
+        "action": "联系我们"
       }
     }
   },
   "Contact": {
-    "title": "??",
-    "description": "?????????????????",
+    "title": "联系我们",
+    "description": "告诉我们你的产品、使用场景或支持问题。",
     "sections": {
       "support": {
-        "title": "??",
-        "body": "??? {email}?????? 1?2 ????????",
-        "action": "????"
+        "title": "支持",
+        "body": "发送邮件至 {email}。我们通常在 1-2 个工作日内回复。",
+        "action": "联系支持"
       },
       "sales": {
-        "title": "?????",
-        "body": "?????????????????????"
+        "title": "销售与合作",
+        "body": "如果你正在评估 VideoFly，请提供目标平台、时间规划与预计产量。"
       },
       "security": {
-        "title": "?????",
-        "body": "???????? {email}?"
+        "title": "安全与隐私",
+        "body": "安全问题请联系 {email}。"
       }
     },
-    "footerNote": "??????????????"
+    "footerNote": "首封邮件请避免包含敏感信息。"
   },
   "Privacy": {
-    "title": "????",
-    "description": "?????????????????",
+    "title": "隐私政策",
+    "description": "我们如何收集与使用数据的简要说明。",
     "sections": {
       "summary": {
-        "title": "??",
-        "body": "???????????????????????????"
+        "title": "摘要",
+        "body": "我们收集账户、使用与计费数据以提供服务并提升性能。"
       },
       "data": {
-        "title": "?????",
+        "title": "我们收集的数据",
         "items": {
-          "account": "????????????",
-          "usage": "?????????????????",
-          "billing": "???????"
+          "account": "账户信息，如姓名和邮箱",
+          "usage": "使用数据，如提示词、设置与生成记录",
+          "billing": "账单与交易记录"
         }
       },
       "use": {
-        "title": "????",
+        "title": "数据用途",
         "items": {
-          "deliver": "???????????",
-          "improve": "???????????",
-          "support": "????????"
+          "deliver": "提供视频生成与账户服务",
+          "improve": "提升质量、可靠性与安全性",
+          "support": "处理支持请求并防止滥用"
         }
       },
       "choices": {
-        "title": "????",
-        "body": "??????????????????"
+        "title": "你的选择",
+        "body": "你可以联系我们申请访问、更正或删除你的数据。"
       },
       "contact": {
-        "title": "??",
-        "body": "????????? {email}?",
-        "action": "????"
+        "title": "联系我们",
+        "body": "如有隐私问题，请邮件联系 {email}。",
+        "action": "联系我们"
       }
     },
-    "footerNote": "????????????????"
+    "footerNote": "此摘要仅为方便阅读，不能替代完整政策。"
   },
   "Terms": {
-    "title": "????",
-    "description": "?? VideoFly ??????",
+    "title": "服务条款",
+    "description": "使用 VideoFly 的规则。",
     "sections": {
       "usage": {
-        "title": "????",
-        "body": "???????????????"
+        "title": "使用服务",
+        "body": "请负责任地使用 VideoFly，并遵守适用法律及平台政策。"
       },
       "billing": {
-        "title": "?????",
-        "body": "????????????????????????"
+        "title": "计费与积分",
+        "body": "订阅与积分包按你的方案授予使用权限，生成视频会消耗积分。"
       },
       "content": {
-        "title": "?????",
-        "body": "??????????????????????????"
+        "title": "内容与归属",
+        "body": "你保留输入内容的所有权。生成内容按你的方案提供使用权。"
       },
       "liability": {
-        "title": "????",
-        "body": "????????????????????"
+        "title": "责任限制",
+        "body": "VideoFly 按“现状”提供服务，不提供任何明示或暗示担保。对间接或结果性损失不承担责任。"
       },
       "contact": {
-        "title": "??",
-        "body": "??????? {email}?",
-        "action": "????"
+        "title": "联系我们",
+        "body": "如对条款有疑问，请邮件联系 {email}。",
+        "action": "联系我们"
       }
     },
-    "footerNote": "????????????"
+    "footerNote": "本条款可能随产品更新而调整。"
   },
   "Cookies": {
-    "title": "Cookie ??",
-    "description": "?????? Cookie ??????",
+    "title": "Cookie 政策",
+    "description": "我们如何使用 Cookie 及类似技术。",
     "sections": {
       "necessary": {
-        "title": "?? Cookie",
-        "body": "?????????????"
+        "title": "必要 Cookie",
+        "body": "用于身份验证、安全与核心功能。"
       },
       "analytics": {
-        "title": "??? Cookie",
-        "body": "????????????????"
+        "title": "分析 Cookie",
+        "body": "帮助我们了解使用情况以改进性能与体验。"
       },
       "manage": {
-        "title": "????",
+        "title": "管理偏好",
         "items": {
-          "browser": "???????? Cookie ??",
-          "banner": "?? Cookie ??????????"
+          "browser": "随时在浏览器中调整 Cookie 设置",
+          "banner": "使用 Cookie 横幅选择是否同意分析"
         }
       },
       "contact": {
-        "title": "??",
-        "body": "Cookie ??????? {email}?"
+        "title": "联系我们",
+        "body": "如有 Cookie 相关问题，请邮件联系 {email}。"
       }
     },
-    "footerNote": "??????????????"
+    "footerNote": "Cookie 选择会保存在你的设备上。"
   },
   "Blog": {
-    "title": "??",
-    "description": "????????????",
+    "title": "博客",
+    "description": "洞察、方法论与产品更新。",
     "sections": {
       "comingSoon": {
-        "title": "????",
-        "body": "??????????????????",
-        "action": "???"
+        "title": "即将上线",
+        "body": "我们正在准备第一批文章，订阅获取更新。",
+        "action": "通知我"
       },
       "topics": {
-        "title": "????",
+        "title": "你将看到",
         "items": {
-          "workflow": "?????????",
-          "templates": "???????",
-          "performance": "?????????"
+          "workflow": "工作流式提示词策略",
+          "templates": "提示词模板与创意框架",
+          "performance": "基准测试、实验与增长经验"
         }
       }
     }
   },
   "Careers": {
-    "title": "??",
-    "description": "???????????????? AI ??????",
+    "title": "招聘",
+    "description": "我们正在打造面向增长团队的工作流式 AI 视频工作室。",
     "sections": {
       "openings": {
-        "title": "????????",
-        "body": "????????????????????????",
-        "action": "????"
+        "title": "当前暂无职位",
+        "body": "暂不招聘。如你认为应该聊聊，欢迎发简短介绍。",
+        "action": "联系我们"
       },
       "values": {
-        "title": "??????",
+        "title": "我们的工作方式",
         "items": {
-          "ownership": "??????",
-          "customer": "????????",
-          "speed": "???????"
+          "ownership": "结果负责，而不仅是任务",
+          "customer": "对客户结果极致关注",
+          "speed": "快速推进并保持高标准"
         }
       }
     }
@@ -651,10 +634,9 @@
         "description": "适合试用体验"
       },
       "large": {
-        "name": "???",
-        "description": "??????"
+        "name": "大额积分包",
+        "description": "适合高频使用"
       },
-
       "basic": {
         "name": "基础计划",
         "description": "适合初学者"
@@ -700,7 +682,7 @@
       "failed": "失败"
     }
   },
-    "PricingCards": {
+  "PricingCards": {
     "pricing": "定价",
     "slogan": "简单透明的定价",
     "subscription": "订阅",
@@ -887,7 +869,14 @@
         "failed": "失败",
         "allModels": "全部模型",
         "newest": "最新",
-        "oldest": "最旧"
+        "oldest": "最旧",
+        "models": {
+          "all": "全部模型",
+          "sora-2": "Sora 2",
+          "veo-3-1": "Veo 3.1",
+          "seedance-1-5": "Seedance 1.5",
+          "wan-2-6": "Wan 2.6"
+        }
       },
       "status": {
         "pending": "等待中",
@@ -908,7 +897,8 @@
         "deleteSuccess": "删除成功",
         "deleteError": "删除失败",
         "retrySuccess": "已开始重试",
-        "retryError": "重试失败"
+        "retryError": "重试失败",
+        "close": "关闭"
       },
       "empty": {
         "title": "暂无创作",
@@ -926,8 +916,11 @@
         "aspectRatio": "宽高比",
         "prompt": "提示词",
         "createdAt": "创建时间",
-        "creditsUsed": "消耗积分"
-      }
+        "creditsUsed": "消耗积分",
+        "noVideo": "暂无可播放视频"
+      },
+      "count": "共 {count} 个作品",
+      "loadingMore": "加载中..."
     },
     "credits": {
       "title": "积分",
@@ -943,6 +936,14 @@
         "refund": "退款",
         "subscription": "订阅",
         "adminAdjust": "管理员调整"
+      },
+      "loadingBalance": "积分加载中...",
+      "noHistory": "暂无积分记录",
+      "table": {
+        "date": "时间",
+        "type": "类型",
+        "amount": "变动",
+        "balance": "余额"
       }
     },
     "settings": {
@@ -956,7 +957,9 @@
         "paid": "已支付",
         "pending": "待支付",
         "failed": "失败"
-      }
+      },
+      "noHistory": "暂无购买记录",
+      "loadMore": "加载更多"
     }
   },
   "VideoHistory": {
@@ -972,7 +975,185 @@
     "unknownError": "未知错误",
     "removeFromHistory": "从历史中移除",
     "generationFailed": "生成失败"
+  },
+  "Auth": {
+    "login": {
+      "pageTitle": "登录",
+      "pageDescription": "登录你的账户。",
+      "back": "返回",
+      "welcome": "欢迎回来",
+      "subtitle": "登录你的账户"
+    },
+    "register": {
+      "pageTitle": "创建账户",
+      "pageDescription": "创建账户以开始使用。",
+      "title": "创建账户",
+      "subtitle": "请输入邮箱以创建账户",
+      "loginLink": "登录",
+      "termsNotice": "点击继续即表示你同意我们的{terms}和{privacy}。"
+    },
+    "form": {
+      "emailLabel": "邮箱",
+      "emailPlaceholder": "name@example.com",
+      "submit": "使用邮箱继续",
+      "orContinueWith": "或使用以下方式",
+      "continueGoogle": "使用 Google 继续",
+      "invalidEmail": "请输入有效的邮箱地址。",
+      "magicLinkSentTitle": "请检查邮箱",
+      "magicLinkSentDescription": "我们已发送登录链接，请留意垃圾箱。",
+      "errorTitle": "出错了",
+      "errorDescription": "登录请求失败，请稍后再试。"
+    }
+  },
+  "Demo": {
+    "hero": {
+      "titleLine1": "一站式 AI 视频",
+      "titleLine2": "创作平台",
+      "subtitle": "用 AI 将你的想法变成精彩视频。只需描述你想要的效果，其余交给我们。",
+      "availableCredits": "可用积分：{credits}"
+    },
+    "models": {
+      "title": "支持的 AI 模型",
+      "items": {
+        "pollo": "Pollo AI",
+        "sora2": "Sora 2",
+        "wan": "Wan AI",
+        "kling": "Kling AI",
+        "seedance": "Seedance",
+        "hailuo": "Hailuo AI",
+        "vidu": "Vidu AI",
+        "google": "谷歌"
+      }
+    },
+    "statusTitle": "生成状态",
+    "status": {
+      "pending": "等待中",
+      "generating": "生成中",
+      "uploading": "上传中",
+      "completed": "已完成",
+      "failed": "失败"
+    },
+    "progress": {
+      "pending": "排队中...",
+      "generating": "AI 正在生成视频...",
+      "uploading": "正在上传..."
+    },
+    "actions": {
+      "download": "下载视频",
+      "copyUrl": "复制链接"
+    },
+    "toasts": {
+      "successTitle": "成功",
+      "successDescription": "视频已生成完成！",
+      "errorTitle": "错误",
+      "errorDescription": "视频生成失败",
+      "onlyVideo": "仅支持视频生成",
+      "startedTitle": "已开始",
+      "startedDescription": "已开始生成视频，冻结 {credits} 积分。",
+      "unknownError": "发生错误"
+    }
+  },
+  "Admin": {
+    "sidebar": {
+      "brand": "管理后台",
+      "dashboard": "概览",
+      "users": "用户",
+      "analytics": "数据分析",
+      "settings": "系统设置",
+      "backToApp": "返回应用"
+    },
+    "dashboard": {
+      "title": "后台概览",
+      "subtitle": "管理后台概览",
+      "stats": {
+        "totalUsers": "用户总数",
+        "totalVideos": "视频生成总数",
+        "successRate": "成功率",
+        "creditPackages": "积分包总数",
+        "recentUsers": "最近 7 天: +{count}",
+        "recentVideos": "最近 7 天: +{count}",
+        "completedRatio": "已完成 {completed} / {total}",
+        "allUsers": "所有用户"
+      },
+      "status": {
+        "completed": "已完成",
+        "failed": "失败",
+        "pending": "处理中",
+        "percentOfTotal": "占比 {percent}%"
+      },
+      "quickActions": {
+        "title": "快速操作",
+        "subtitle": "常用管理功能",
+        "users": {
+          "title": "用户管理",
+          "description": "查看和管理用户"
+        },
+        "analytics": {
+          "title": "数据分析",
+          "description": "查看详细统计"
+        },
+        "settings": {
+          "title": "积分配置",
+          "description": "修改积分规则"
+        }
+      }
+    },
+    "users": {
+      "title": "用户管理",
+      "subtitle": "共 {count} 位用户",
+      "searchPlaceholder": "搜索邮箱或用户名...",
+      "searchButton": "搜索",
+      "table": {
+        "title": "用户列表",
+        "user": "用户",
+        "email": "邮箱",
+        "videos": "视频数",
+        "packages": "积分包",
+        "credits": "可用积分",
+        "status": "状态",
+        "createdAt": "注册时间"
+      },
+      "status": {
+        "admin": "管理员",
+        "user": "普通用户"
+      },
+      "empty": "暂无用户",
+      "unsetName": "未设置",
+      "userAlt": "用户",
+      "pagination": "第 {current} 页，共 {total} 页",
+      "prev": "上一页",
+      "next": "下一页"
+    },
+    "analytics": {
+      "title": "数据分析",
+      "subtitle": "查看详细的数据分析与趋势",
+      "cardTitle": "即将推出",
+      "cardDescription": "更完整的数据分析功能正在开发中，敬请期待！"
+    },
+    "settings": {
+      "title": "系统设置",
+      "subtitle": "配置系统参数与积分规则",
+      "supported": "支持",
+      "pricing": {
+        "title": "积分与定价配置",
+        "description": "修改积分包价格、订阅计划、AI 模型定价等配置。",
+        "configLabel": "配置文件",
+        "reloadLabel": "自动重载",
+        "action": "查看配置文档"
+      },
+      "adminEmail": {
+        "title": "管理员邮箱配置",
+        "description": "在 .env.local 中配置 ADMIN_EMAIL，登录后自动获得管理员权限。",
+        "envLabel": "环境变量",
+        "autoSetLabel": "自动设置",
+        "action": "查看快速开始"
+      },
+      "scripts": {
+        "title": "积分管理脚本",
+        "addCredits": "添加积分",
+        "checkCredits": "查询积分",
+        "resetCredits": "重置积分"
+      }
+    }
   }
 }
-
-

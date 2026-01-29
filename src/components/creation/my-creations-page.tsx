@@ -97,7 +97,7 @@ export function MyCreationsPage({ locale }: MyCreationsPageProps) {
         <div>
           <h1 className="text-2xl font-semibold">{t("title")}</h1>
           <p className="text-sm text-muted-foreground mt-1">
-            {videos.length} {videos.length === 1 ? "creation" : "creations"}
+            {t("count", { count: videos.length })}
           </p>
         </div>
 
@@ -127,7 +127,7 @@ export function MyCreationsPage({ locale }: MyCreationsPageProps) {
           {/* Infinite scroll sentinel */}
           {hasMore && (
             <div ref={observerTarget} className="py-4 text-center text-sm text-muted-foreground">
-              {isFetchingNextPage ? "Loading..." : ""}
+              {isFetchingNextPage ? t("loadingMore") : ""}
             </div>
           )}
         </>

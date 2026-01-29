@@ -6,7 +6,6 @@
 
 import { useTranslations } from "next-intl";
 import { Gem } from "lucide-react";
-import { cn } from "@/components/ui";
 import type { CreditBalance } from "@/lib/types/dashboard";
 
 interface BalanceCardProps {
@@ -20,7 +19,7 @@ export function BalanceCard({ balance, onBuyCredits }: BalanceCardProps) {
   if (!balance) {
     return (
       <div className="text-center py-12 text-muted-foreground">
-        Loading balance...
+        {t("loadingBalance")}
       </div>
     );
   }

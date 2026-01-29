@@ -6,7 +6,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { X, Download, Trash2 } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { cn } from "@/components/ui";
 import {
@@ -17,6 +17,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { formatDistanceToNow } from "date-fns";
+import { getDateFnsLocale } from "@/lib/date-locale";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -45,6 +46,8 @@ export function VideoDetailDialog({
   isDeleting,
 }: VideoDetailDialogProps) {
   const t = useTranslations("dashboard.myCreations");
+  const locale = useLocale();
+  const dateLocale = getDateFnsLocale(locale);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
 
@@ -107,7 +110,7 @@ export function VideoDetailDialog({
             className="absolute right-4 top-4 z-10 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground bg-background"
           >
             <X className="h-4 w-4" />
-            <span className="sr-only">Close</span>
+            <span className="sr-only">{t("actions.close")}</span>
           </button>
 
           <div className="flex flex-col lg:flex-row h-full">
@@ -128,7 +131,7 @@ export function VideoDetailDialog({
                   className="w-full h-full object-contain"
                 />
               ) : (
-                <div className="text-muted-foreground">No video available</div>
+                <div className="text-muted-foreground">{t("detail.noVideo")}</div>
               )}
             </div>
 
@@ -184,7 +187,10 @@ export function VideoDetailDialog({
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">{t("detail.createdAt")}</span>
                   <span className="font-medium">
-                    {formatDistanceToNow(new Date(video.createdAt), { addSuffix: true })}
+                    {formatDistanceToNow(new Date(video.createdAt), {
+                      addSuffix: true,
+                      locale: dateLocale,
+                    })}
                   </span>
                 </div>
                 <div className="flex justify-between text-sm">

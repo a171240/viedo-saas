@@ -15,7 +15,8 @@
     "edit": "Edit",
     "loading": "Loading...",
     "error": "Something went wrong",
-    "success": "Success"
+    "success": "Success",
+    "openMenu": "Open menu"
   },
   "Locale": {
     "english": "EN",
@@ -245,7 +246,17 @@
   "ToolLanding": {
     "badge": "AI-Powered",
     "examplesTitle": "Examples",
-    "featuresTitle": "Features"
+    "featuresTitle": "Features",
+    "supportedModelsTitle": "Powered by Leading AI Models",
+    "stats": {
+      "videos": "Videos Generated",
+      "users": "Happy Users",
+      "rating": "Average Rating"
+    },
+    "cta": {
+      "text": "Ready to create amazing videos? Sign up now and get started!",
+      "button": "Get Started Free"
+    }
   },
   "ToolGenerator": {
     "pageTitle": {
@@ -858,7 +869,14 @@
         "failed": "Failed",
         "allModels": "All Models",
         "newest": "Newest",
-        "oldest": "Oldest"
+        "oldest": "Oldest",
+        "models": {
+          "all": "All Models",
+          "sora-2": "Sora 2",
+          "veo-3-1": "Veo 3.1",
+          "seedance-1-5": "Seedance 1.5",
+          "wan-2-6": "Wan 2.6"
+        }
       },
       "status": {
         "pending": "Pending",
@@ -879,7 +897,8 @@
         "deleteSuccess": "Video deleted successfully",
         "deleteError": "Failed to delete video",
         "retrySuccess": "Retry initiated",
-        "retryError": "Failed to retry"
+        "retryError": "Failed to retry",
+        "close": "Close"
       },
       "empty": {
         "title": "No creations yet",
@@ -897,8 +916,11 @@
         "aspectRatio": "Aspect Ratio",
         "prompt": "Prompt",
         "createdAt": "Created",
-        "creditsUsed": "Credits Used"
-      }
+        "creditsUsed": "Credits Used",
+        "noVideo": "No video available"
+      },
+      "count": "{count, plural, one {# creation} other {# creations}}",
+      "loadingMore": "Loading..."
     },
     "credits": {
       "title": "Credits",
@@ -914,6 +936,14 @@
         "refund": "Refund",
         "subscription": "Subscription",
         "adminAdjust": "Admin Adjust"
+      },
+      "loadingBalance": "Loading balance...",
+      "noHistory": "No credit history yet",
+      "table": {
+        "date": "Date",
+        "type": "Type",
+        "amount": "Amount",
+        "balance": "Balance"
       }
     },
     "settings": {
@@ -927,7 +957,9 @@
         "paid": "Paid",
         "pending": "Pending",
         "failed": "Failed"
-      }
+      },
+      "noHistory": "No purchase history yet",
+      "loadMore": "Load More"
     }
   },
   "VideoHistory": {
@@ -943,5 +975,185 @@
     "unknownError": "Unknown error",
     "removeFromHistory": "Remove from history",
     "generationFailed": "Generation Failed"
+  },
+  "Auth": {
+    "login": {
+      "pageTitle": "Login",
+      "pageDescription": "Sign in to your account.",
+      "back": "Back",
+      "welcome": "Welcome back",
+      "subtitle": "Sign in to your account"
+    },
+    "register": {
+      "pageTitle": "Create an account",
+      "pageDescription": "Create an account to get started.",
+      "title": "Create an account",
+      "subtitle": "Enter your email below to create your account",
+      "loginLink": "Login",
+      "termsNotice": "By clicking continue, you agree to our {terms} and {privacy}."
+    },
+    "form": {
+      "emailLabel": "Email",
+      "emailPlaceholder": "name@example.com",
+      "submit": "Continue with Email",
+      "orContinueWith": "or continue with",
+      "continueGoogle": "Continue with Google",
+      "invalidEmail": "Please enter a valid email address.",
+      "magicLinkSentTitle": "Check your email",
+      "magicLinkSentDescription": "We sent you a login link. Be sure to check your spam too.",
+      "errorTitle": "Something went wrong.",
+      "errorDescription": "Your sign in request failed. Please try again."
+    }
+  },
+  "Demo": {
+    "hero": {
+      "titleLine1": "Your One-Stop AI Video",
+      "titleLine2": "Creation Platform",
+      "subtitle": "Transform your ideas into stunning videos with the power of AI. Simply describe what you want, and watch the magic happen.",
+      "availableCredits": "Available credits: {credits}"
+    },
+    "models": {
+      "title": "Supported AI Models",
+      "items": {
+        "pollo": "Pollo AI",
+        "sora2": "Sora 2",
+        "wan": "Wan AI",
+        "kling": "Kling AI",
+        "seedance": "Seedance",
+        "hailuo": "Hailuo AI",
+        "vidu": "Vidu AI",
+        "google": "Google"
+      }
+    },
+    "statusTitle": "Generation Status",
+    "status": {
+      "pending": "Pending",
+      "generating": "Generating",
+      "uploading": "Uploading",
+      "completed": "Completed",
+      "failed": "Failed"
+    },
+    "progress": {
+      "pending": "Waiting in queue...",
+      "generating": "AI is generating your video...",
+      "uploading": "Uploading to storage..."
+    },
+    "actions": {
+      "download": "Download Video",
+      "copyUrl": "Copy URL"
+    },
+    "toasts": {
+      "successTitle": "Success",
+      "successDescription": "Video generated successfully!",
+      "errorTitle": "Error",
+      "errorDescription": "Video generation failed",
+      "onlyVideo": "Only video generation is supported",
+      "startedTitle": "Started",
+      "startedDescription": "Video generation started! {credits} credits frozen.",
+      "unknownError": "An error occurred"
+    }
+  },
+  "Admin": {
+    "sidebar": {
+      "brand": "Admin",
+      "dashboard": "Dashboard",
+      "users": "Users",
+      "analytics": "Analytics",
+      "settings": "Settings",
+      "backToApp": "Back to App"
+    },
+    "dashboard": {
+      "title": "Dashboard",
+      "subtitle": "Admin overview",
+      "stats": {
+        "totalUsers": "Total Users",
+        "totalVideos": "Total Videos",
+        "successRate": "Success Rate",
+        "creditPackages": "Credit Packages",
+        "recentUsers": "Last 7 days: +{count}",
+        "recentVideos": "Last 7 days: +{count}",
+        "completedRatio": "{completed} / {total} completed",
+        "allUsers": "All users"
+      },
+      "status": {
+        "completed": "Completed",
+        "failed": "Failed",
+        "pending": "Pending",
+        "percentOfTotal": "{percent}% of total"
+      },
+      "quickActions": {
+        "title": "Quick Actions",
+        "subtitle": "Common admin tasks",
+        "users": {
+          "title": "User Management",
+          "description": "View and manage users"
+        },
+        "analytics": {
+          "title": "Analytics",
+          "description": "View detailed statistics"
+        },
+        "settings": {
+          "title": "Credits Settings",
+          "description": "Adjust credit rules"
+        }
+      }
+    },
+    "users": {
+      "title": "User Management",
+      "subtitle": "Total {count} users",
+      "searchPlaceholder": "Search email or name...",
+      "searchButton": "Search",
+      "table": {
+        "title": "User List",
+        "user": "User",
+        "email": "Email",
+        "videos": "Videos",
+        "packages": "Packages",
+        "credits": "Available Credits",
+        "status": "Status",
+        "createdAt": "Joined"
+      },
+      "status": {
+        "admin": "Admin",
+        "user": "User"
+      },
+      "empty": "No users found",
+      "unsetName": "Not set",
+      "userAlt": "User",
+      "pagination": "Page {current} of {total}",
+      "prev": "Previous",
+      "next": "Next"
+    },
+    "analytics": {
+      "title": "Analytics",
+      "subtitle": "See detailed analytics and trends",
+      "cardTitle": "Coming Soon",
+      "cardDescription": "Advanced analytics are under development. Stay tuned!"
+    },
+    "settings": {
+      "title": "System Settings",
+      "subtitle": "Manage billing parameters and credit rules",
+      "supported": "Supported",
+      "pricing": {
+        "title": "Pricing & Credits",
+        "description": "Update credit pack pricing, subscription plans, and AI model rates.",
+        "configLabel": "Config file",
+        "reloadLabel": "Auto reload",
+        "action": "View configuration docs"
+      },
+      "adminEmail": {
+        "title": "Admin Email",
+        "description": "Set ADMIN_EMAIL in .env.local to grant admin access after login.",
+        "envLabel": "Environment variable",
+        "autoSetLabel": "Auto provisioning",
+        "action": "View quick start"
+      },
+      "scripts": {
+        "title": "Credit Management Scripts",
+        "addCredits": "Add credits",
+        "checkCredits": "Check credits",
+        "resetCredits": "Reset credits"
+      }
+    }
   }
 }

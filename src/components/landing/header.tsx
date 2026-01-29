@@ -290,7 +290,7 @@ export function LandingHeader({ user }: { user?: User | null }) {
             {/* Sheet Menu */}
             <Sheet>
               <SheetTrigger asChild>
-                <Button variant="ghost" size="icon" aria-label="Open menu">
+                <Button variant="ghost" size="icon" aria-label={t('Common.openMenu')}>
                   <Menu className="h-5 w-5" />
                 </Button>
               </SheetTrigger>

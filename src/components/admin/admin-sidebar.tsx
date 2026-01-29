@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useTranslations } from "next-intl";
 
 import { cn } from "@/components/ui";
 import {
@@ -17,35 +18,36 @@ interface AdminSidebarProps {
 }
 
 interface NavItem {
-  title: string;
+  titleKey: string;
   href: string;
   icon: React.ComponentType<{ className?: string }>;
 }
 
 const navItems: NavItem[] = [
   {
-    title: "Dashboard",
+    titleKey: "sidebar.dashboard",
     href: "/admin",
     icon: LayoutDashboard,
   },
   {
-    title: "Users",
+    titleKey: "sidebar.users",
     href: "/admin/users",
     icon: Users,
   },
   {
-    title: "Analytics",
+    titleKey: "sidebar.analytics",
     href: "/admin/analytics",
     icon: BarChart3,
   },
   {
-    title: "Settings",
+    titleKey: "sidebar.settings",
     href: "/admin/settings",
     icon: Settings,
   },
 ];
 
 export function AdminSidebar({ locale }: AdminSidebarProps) {
+  const t = useTranslations("Admin");
   const pathname = usePathname();
 
   return (
@@ -57,7 +59,7 @@ export function AdminSidebar({ locale }: AdminSidebarProps) {
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
               <span className="text-sm font-bold text-primary-foreground">A</span>
             </div>
-            <span className="text-lg font-semibold">Admin</span>
+            <span className="text-lg font-semibold">{t("sidebar.brand")}</span>
           </Link>
         </div>
 
@@ -82,7 +84,7 @@ export function AdminSidebar({ locale }: AdminSidebarProps) {
                 )}
               >
                 <Icon className="h-4 w-4" />
-                {item.title}
+                {t(item.titleKey)}
               </Link>
             );
           })}
@@ -95,7 +97,7 @@ export function AdminSidebar({ locale }: AdminSidebarProps) {
             className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
           >
             <ArrowLeft className="h-4 w-4" />
-            Back to App
+            {t("sidebar.backToApp")}
           </Link>
         </div>
       </div>

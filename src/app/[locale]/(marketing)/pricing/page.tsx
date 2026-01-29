@@ -6,8 +6,14 @@ import { PricingCards } from "@/components/price/pricing-cards";
 import { FAQSection } from "@/components/landing/faq-section";
 import { billingProvider } from "@/config/billing-provider";
 import { getUserPlans } from "@/services/billing";
-import type { CreditsDictionary } from "@/hooks/use-credit-packages";
-import type { UserSubscriptionPlan } from "@/types";
+type CreditsDictionary = {
+  title?: string;
+  buy_credits?: string;
+  packages: Record<string, { name: string; description: string }>;
+  features: Record<string, string>;
+};
+
+type UserSubscriptionPlan = Awaited<ReturnType<typeof getUserPlans>>;
 
 export const metadata = {
   title: "Pricing",

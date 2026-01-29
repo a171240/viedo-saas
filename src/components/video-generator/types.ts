@@ -580,6 +580,13 @@ export interface GeneratorTexts {
   // Errors
   promptTooLong?: string;
 
+  // Accessibility / labels
+  imagePreviewTitle?: string;
+  previewAlt?: string;
+  uploadedAlt?: string;
+  generateAudio?: string;
+  generateAudioDesc?: string;
+
   // Upload slots
   imageSlot?: string;
   start?: string;

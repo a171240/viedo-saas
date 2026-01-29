@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { cn } from "@/components/ui";
 
 interface VideoStatusCardProps {
@@ -13,12 +14,13 @@ export function VideoStatusCard({
   videoUrl,
   error,
 }: VideoStatusCardProps) {
+  const t = useTranslations("Demo");
   const statusConfig = {
-    PENDING: { label: "Pending", color: "text-yellow-500", bg: "bg-yellow-500/10" },
-    GENERATING: { label: "Generating", color: "text-blue-500", bg: "bg-blue-500/10" },
-    UPLOADING: { label: "Uploading", color: "text-purple-500", bg: "bg-purple-500/10" },
-    COMPLETED: { label: "Completed", color: "text-green-500", bg: "bg-green-500/10" },
-    FAILED: { label: "Failed", color: "text-red-500", bg: "bg-red-500/10" },
+    PENDING: { label: t("status.pending"), color: "text-yellow-500", bg: "bg-yellow-500/10" },
+    GENERATING: { label: t("status.generating"), color: "text-blue-500", bg: "bg-blue-500/10" },
+    UPLOADING: { label: t("status.uploading"), color: "text-purple-500", bg: "bg-purple-500/10" },
+    COMPLETED: { label: t("status.completed"), color: "text-green-500", bg: "bg-green-500/10" },
+    FAILED: { label: t("status.failed"), color: "text-red-500", bg: "bg-red-500/10" },
   };
 
   const config = statusConfig[status as keyof typeof statusConfig] || statusConfig.PENDING;
@@ -28,7 +30,7 @@ export function VideoStatusCard({
       <div className="space-y-4">
         {/* Status Badge */}
         <div className="flex items-center justify-between">
-          <h3 className="font-medium">Generation Status</h3>
+          <h3 className="font-medium">{t("statusTitle")}</h3>
           <span
             className={cn(
               "px-3 py-1 rounded-full text-sm font-medium",
@@ -54,9 +56,9 @@ export function VideoStatusCard({
               />
             </div>
             <p className="text-sm text-muted-foreground">
-              {status === "PENDING" && "Waiting in queue..."}
-              {status === "GENERATING" && "AI is generating your video..."}
-              {status === "UPLOADING" && "Uploading to storage..."}
+              {status === "PENDING" && t("progress.pending")}
+              {status === "GENERATING" && t("progress.generating")}
+              {status === "UPLOADING" && t("progress.uploading")}
             </p>
           </div>
         )}
@@ -84,14 +86,14 @@ export function VideoStatusCard({
                 download
                 className="flex-1 py-2 text-center text-sm font-medium rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
               >
-                Download Video
+                {t("actions.download")}
               </a>
               <button
                 type="button"
                 onClick={() => navigator.clipboard.writeText(videoUrl)}
                 className="px-4 py-2 text-sm font-medium rounded-lg border hover:bg-muted transition-colors"
               >
-                Copy URL
+                {t("actions.copyUrl")}
               </button>
             </div>
           </div>

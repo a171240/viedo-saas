@@ -5,10 +5,10 @@
 // ============================================
 
 import { formatDistanceToNow } from "date-fns";
-import { useTranslations } from "next-intl";
-import { cn } from "@/components/ui";
+import { useLocale, useTranslations } from "next-intl";
 import { Badge } from "@/components/ui/badge";
 import type { Invoice, InvoiceStatus } from "@/lib/types/dashboard";
+import { getDateFnsLocale } from "@/lib/date-locale";
 
 interface BillingListProps {
   invoices: Invoice[];
@@ -16,19 +16,21 @@ interface BillingListProps {
   onLoadMore?: () => void;
 }
 
-const statusConfig: Record<InvoiceStatus, { label: string; className: string }> = {
-  paid: { label: "Paid", className: "bg-emerald-500/10 text-emerald-500 border-emerald-500/20" },
-  pending: { label: "Pending", className: "bg-amber-500/10 text-amber-500 border-amber-500/20" },
-  failed: { label: "Failed", className: "bg-rose-500/10 text-rose-500 border-rose-500/20" },
+const statusConfig: Record<InvoiceStatus, { className: string }> = {
+  paid: { className: "bg-emerald-500/10 text-emerald-500 border-emerald-500/20" },
+  pending: { className: "bg-amber-500/10 text-amber-500 border-amber-500/20" },
+  failed: { className: "bg-rose-500/10 text-rose-500 border-rose-500/20" },
 };
 
 export function BillingList({ invoices, hasMore, onLoadMore }: BillingListProps) {
   const t = useTranslations("dashboard.settings");
+  const locale = useLocale();
+  const dateLocale = getDateFnsLocale(locale);
 
   if (invoices.length === 0) {
     return (
       <div className="text-center py-12 text-muted-foreground">
-        No purchase history yet
+        {t("noHistory")}
       </div>
     );
   }
@@ -52,7 +54,10 @@ export function BillingList({ invoices, hasMore, onLoadMore }: BillingListProps)
                 <div className="flex-1">
                   <div className="flex items-center gap-3 mb-2">
                     <span className="text-sm font-medium">
-                      {formatDistanceToNow(new Date(invoice.createdAt), { addSuffix: true })}
+                      {formatDistanceToNow(new Date(invoice.createdAt), {
+                        addSuffix: true,
+                        locale: dateLocale,
+                      })}
                     </span>
                     <Badge variant="outline" className={config.className}>
                       {t(`status.${invoice.status}`)}
@@ -84,7 +89,7 @@ export function BillingList({ invoices, hasMore, onLoadMore }: BillingListProps)
             onClick={onLoadMore}
             className="px-4 py-2 text-sm font-medium rounded-md border border-border hover:bg-muted transition-colors"
           >
-            Load More
+            {t("loadMore")}
           </button>
         </div>
       )}

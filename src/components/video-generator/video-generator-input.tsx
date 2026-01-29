@@ -138,9 +138,9 @@ export function VideoGeneratorInput({
   validateImages,
 }: VideoGeneratorInputProps) {
   // Merge user config with defaults
-  const config = useMemo(() => mergeConfig(userConfig), [userConfig]);
-  const defaults = useMemo(() => mergeDefaults(userDefaults), [userDefaults]);
   const locale = useLocale();
+  const config = useMemo(() => mergeConfig(userConfig, locale), [userConfig, locale]);
+  const defaults = useMemo(() => mergeDefaults(userDefaults), [userDefaults]);
   const texts = useMemo(() => getTexts(locale, userTexts), [locale, userTexts]);
 
   // Extract config values
@@ -848,9 +848,9 @@ export function VideoGeneratorInput({
       {/* Image Preview Dialog */}
       <Dialog open={!!previewImage} onOpenChange={() => setPreviewImage(null)}>
         <DialogContent className="bg-zinc-900 border-zinc-800 max-w-2xl p-2">
-          <DialogTitle className="sr-only">Image Preview</DialogTitle>
+          <DialogTitle className="sr-only">{texts.imagePreviewTitle ?? "Image Preview"}</DialogTitle>
           {previewImage && (
-            <img src={previewImage} alt="Preview" className="w-full h-auto rounded-lg" />
+            <img src={previewImage} alt={texts.previewAlt ?? "Preview"} className="w-full h-auto rounded-lg" />
           )}
         </DialogContent>
       </Dialog>
@@ -934,7 +934,7 @@ export function VideoGeneratorInput({
                         <div className="relative w-full h-full rounded overflow-hidden">
                           <img
                             src={getImageForSlot("default")!.preview}
-                            alt="Uploaded"
+                            alt={texts.uploadedAlt ?? "Uploaded"}
                             className="w-full h-full object-cover"
                           />
                           {/* Zoom button - centered on hover */}
@@ -1349,9 +1349,9 @@ export function VideoGeneratorInput({
                         <div className="flex items-center gap-2">
                           <Volume2 className="w-4 h-4 text-zinc-400" />
                           <div>
-                            <div className="text-sm text-white">Generate Audio</div>
+                            <div className="text-sm text-white">{texts.generateAudio ?? "Generate Audio"}</div>
                             <div className="text-xs text-zinc-500">
-                              Add natural-sounding audio
+                              {texts.generateAudioDesc ?? "Add natural-sounding audio"}
                             </div>
                           </div>
                         </div>

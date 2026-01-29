@@ -7,10 +7,11 @@
 import { useRef, useState } from "react";
 import Link from "next/link";
 import { Play, Clock, AlertCircle, MoreHorizontal, Download, Trash2 } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { cn } from "@/components/ui";
 import { formatDistanceToNow } from "date-fns";
+import { getDateFnsLocale } from "@/lib/date-locale";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -78,6 +79,8 @@ export function CreationCard({
   isDeleting,
 }: CreationCardProps) {
   const t = useTranslations("dashboard.myCreations");
+  const locale = useLocale();
+  const dateLocale = getDateFnsLocale(locale);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const videoRef = useRef<HTMLVideoElement | null>(null);
 
@@ -244,7 +247,10 @@ export function CreationCard({
 
           {/* Date */}
           <div className="text-xs text-muted-foreground">
-            {formatDistanceToNow(new Date(video.createdAt), { addSuffix: true })}
+            {formatDistanceToNow(new Date(video.createdAt), {
+              addSuffix: true,
+              locale: dateLocale,
+            })}
           </div>
 
           {/* Error is displayed in the preview area for failed videos */}

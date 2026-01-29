@@ -1,7 +1,7 @@
 import { Suspense } from "react";
-import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
+import type { Metadata } from "next";
 
 import { cn } from "@/components/ui";
 import { buttonVariants } from "@/components/ui/button";
@@ -9,12 +9,20 @@ import * as Icons from "@/components/ui/icons";
 
 import { UserAuthForm } from "@/components/user-auth-form";
 import type { Locale } from "@/config/i18n-config";
-import { getDictionary } from "@/lib/get-dictionary";
+import { getTranslations } from "next-intl/server";
 
-export const metadata: Metadata = {
-  title: "Login",
-  description: "Login to your account",
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: Locale }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "Auth" });
+  return {
+    title: t("login.pageTitle"),
+    description: t("login.pageDescription"),
+  };
+}
 
 export default async function LoginPage({
   params,
@@ -24,7 +32,7 @@ export default async function LoginPage({
   }>;
 }) {
   const { locale } = await params;
-  const dict = await getDictionary(locale);
+  const t = await getTranslations({ locale, namespace: "Auth" });
   return (
     <div className="container flex h-screen w-screen flex-col items-center justify-center">
       <Link
@@ -36,7 +44,7 @@ export default async function LoginPage({
       >
         <>
           <Icons.ChevronLeft className="mr-2 h-4 w-4" />
-          {dict.login.back}
+          {t("login.back")}
         </>
       </Link>
       <div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[350px]">
@@ -49,14 +57,14 @@ export default async function LoginPage({
             alt=""
           />
           <h1 className="text-2xl font-semibold tracking-tight">
-            {dict.login.welcome_back}
+            {t("login.welcome")}
           </h1>
           <p className="text-sm text-muted-foreground">
-            {dict.login.signin_title}
+            {t("login.subtitle")}
           </p>
         </div>
         <Suspense fallback={<div className="h-10" />}>
-          <UserAuthForm lang={locale} dict={dict.login} />
+          <UserAuthForm lang={locale} />
         </Suspense>
         {/* <p className="px-8 text-center text-sm text-muted-foreground">
           <Link

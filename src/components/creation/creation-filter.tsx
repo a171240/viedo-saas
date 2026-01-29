@@ -19,25 +19,11 @@ interface CreationFilterProps {
   onFilterChange: (filter: Partial<VideoFilterOptions>) => void;
 }
 
-const availableModels = [
-  { value: "all", label: "All Models" },
-  { value: "sora-2", label: "Sora 2" },
-  { value: "veo-3-1", label: "Veo 3.1" },
-  { value: "seedance-1-5", label: "Seedance 1.5" },
-  { value: "wan-2-6", label: "Wan 2.6" },
-];
+const availableModels = ["all", "sora-2", "veo-3-1", "seedance-1-5", "wan-2-6"] as const;
 
-const statusOptions = [
-  { value: "all", label: "All Status" },
-  { value: "completed", label: "Completed" },
-  { value: "generating", label: "Generating" },
-  { value: "failed", label: "Failed" },
-];
+const statusOptions = ["all", "completed", "generating", "failed"] as const;
 
-const sortOptions = [
-  { value: "newest", label: "Newest" },
-  { value: "oldest", label: "Oldest" },
-];
+const sortOptions = ["newest", "oldest"] as const;
 
 export function CreationFilter({ filter, onFilterChange }: CreationFilterProps) {
   const t = useTranslations("dashboard.myCreations.filter");
@@ -53,9 +39,9 @@ export function CreationFilter({ filter, onFilterChange }: CreationFilterProps) 
           <SelectValue placeholder={t("allStatus")} />
         </SelectTrigger>
         <SelectContent>
-          {statusOptions.map((option) => (
-            <SelectItem key={option.value} value={option.value}>
-              {t(option.value as any)}
+          {statusOptions.map((value) => (
+            <SelectItem key={value} value={value}>
+              {t(value)}
             </SelectItem>
           ))}
         </SelectContent>
@@ -71,8 +57,8 @@ export function CreationFilter({ filter, onFilterChange }: CreationFilterProps) 
         </SelectTrigger>
         <SelectContent>
           {availableModels.map((model) => (
-            <SelectItem key={model.value} value={model.value}>
-              {model.label}
+            <SelectItem key={model} value={model}>
+              {t(`models.${model}` as any)}
             </SelectItem>
           ))}
         </SelectContent>
@@ -87,9 +73,9 @@ export function CreationFilter({ filter, onFilterChange }: CreationFilterProps) 
           <SelectValue placeholder={t("newest")} />
         </SelectTrigger>
         <SelectContent>
-          {sortOptions.map((option) => (
-            <SelectItem key={option.value} value={option.value}>
-              {t(option.value as any)}
+          {sortOptions.map((value) => (
+            <SelectItem key={value} value={value}>
+              {t(value)}
             </SelectItem>
           ))}
         </SelectContent>

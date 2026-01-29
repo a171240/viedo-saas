@@ -233,7 +233,7 @@ export function ToolLandingPage({
               transition={{ duration: 0.5, delay: 0.3 }}
               className="space-y-4"
             >
-              <h3 className="text-lg font-semibold text-center">Powered by Leading AI Models</h3>
+              <h3 className="text-lg font-semibold text-center">{tCommon("supportedModelsTitle")}</h3>
               <div className="flex flex-wrap justify-center gap-3">
                 {landing.supportedModels.map((model, index: number) => (
                   <motion.div
@@ -280,7 +280,7 @@ export function ToolLandingPage({
                     <Video className="h-5 w-5 text-blue-500" />
                     {landing.stats.videosGenerated}
                   </div>
-                  <div className="text-xs text-muted-foreground">Videos Generated</div>
+                  <div className="text-xs text-muted-foreground">{tCommon("stats.videos")}</div>
                 </div>
               )}
               {landing.stats.usersCount && (
@@ -289,7 +289,7 @@ export function ToolLandingPage({
                     <Users className="h-5 w-5 text-purple-500" />
                     {landing.stats.usersCount}
                   </div>
-                  <div className="text-xs text-muted-foreground">Happy Users</div>
+                  <div className="text-xs text-muted-foreground">{tCommon("stats.users")}</div>
                 </div>
               )}
               {landing.stats.avgRating && (
@@ -297,7 +297,7 @@ export function ToolLandingPage({
                   <div className="text-2xl font-bold text-yellow-500">
                     {landing.stats.avgRating} ★
                   </div>
-                  <div className="text-xs text-muted-foreground">Average Rating</div>
+                  <div className="text-xs text-muted-foreground">{tCommon("stats.rating")}</div>
                 </div>
               )}
             </motion.div>
@@ -314,7 +314,7 @@ export function ToolLandingPage({
             className="text-center pt-8 border-t border-border"
           >
             <p className="text-muted-foreground mb-4">
-              Ready to create amazing videos? Sign up now and get started!
+              {tCommon("cta.text")}
             </p>
             <Link href={`/${locale}/login`}>
               <ShimmerButton
@@ -325,7 +325,7 @@ export function ToolLandingPage({
                 background="linear-gradient(135deg, #2563EB 0%, #7C3AED 100%)"
                 className="px-8 py-3 text-base font-medium"
               >
-                Get Started Free
+                {tCommon("cta.button")}
                 <ArrowRight className="ml-2 h-5 w-5" />
               </ShimmerButton>
             </Link>

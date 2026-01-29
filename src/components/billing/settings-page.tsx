@@ -5,13 +5,14 @@
 // ============================================
 
 import { useEffect, useRef, useState } from "react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { Mail, IdCard, Calendar } from "lucide-react";
 import { useBilling } from "@/hooks/use-billing";
 import { AvatarFallback } from "@/components/user/avatar-fallback";
 import { BillingList } from "@/components/billing";
 import { Card, CardContent } from "@/components/ui/card";
 import { formatDistanceToNow } from "date-fns";
+import { getDateFnsLocale } from "@/lib/date-locale";
 
 interface SettingsPageProps {
   locale: string;
@@ -21,6 +22,8 @@ interface SettingsPageProps {
 
 export function SettingsPage({ locale, userEmail, userId }: SettingsPageProps) {
   const t = useTranslations("dashboard.settings");
+  const activeLocale = useLocale();
+  const dateLocale = getDateFnsLocale(activeLocale);
 
   const {
     user,
@@ -108,7 +111,10 @@ export function SettingsPage({ locale, userEmail, userId }: SettingsPageProps) {
                     <Calendar className="h-4 w-4 text-muted-foreground" />
                     <span className="text-muted-foreground">{t("joined")}:</span>
                     <span className="font-medium">
-                      {formatDistanceToNow(joinedDate, { addSuffix: true })}
+                      {formatDistanceToNow(joinedDate, {
+                        addSuffix: true,
+                        locale: dateLocale,
+                      })}
                     </span>
                   </div>
                 )}

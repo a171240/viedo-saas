@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { useTranslations } from "next-intl";
 import { VideoGeneratorInput, type SubmitData } from "@/components/video-generator";
 import { VideoStatusCard } from "@/components/video-generator/video-status-card";
 import { toast } from "sonner";
@@ -12,6 +13,7 @@ import {
 } from "@/lib/video-api";
 
 export default function DemoPage() {
+  const t = useTranslations("Demo");
   const [credits, setCredits] = useState(0);
   const [isGenerating, setIsGenerating] = useState(false);
   const [currentTask, setCurrentTask] = useState<{
@@ -54,11 +56,15 @@ export default function DemoPage() {
         }));
 
         if (result.status === "COMPLETED") {
-          toast.success("Success", { description: "Video generated successfully!" });
+          toast.success(t("toasts.successTitle"), {
+            description: t("toasts.successDescription"),
+          });
           setIsGenerating(false);
           refreshCredits();
         } else if (result.status === "FAILED") {
-          toast.error("Error", { description: result.error || "Video generation failed" });
+          toast.error(t("toasts.errorTitle"), {
+            description: result.error || t("toasts.errorDescription"),
+          });
           setIsGenerating(false);
           refreshCredits();
         }
@@ -77,7 +83,9 @@ export default function DemoPage() {
   const handleSubmit = async (data: SubmitData) => {
     // Only handle video generation
     if (data.type !== "video") {
-      toast.error("Error", { description: "Only video generation is supported" });
+      toast.error(t("toasts.errorTitle"), {
+        description: t("toasts.onlyVideo"),
+      });
       return;
     }
 
@@ -96,10 +104,12 @@ export default function DemoPage() {
       });
 
       refreshCredits();
-      toast.success("Started", { description: `Video generation started! ${result.creditsUsed} credits frozen.` });
+      toast.success(t("toasts.startedTitle"), {
+        description: t("toasts.startedDescription", { credits: result.creditsUsed }),
+      });
     } catch (error) {
-      const message = error instanceof Error ? error.message : "An error occurred";
-      toast.error("Error", { description: message });
+      const message = error instanceof Error ? error.message : t("toasts.unknownError");
+      toast.error(t("toasts.errorTitle"), { description: message });
       setIsGenerating(false);
     }
   };
@@ -120,17 +130,16 @@ export default function DemoPage() {
           {/* Title */}
           <div className="text-center mb-12">
             <h1 className="text-4xl md:text-6xl font-bold text-white mb-4">
-              Your One-Stop AI Video
+              {t("hero.titleLine1")}
               <br />
-              Creation Platform
+              {t("hero.titleLine2")}
             </h1>
             <p className="text-zinc-400 text-lg max-w-2xl mx-auto">
-              Transform your ideas into stunning videos with the power of AI.
-              Simply describe what you want, and watch the magic happen.
+              {t("hero.subtitle")}
             </p>
             {credits > 0 && (
               <p className="text-zinc-500 text-sm mt-2">
-                Available credits: <span className="text-white font-medium">{credits}</span>
+                {t("hero.availableCredits", { credits: credits.toLocaleString() })}
               </p>
             )}
           </div>
@@ -158,30 +167,30 @@ export default function DemoPage() {
       {/* Feature Section */}
       <div className="container mx-auto px-4 py-20">
         <h2 className="text-2xl md:text-4xl font-bold text-white text-center mb-12">
-          Supported AI Models
+          {t("models.title")}
         </h2>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-3xl mx-auto">
           {[
-            { name: "Pollo AI", color: "#22c55e" },
-            { name: "Sora 2", color: "#000" },
-            { name: "Wan AI", color: "#8b5cf6" },
-            { name: "Kling AI", color: "#f59e0b" },
-            { name: "Seedance", color: "#ec4899" },
-            { name: "Hailuo AI", color: "#06b6d4" },
-            { name: "Vidu AI", color: "#8b5cf6" },
-            { name: "Google", color: "#4285f4" },
+            { key: "pollo", color: "#22c55e" },
+            { key: "sora2", color: "#000" },
+            { key: "wan", color: "#8b5cf6" },
+            { key: "kling", color: "#f59e0b" },
+            { key: "seedance", color: "#ec4899" },
+            { key: "hailuo", color: "#06b6d4" },
+            { key: "vidu", color: "#8b5cf6" },
+            { key: "google", color: "#4285f4" },
           ].map((model) => (
             <div
-              key={model.name}
+              key={model.key}
               className="p-4 rounded-xl bg-zinc-900/50 border border-zinc-800 flex items-center gap-3"
             >
               <div
                 className="w-8 h-8 rounded-lg flex items-center justify-center text-white font-bold text-sm"
                 style={{ backgroundColor: model.color }}
               >
-                {model.name[0]}
+                {t(`models.items.${model.key}`).charAt(0)}
               </div>
-              <span className="text-white text-sm">{model.name}</span>
+              <span className="text-white text-sm">{t(`models.items.${model.key}`)}</span>
             </div>
           ))}
         </div>

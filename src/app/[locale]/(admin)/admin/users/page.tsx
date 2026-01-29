@@ -19,22 +19,28 @@ import {
   Search,
   Shield,
 } from "@/components/ui/icons";
+import { getTranslations } from "next-intl/server";
 
 interface UsersPageProps {
+  params: Promise<{
+    locale: string;
+  }>;
   searchParams: Promise<{
     page?: string;
     search?: string;
   }>;
 }
 
-export default async function UsersPage({ searchParams }: UsersPageProps) {
-  const params = await searchParams;
-  const page = Math.max(1, Number(params.page) || 1);
-  const search = params.search || "";
+export default async function UsersPage({ params, searchParams }: UsersPageProps) {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "Admin" });
+
+  const paramsResolved = await searchParams;
+  const page = Math.max(1, Number(paramsResolved.page) || 1);
+  const search = paramsResolved.search || "";
   const limit = 20;
   const offset = (page - 1) * limit;
 
-  // 获取用户总数（带搜索）
   const totalUsersResult = search
     ? await db
         .select({ count: count() })
@@ -44,7 +50,6 @@ export default async function UsersPage({ searchParams }: UsersPageProps) {
   const totalUsers = totalUsersResult[0]?.count || 0;
   const totalPages = Math.ceil(totalUsers / limit);
 
-  // 获取用户列表
   const usersList = search
     ? await db
         .select()
@@ -60,7 +65,6 @@ export default async function UsersPage({ searchParams }: UsersPageProps) {
         .limit(limit)
         .offset(offset);
 
-  // 获取每个用户的统计信息
   const usersWithStats = await Promise.all(
     usersList.map(async (user) => {
       const [videoCountResult, creditPackagesResult] = await Promise.all([
@@ -81,22 +85,22 @@ export default async function UsersPage({ searchParams }: UsersPageProps) {
         packageCount,
         totalCredits,
       };
-    }),
+    })
   );
+
+  const dateLocale = locale === "zh" ? "zh-CN" : "en-US";
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">用户管理</h1>
+          <h1 className="text-3xl font-bold tracking-tight">{t("users.title")}</h1>
           <p className="text-muted-foreground">
-            共 {totalUsers} 位用户
+            {t("users.subtitle", { count: totalUsers })}
           </p>
         </div>
       </div>
 
-      {/* Search */}
       <Card>
         <CardContent className="pt-6">
           <form className="flex gap-2">
@@ -104,40 +108,39 @@ export default async function UsersPage({ searchParams }: UsersPageProps) {
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input
                 name="search"
-                placeholder="搜索邮箱或用户名..."
+                placeholder={t("users.searchPlaceholder")}
                 defaultValue={search}
                 className="pl-10"
               />
             </div>
-            <Button type="submit">搜索</Button>
+            <Button type="submit">{t("users.searchButton")}</Button>
           </form>
         </CardContent>
       </Card>
 
-      {/* Users Table */}
       <Card>
         <CardHeader>
-          <CardTitle>用户列表</CardTitle>
+          <CardTitle>{t("users.table.title")}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="overflow-x-auto">
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>用户</TableHead>
-                  <TableHead>邮箱</TableHead>
-                  <TableHead>视频数</TableHead>
-                  <TableHead>积分包</TableHead>
-                  <TableHead>可用积分</TableHead>
-                  <TableHead>状态</TableHead>
-                  <TableHead>注册时间</TableHead>
+                  <TableHead>{t("users.table.user")}</TableHead>
+                  <TableHead>{t("users.table.email")}</TableHead>
+                  <TableHead>{t("users.table.videos")}</TableHead>
+                  <TableHead>{t("users.table.packages")}</TableHead>
+                  <TableHead>{t("users.table.credits")}</TableHead>
+                  <TableHead>{t("users.table.status")}</TableHead>
+                  <TableHead>{t("users.table.createdAt")}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {usersWithStats.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={7} className="h-24 text-center">
-                      暂无数据
+                      {t("users.empty")}
                     </TableCell>
                   </TableRow>
                 ) : (
@@ -148,7 +151,7 @@ export default async function UsersPage({ searchParams }: UsersPageProps) {
                           {user.image ? (
                             <img
                               src={user.image}
-                              alt={user.name || "User"}
+                              alt={user.name || t("users.userAlt")}
                               className="h-8 w-8 rounded-full"
                             />
                           ) : (
@@ -159,7 +162,7 @@ export default async function UsersPage({ searchParams }: UsersPageProps) {
                             </div>
                           )}
                           <span className="max-w-[200px] truncate">
-                            {user.name || "未设置"}
+                            {user.name || t("users.unsetName")}
                           </span>
                         </div>
                       </TableCell>
@@ -175,14 +178,14 @@ export default async function UsersPage({ searchParams }: UsersPageProps) {
                         {user.isAdmin ? (
                           <Badge variant="default" className="gap-1">
                             <Shield className="h-3 w-3" />
-                            管理员
+                            {t("users.status.admin")}
                           </Badge>
                         ) : (
-                          <Badge variant="outline">普通用户</Badge>
+                          <Badge variant="outline">{t("users.status.user")}</Badge>
                         )}
                       </TableCell>
                       <TableCell className="text-muted-foreground">
-                        {new Date(user.createdAt).toLocaleDateString("zh-CN")}
+                        {new Date(user.createdAt).toLocaleDateString(dateLocale)}
                       </TableCell>
                     </TableRow>
                   ))
@@ -191,11 +194,10 @@ export default async function UsersPage({ searchParams }: UsersPageProps) {
             </Table>
           </div>
 
-          {/* Pagination */}
           {totalPages > 1 && (
             <div className="flex items-center justify-between mt-4">
               <div className="text-sm text-muted-foreground">
-                第 {page} 页，共 {totalPages} 页
+                {t("users.pagination", { current: page, total: totalPages })}
               </div>
               <div className="flex gap-2">
                 <Button
@@ -208,7 +210,7 @@ export default async function UsersPage({ searchParams }: UsersPageProps) {
                     href={`?page=${page - 1}${search ? `&search=${encodeURIComponent(search)}` : ""}`}
                   >
                     <ChevronLeft className="h-4 w-4 mr-1" />
-                    上一页
+                    {t("users.prev")}
                   </a>
                 </Button>
 
@@ -220,7 +222,7 @@ export default async function UsersPage({ searchParams }: UsersPageProps) {
                   <a
                     href={`?page=${page + 1}${search ? `&search=${encodeURIComponent(search)}` : ""}`}
                   >
-                    下一页
+                    {t("users.next")}
                     <ChevronRight className="h-4 w-4 ml-1" />
                   </a>
                 </Button>

@@ -4,11 +4,12 @@
 // Credit History Component
 // ============================================
 
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { Video, ShoppingBag, RotateCcw, Settings } from "lucide-react";
 import { cn } from "@/components/ui";
 import { formatDistanceToNow } from "date-fns";
 import type { CreditTransaction } from "@/lib/types/dashboard";
+import { getDateFnsLocale } from "@/lib/date-locale";
 
 interface CreditHistoryProps {
   transactions: CreditTransaction[];
@@ -46,11 +47,13 @@ const typeConfig = {
 
 export function CreditHistory({ transactions, hasMore, onLoadMore }: CreditHistoryProps) {
   const t = useTranslations("dashboard.credits");
+  const locale = useLocale();
+  const dateLocale = getDateFnsLocale(locale);
 
   if (transactions.length === 0) {
     return (
       <div className="text-center py-12 text-muted-foreground">
-        No credit history yet
+        {t("noHistory")}
       </div>
     );
   }
@@ -69,16 +72,16 @@ export function CreditHistory({ transactions, hasMore, onLoadMore }: CreditHisto
             <thead className="bg-muted">
               <tr>
                 <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">
-                  Date
+                  {t("table.date")}
                 </th>
                 <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">
-                  Type
+                  {t("table.type")}
                 </th>
                 <th className="px-4 py-3 text-right text-sm font-medium text-muted-foreground">
-                  Amount
+                  {t("table.amount")}
                 </th>
                 <th className="px-4 py-3 text-right text-sm font-medium text-muted-foreground">
-                  Balance
+                  {t("table.balance")}
                 </th>
               </tr>
             </thead>
@@ -92,7 +95,10 @@ export function CreditHistory({ transactions, hasMore, onLoadMore }: CreditHisto
                   <tr key={transaction.id} className="hover:bg-muted/50">
                     <td className="px-4 py-3 text-sm">
                       <div className="font-medium">
-                        {formatDistanceToNow(new Date(transaction.createdAt), { addSuffix: true })}
+                        {formatDistanceToNow(new Date(transaction.createdAt), {
+                          addSuffix: true,
+                          locale: dateLocale,
+                        })}
                       </div>
                     </td>
                     <td className="px-4 py-3 text-sm">

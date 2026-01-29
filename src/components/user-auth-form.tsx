@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { useSearchParams } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
@@ -14,27 +15,26 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 
-type Dictionary = Record<string, string>;
-
 interface UserAuthFormProps extends React.HTMLAttributes<HTMLDivElement> {
   lang: string;
-  dict: Dictionary;
   disabled?: boolean;
 }
-
-const userAuthSchema = z.object({
-  email: z.string().email(),
-});
-
-type FormData = z.infer<typeof userAuthSchema>;
 
 export function UserAuthForm({
   className,
   lang,
-  dict,
   disabled,
   ...props
 }: UserAuthFormProps) {
+  const t = useTranslations("Auth");
+  const userAuthSchema = React.useMemo(
+    () =>
+      z.object({
+        email: z.string().email(t("form.invalidEmail")),
+      }),
+    [t]
+  );
+  type FormData = z.infer<typeof userAuthSchema>;
   const {
     register,
     handleSubmit,
@@ -55,13 +55,13 @@ export function UserAuthForm({
         callbackURL: searchParams?.get("from") ?? `/${lang}/my-creations`,
       });
 
-      toast.success("Check your email", {
-        description: "We sent you a login link. Be sure to check your spam too.",
+      toast.success(t("form.magicLinkSentTitle"), {
+        description: t("form.magicLinkSentDescription"),
       });
     } catch (error) {
       console.error("Error during sign in:", error);
-      toast.error("Something went wrong.", {
-        description: "Your sign in request failed. Please try again.",
+      toast.error(t("form.errorTitle"), {
+        description: t("form.errorDescription"),
       });
     } finally {
       setIsLoading(false);
@@ -74,11 +74,11 @@ export function UserAuthForm({
         <div className="grid gap-2">
           <div className="grid gap-1">
             <Label className="sr-only" htmlFor="email">
-              Email
+              {t("form.emailLabel")}
             </Label>
             <Input
               id="email"
-              placeholder="name@example.com"
+              placeholder={t("form.emailPlaceholder")}
               type="email"
               autoCapitalize="none"
               autoComplete="email"
@@ -100,7 +100,7 @@ export function UserAuthForm({
             {isLoading && (
               <Icons.Spinner className="mr-2 h-4 w-4 animate-spin" />
             )}
-            {dict.signin_email}
+            {t("form.submit")}
           </button>
         </div>
       </form>
@@ -110,7 +110,7 @@ export function UserAuthForm({
         </div>
         <div className="relative flex justify-center text-xs uppercase">
           <span className="bg-background px-2 text-muted-foreground">
-            {dict.signin_others}
+            {t("form.orContinueWith")}
           </span>
         </div>
       </div>
@@ -136,7 +136,7 @@ export function UserAuthForm({
         ) : (
           <Icons.Google className="mr-2 h-4 w-4" />
         )}{" "}
-        Continue with Google
+        {t("form.continueGoogle")}
       </button>
     </div>
   );

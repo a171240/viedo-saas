@@ -165,6 +165,31 @@ export const DEFAULT_VIDEO_MODELS: VideoModel[] = [
   },
 ];
 
+const VIDEO_MODEL_TEXTS_ZH: Record<string, Partial<VideoModel>> = {
+  "sora-2": {
+    description: "OpenAI 旗舰级视频生成模型",
+    maxDuration: "15 秒",
+  },
+  "wan2.6": {
+    description: "文本/图像/参考图像生成视频，支持音频",
+    maxDuration: "10 秒",
+    hint: "参考图像模式：1-3 张图片",
+  },
+  "veo-3.1": {
+    description: "Google 视频生成模型，支持参考图像",
+    maxDuration: "8 秒",
+  },
+  "seedance-1.5-pro": {
+    description: "文本/图像/首尾帧生成视频，支持音频",
+    maxDuration: "12 秒",
+  },
+};
+
+const DEFAULT_VIDEO_MODELS_ZH: VideoModel[] = DEFAULT_VIDEO_MODELS.map((model) => {
+  const localized = VIDEO_MODEL_TEXTS_ZH[model.id];
+  return localized ? { ...model, ...localized } : model;
+});
+
 // ============================================================================
 // Image Models (placeholder for future use)
 // ============================================================================
@@ -216,6 +241,26 @@ export const DEFAULT_VIDEO_MODES: GeneratorMode[] = [
   },
 ];
 
+const VIDEO_MODE_TEXTS_ZH: Record<string, Pick<GeneratorMode, "name" | "description">> = {
+  "text-image-to-video": {
+    name: "文本/图像生成视频",
+    description: "使用文本提示词生成视频，可选上传参考图像",
+  },
+  "frames-to-video": {
+    name: "首尾帧生成视频",
+    description: "使用起始与结束帧图片生成视频",
+  },
+  "reference-to-video": {
+    name: "参考图像生成视频",
+    description: "使用参考图片生成视频",
+  },
+};
+
+const DEFAULT_VIDEO_MODES_ZH: GeneratorMode[] = DEFAULT_VIDEO_MODES.map((mode) => {
+  const localized = VIDEO_MODE_TEXTS_ZH[mode.id];
+  return localized ? { ...mode, ...localized } : mode;
+});
+
 export const DEFAULT_IMAGE_MODES: GeneratorMode[] = [];
 
 // ============================================================================
@@ -236,6 +281,26 @@ export const DEFAULT_IMAGE_STYLES: ImageStyle[] = [
   { id: "comic-book", name: "Comic Book" },
   { id: "minimalist", name: "Minimalist" },
 ];
+
+const IMAGE_STYLE_TEXTS_ZH: Record<string, string> = {
+  auto: "自动",
+  ghibli: "吉卜力",
+  "ultra-realism": "超写实",
+  "pixel-art": "像素风",
+  "japanese-anime": "日系动漫",
+  "3d-render": "3D 渲染",
+  steampunk: "蒸汽朋克",
+  watercolor: "水彩",
+  cyberpunk: "赛博朋克",
+  "oil-painting": "油画",
+  "comic-book": "漫画",
+  minimalist: "极简",
+};
+
+const DEFAULT_IMAGE_STYLES_ZH: ImageStyle[] = DEFAULT_IMAGE_STYLES.map((style) => ({
+  ...style,
+  name: IMAGE_STYLE_TEXTS_ZH[style.id] ?? style.name,
+}));
 
 // ============================================================================
 // Aspect Ratios
@@ -312,6 +377,39 @@ export const DEFAULT_PROMPT_TEMPLATES: PromptTemplate[] = [
   },
 ];
 
+const DEFAULT_PROMPT_TEMPLATES_ZH: PromptTemplate[] = [
+  {
+    id: "1",
+    text: "温馨的圣诞客厅",
+    image: "https://images.unsplash.com/photo-1543589077-47d81606c1bf?w=100",
+  },
+  { id: "2", text: "工作狂" },
+  {
+    id: "3",
+    text: "安静的决心",
+    image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=100",
+  },
+  { id: "4", text: "电影感戏剧" },
+  { id: "5", text: "自然纪录片" },
+  {
+    id: "6",
+    text: "都市街拍",
+    image: "https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=100",
+  },
+  { id: "7", text: "空灵奇幻世界" },
+  {
+    id: "8",
+    text: "复古 80s 美学",
+    image: "https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=100",
+  },
+  { id: "9", text: "极简产品特写" },
+  {
+    id: "10",
+    text: "史诗级风景镜头",
+    image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=100",
+  },
+];
+
 // ============================================================================
 // Combined Default Config
 // ============================================================================
@@ -327,6 +425,25 @@ export const DEFAULT_CONFIG: GeneratorConfig = {
   imageModes: DEFAULT_IMAGE_MODES,
   imageStyles: DEFAULT_IMAGE_STYLES,
   promptTemplates: DEFAULT_PROMPT_TEMPLATES,
+  aspectRatios: {
+    video: DEFAULT_VIDEO_ASPECT_RATIOS,
+    image: DEFAULT_IMAGE_ASPECT_RATIOS,
+  },
+  durations: DEFAULT_DURATIONS,
+  resolutions: DEFAULT_RESOLUTIONS,
+  outputNumbers: {
+    video: DEFAULT_VIDEO_OUTPUT_NUMBERS,
+    image: DEFAULT_IMAGE_OUTPUT_NUMBERS,
+  },
+};
+
+const DEFAULT_CONFIG_ZH: GeneratorConfig = {
+  videoModels: DEFAULT_VIDEO_MODELS_ZH,
+  imageModels: DEFAULT_IMAGE_MODELS,
+  videoModes: DEFAULT_VIDEO_MODES_ZH,
+  imageModes: DEFAULT_IMAGE_MODES,
+  imageStyles: DEFAULT_IMAGE_STYLES_ZH,
+  promptTemplates: DEFAULT_PROMPT_TEMPLATES_ZH,
   aspectRatios: {
     video: DEFAULT_VIDEO_ASPECT_RATIOS,
     image: DEFAULT_IMAGE_ASPECT_RATIOS,
@@ -380,6 +497,11 @@ export const DEFAULT_TEXTS_EN: GeneratorTexts = {
   outputNumber: "Output Number",
   numberOfImages: "Number of Images",
   promptTooLong: "Prompt too long. Please shorten it.",
+  imagePreviewTitle: "Image Preview",
+  previewAlt: "Preview",
+  uploadedAlt: "Uploaded",
+  generateAudio: "Generate Audio",
+  generateAudioDesc: "Add natural-sounding audio",
   imageSlot: "Image",
   start: "Start",
   end: "End",
@@ -390,8 +512,8 @@ export const DEFAULT_TEXTS_EN: GeneratorTexts = {
  * Default Chinese texts
  */
 export const DEFAULT_TEXTS_ZH: GeneratorTexts = {
-  videoPlaceholder: "描述你想生成的视频，例如：阳光花园里一只猫在玩耍，光线自然、氛围清新……",
-  imagePlaceholder: "描述你想生成的图片，例如：阳光花园里一只猫在玩耍，光线自然、氛围清新……",
+  videoPlaceholder: "描述你想生成的视频，例如：阳光花园里一只猫在玩耍，光线自然、氛围清新…",
+  imagePlaceholder: "描述你想生成的图片，例如：阳光花园里一只猫在玩耍，光线自然、氛围清新…",
   aiVideo: "AI 视频",
   aiImage: "AI 图片",
   credits: "积分",
@@ -404,10 +526,15 @@ export const DEFAULT_TEXTS_ZH: GeneratorTexts = {
   outputNumber: "输出数量",
   numberOfImages: "图片数量",
   promptTooLong: "提示词过长，请缩短。",
+  imagePreviewTitle: "图片预览",
+  previewAlt: "预览",
+  uploadedAlt: "已上传",
+  generateAudio: "生成音频",
+  generateAudioDesc: "添加自然拟真音频",
   imageSlot: "图片",
   start: "起始",
   end: "结束",
-  optional: "(可选)",
+  optional: "（可选）",
 };
 
 // ============================================================================
@@ -418,25 +545,26 @@ export const DEFAULT_TEXTS_ZH: GeneratorTexts = {
  * Merge user config with defaults
  * User config takes priority
  */
-export function mergeConfig(userConfig?: GeneratorConfig): GeneratorConfig {
-  if (!userConfig) return DEFAULT_CONFIG;
+export function mergeConfig(userConfig?: GeneratorConfig, locale?: string): GeneratorConfig {
+  const baseConfig = locale === "zh" ? DEFAULT_CONFIG_ZH : DEFAULT_CONFIG;
+  if (!userConfig) return baseConfig;
 
   return {
-    videoModels: userConfig.videoModels ?? DEFAULT_CONFIG.videoModels,
-    imageModels: userConfig.imageModels ?? DEFAULT_CONFIG.imageModels,
-    videoModes: userConfig.videoModes ?? DEFAULT_CONFIG.videoModes,
-    imageModes: userConfig.imageModes ?? DEFAULT_CONFIG.imageModes,
-    imageStyles: userConfig.imageStyles ?? DEFAULT_CONFIG.imageStyles,
-    promptTemplates: userConfig.promptTemplates ?? DEFAULT_CONFIG.promptTemplates,
+    videoModels: userConfig.videoModels ?? baseConfig.videoModels,
+    imageModels: userConfig.imageModels ?? baseConfig.imageModels,
+    videoModes: userConfig.videoModes ?? baseConfig.videoModes,
+    imageModes: userConfig.imageModes ?? baseConfig.imageModes,
+    imageStyles: userConfig.imageStyles ?? baseConfig.imageStyles,
+    promptTemplates: userConfig.promptTemplates ?? baseConfig.promptTemplates,
     aspectRatios: {
-      video: userConfig.aspectRatios?.video ?? DEFAULT_CONFIG.aspectRatios?.video,
-      image: userConfig.aspectRatios?.image ?? DEFAULT_CONFIG.aspectRatios?.image,
+      video: userConfig.aspectRatios?.video ?? baseConfig.aspectRatios?.video,
+      image: userConfig.aspectRatios?.image ?? baseConfig.aspectRatios?.image,
     },
-    durations: userConfig.durations ?? DEFAULT_CONFIG.durations,
-    resolutions: userConfig.resolutions ?? DEFAULT_CONFIG.resolutions,
+    durations: userConfig.durations ?? baseConfig.durations,
+    resolutions: userConfig.resolutions ?? baseConfig.resolutions,
     outputNumbers: {
-      video: userConfig.outputNumbers?.video ?? DEFAULT_CONFIG.outputNumbers?.video,
-      image: userConfig.outputNumbers?.image ?? DEFAULT_CONFIG.outputNumbers?.image,
+      video: userConfig.outputNumbers?.video ?? baseConfig.outputNumbers?.video,
+      image: userConfig.outputNumbers?.image ?? baseConfig.outputNumbers?.image,
     },
   };
 }
