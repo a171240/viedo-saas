@@ -295,6 +295,24 @@ export const creditTransactions = pgTable(
   })
 );
 
+export const webhookEvents = pgTable(
+  "webhook_events",
+  {
+    id: serial("id").primaryKey(),
+    source: text("source").notNull(),
+    eventId: text("event_id").notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (table) => ({
+    sourceIdx: index("webhook_events_source_idx").on(table.source),
+    eventIdIdx: index("webhook_events_event_id_idx").on(table.eventId),
+    sourceEventIdx: uniqueIndex("webhook_events_source_event_idx").on(
+      table.source,
+      table.eventId
+    ),
+  })
+);
+
 export const videos = pgTable(
   "videos",
   {
@@ -335,6 +353,7 @@ export type BetterAuthUser = typeof users.$inferSelect;
 export type CreditPackage = typeof creditPackages.$inferSelect;
 export type CreditHold = typeof creditHolds.$inferSelect;
 export type CreditTransaction = typeof creditTransactions.$inferSelect;
+export type WebhookEvent = typeof webhookEvents.$inferSelect;
 export type Video = typeof videos.$inferSelect;
 
 export const SubscriptionPlan = {

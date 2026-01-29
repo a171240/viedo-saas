@@ -3,6 +3,8 @@ import { videoService } from "@/services/video";
 import { requireAuth } from "@/lib/api/auth";
 import { apiSuccess, handleApiError } from "@/lib/api/response";
 import { z } from "zod";
+import { RATE_LIMITS } from "@/config/rate-limit";
+import { getRequestIp, rateLimit } from "@/lib/rate-limit";
 // Import proxy configuration for fetch requests
 import "@/lib/proxy-config";
 
@@ -22,6 +24,28 @@ const generateSchema = z.object({
 export async function POST(request: NextRequest) {
   try {
     const user = await requireAuth(request);
+    const ip = getRequestIp(request);
+    const rate = rateLimit(
+      `video_generate:${user.id}:${ip}`,
+      RATE_LIMITS.videoGenerate,
+    );
+    if (!rate.allowed) {
+      return Response.json(
+        {
+          success: false,
+          error: { message: "Rate limit exceeded" },
+        },
+        {
+          status: 429,
+          headers: {
+            "Retry-After": rate.retryAfter.toString(),
+            "X-RateLimit-Limit": RATE_LIMITS.videoGenerate.max.toString(),
+            "X-RateLimit-Remaining": rate.remaining.toString(),
+            "X-RateLimit-Reset": rate.reset.toString(),
+          },
+        }
+      );
+    }
     const body = await request.json();
     const data = generateSchema.parse(body);
 

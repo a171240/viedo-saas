@@ -7,6 +7,7 @@ import { getProvider, type ProviderType, type VideoTaskResponse } from "../ai";
 import { creditService } from "./credit";
 import { generateSignedCallbackUrl } from "@/ai/utils/callback-signature";
 import { emitVideoEvent } from "@/lib/video-events";
+import { releaseWebhookEvent, reserveWebhookEvent } from "@/lib/webhook-events";
 
 export interface GenerateVideoParams {
   userId: string;
@@ -196,29 +197,46 @@ export class VideoService {
   ): Promise<void> {
     const provider = getProvider(providerType);
     const result = provider.parseCallback(payload);
+    const eventId = result.taskId;
+    const eventSource = `ai_callback_${providerType}`;
 
-    const [video] = await db
-      .select()
-      .from(videos)
-      .where(eq(videos.uuid, videoUuid))
-      .limit(1);
-
-    if (!video) {
-      console.error(`Video not found: ${videoUuid}`);
-      return;
+    if (eventId) {
+      const reserved = await reserveWebhookEvent(eventSource, eventId);
+      if (!reserved) {
+        console.log(`[Callback] Duplicate ignored: ${eventSource}:${eventId}`);
+        return;
+      }
     }
 
-    if (video.externalTaskId && video.externalTaskId !== result.taskId) {
-      console.error(
-        `Task ID mismatch: expected ${video.externalTaskId}, got ${result.taskId}`
-      );
-      return;
-    }
+    try {
+      const [video] = await db
+        .select()
+        .from(videos)
+        .where(eq(videos.uuid, videoUuid))
+        .limit(1);
 
-    if (result.status === "completed" && result.videoUrl) {
-      await this.tryCompleteGeneration(video.uuid, result);
-    } else if (result.status === "failed") {
-      await this.tryFailGeneration(video.uuid, result.error?.message);
+      if (!video) {
+        console.error(`Video not found: ${videoUuid}`);
+        return;
+      }
+
+      if (video.externalTaskId && video.externalTaskId !== result.taskId) {
+        console.error(
+          `Task ID mismatch: expected ${video.externalTaskId}, got ${result.taskId}`
+        );
+        return;
+      }
+
+      if (result.status === "completed" && result.videoUrl) {
+        await this.tryCompleteGeneration(video.uuid, result);
+      } else if (result.status === "failed") {
+        await this.tryFailGeneration(video.uuid, result.error?.message);
+      }
+    } catch (error) {
+      if (eventId) {
+        await releaseWebhookEvent(eventSource, eventId);
+      }
+      throw error;
     }
   }
 
