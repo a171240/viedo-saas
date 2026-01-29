@@ -44,7 +44,7 @@ export const sidebarNavigation: NavGroup[] = [
       },
       {
         id: "ref2vid",
-        title: "Reference Video",
+        title: "Reference Image",
         href: "/reference-to-video",
         icon: "Video",
       },
@@ -119,7 +119,7 @@ export const headerTools = [
   },
   {
     id: "ref2vid",
-    title: "Reference to Video",
+    title: "Reference Image to Video",
     href: "/reference-to-video",
     icon: "Video",
   },

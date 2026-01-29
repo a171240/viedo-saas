@@ -232,7 +232,7 @@
     "links": {
       "imageToVideo": "Image to Video",
       "textToVideo": "Text to Video",
-      "referenceToVideo": "Reference to Video",
+      "referenceToVideo": "Reference Image to Video",
       "pricing": "Pricing",
       "about": "About",
       "blog": "Blog",

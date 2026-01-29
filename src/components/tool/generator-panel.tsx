@@ -267,7 +267,7 @@ export function GeneratorPanel({
   const getPageTitle = () => {
     if (toolType === "image-to-video") return "IMAGE TO VIDEO";
     if (toolType === "text-to-video") return "TEXT TO VIDEO";
-    if (toolType === "reference-to-video") return "REFERENCE TO VIDEO";
+    if (toolType === "reference-to-video") return "REFERENCE IMAGE TO VIDEO";
     return "AI GENERATOR";
   };
 

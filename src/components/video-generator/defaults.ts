@@ -67,18 +67,18 @@ export const DEFAULT_VIDEO_MODELS: VideoModel[] = [
     name: "Wan 2.6",
     icon: "https://videocdn.pollo.ai/model-icon/svg/Group.svg",
     color: "#ff6a00",
-    description: "Text/Image/Reference video to video with audio support",
+    description: "Text/Image/Reference image to video with audio support",
     maxDuration: "10 sec",
     creditCost: 25, // 5s 720p = 25 积分
     // Text/Image to Video mode: duration supports 5, 10 sec (❌ 不支持 15s)
-    // Reference Video mode: duration supports 5, 10 sec
+    // Reference Image mode: duration supports 5, 10 sec
     durations: ["5s", "10s"],
     // API: aspect_ratio supports 16:9, 9:16, 1:1, 4:3, 3:4
     aspectRatios: ["16:9", "9:16", "1:1", "4:3", "3:4"],
     // API: 720p/1080p
     resolutions: ["720P", "1080P"],
     // Text/Image to Video: optional image input (text-only or with image)
-    // Reference Video mode: accepts video input (1-3 videos)
+    // Reference Image mode: accepts image input
     maxImages: 1,
     // Image constraints (when image is provided)
     imageConstraints: {
@@ -97,7 +97,7 @@ export const DEFAULT_VIDEO_MODELS: VideoModel[] = [
       maxSizeMB: 15,
       formats: ["mp3"],
     },
-    // Reference Video constraints (for reference-to-video mode)
+    // Reference Image constraints (for reference-to-video mode)
     videoInputConstraints: {
       minVideos: 1,
       maxVideos: 3,
@@ -106,8 +106,8 @@ export const DEFAULT_VIDEO_MODELS: VideoModel[] = [
       maxSizeMB: 100,
       formats: ["mp4", "mov"],
     },
-    // This model accepts both images and videos depending on mode
-    hint: "Reference Video mode: 1-3 videos, 2-30s each",
+    // This model accepts images for reference-to-video mode in UI
+    hint: "Reference Image mode: 1-3 images",
   },
 
   // ============================================================================
@@ -203,11 +203,11 @@ export const DEFAULT_VIDEO_MODES: GeneratorMode[] = [
   },
   {
     id: "reference-to-video",
-    name: "Reference to Video",
+    name: "Reference Image to Video",
     icon: "reference",
     uploadType: "characters",
-    description: "Generate video using character reference images or videos",
-    // Veo REFERENCE mode + Wan reference video
+    description: "Generate video using reference images",
+    // Veo REFERENCE mode + Wan reference
     supportedModels: ["veo-3.1", "wan2.6"],
     // REFERENCE mode only supports 16:9 (Veo), Wan has more options but switches dynamically
     aspectRatios: ["16:9"],

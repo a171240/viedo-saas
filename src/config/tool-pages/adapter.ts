@@ -143,7 +143,7 @@ function getTitleFromMode(mode: string): string {
   const titles: Record<string, string> = {
     "text-to-video": "Text to Video",
     "image-to-video": "Image to Video",
-    "reference-to-video": "Reference to Video",
+    "reference-to-video": "Reference Image to Video",
     "image-to-image": "Image to Image",
   };
   return titles[mode] || mode;

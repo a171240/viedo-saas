@@ -1,20 +1,20 @@
 import { ToolPageConfig } from "./types";
 
 /**
- * Reference to Video 工具页面配置
+ * Reference Image to Video 工具页面配置
  */
 export const referenceToVideoConfig: ToolPageConfig = {
   // SEO 配置
   seo: {
-    title: "Reference to Video - Transform Videos with AI",
-    description: "Upload a reference video and transform it into something new with AI. Change style, add effects, or create variations while maintaining the essence of your original video.",
+    title: "Reference Image to Video - Animate Images with AI",
+    description: "Upload a reference image and turn it into a video with AI. Keep the core subject, change style, add effects, or create multiple variations.",
     keywords: [
-      "reference to video",
-      "video to video",
-      "ai video transformation",
-      "video restyle",
+      "reference image to video",
+      "image to video",
+      "ai image animation",
+      "image restyle",
       "video variation",
-      "video editing ai",
+      "ai video generation",
     ],
     ogImage: "/og-reference-to-video.jpg",
   },
@@ -37,12 +37,12 @@ export const referenceToVideoConfig: ToolPageConfig = {
     },
 
     features: {
-      showImageUpload: true, // 用于上传参考视频帧
+      showImageUpload: true, // 用于上传参考图片
       showPromptInput: true,
       showModeSelector: false,
     },
 
-    promptPlaceholder: "Describe how you want to transform the video... e.g., 'Change to anime style, add snow effect'",
+    promptPlaceholder: "Describe how you want to animate the image... e.g., 'Add gentle camera push-in, cinematic lighting'",
 
     settings: {
       showDuration: false, // 使用原始视频时长
@@ -58,8 +58,8 @@ export const referenceToVideoConfig: ToolPageConfig = {
   // Landing Page 配置
   landing: {
     hero: {
-      title: "Transform Your Videos with AI Magic",
-      description: "Upload a reference video and let AI create stunning variations, style transfers, or seamless edits while preserving the core content.",
+      title: "Turn Reference Images into Videos",
+      description: "Upload a reference image and let AI animate it with style changes, effects, or variations while keeping the subject consistent.",
       ctaText: "Try It Now",
       ctaSubtext: "50 free credits to start",
     },
@@ -68,7 +68,7 @@ export const referenceToVideoConfig: ToolPageConfig = {
       {
         thumbnail: "https://images.unsplash.com/photo-1536240478700-b869070f9279?w=600&q=80",
         title: "Style Transfer",
-        prompt: "Transform video into anime style with vibrant colors",
+        prompt: "Transform the image into anime style with vibrant colors",
       },
       {
         thumbnail: "https://images.unsplash.com/photo-1518676590629-3dcbd9c5a5c9?w=600&q=80",
@@ -83,9 +83,9 @@ export const referenceToVideoConfig: ToolPageConfig = {
     ],
 
     features: [
-      "Upload reference videos (MP4, MOV, AVI up to 100MB)",
-      "AI-powered style transfer and transformation",
-      "Maintain original video timing and flow",
+      "Upload reference images (JPG, PNG, WEBP up to 10MB)",
+      "AI-powered image animation and stylization",
+      "Maintain core subject identity and composition",
       "Create multiple variations from one reference",
       "Support for various artistic styles and effects",
     ],

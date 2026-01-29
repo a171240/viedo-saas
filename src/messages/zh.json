@@ -260,7 +260,7 @@
     "links": {
       "imageToVideo": "????",
       "textToVideo": "????",
-      "referenceToVideo": "????",
+      "referenceToVideo": "参考图转视频",
       "pricing": "??",
       "about": "??",
       "blog": "??",
@@ -757,4 +757,5 @@
     "generationFailed": "生成失败"
   }
 }
+
 
