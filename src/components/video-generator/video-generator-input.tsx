@@ -888,7 +888,7 @@ export function VideoGeneratorInput({
       {/* Image Preview Dialog */}
       <Dialog open={!!previewImage} onOpenChange={() => setPreviewImage(null)}>
         <DialogContent className="bg-zinc-900 border-zinc-800 max-w-2xl p-2">
-          <DialogTitle className="sr-only">{texts.imagePreviewTitle ?? "Image Preview"}</DialogTitle>
+          <DialogTitle className="sr-only">{texts.imagePreviewTitle}</DialogTitle>
           {previewImage && (
             <img src={previewImage} alt={texts.previewAlt ?? "Preview"} className="w-full h-auto rounded-lg" />
           )}
@@ -1389,7 +1389,7 @@ export function VideoGeneratorInput({
                         <div className="flex items-center gap-2">
                           <Volume2 className="w-4 h-4 text-zinc-400" />
                           <div>
-                            <div className="text-sm text-white">{texts.generateAudio ?? "Generate Audio"}</div>
+                            <div className="text-sm text-white">{texts.generateAudio}</div>
                             <div className="text-xs text-zinc-500">
                               {texts.generateAudioDesc ?? "Add natural-sounding audio"}
                             </div>

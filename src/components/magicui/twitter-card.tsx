@@ -7,6 +7,7 @@ import {
   type TwitterComponents,
 } from "react-tweet";
 import { getTweet, type Tweet } from "react-tweet/api";
+import { getTranslations } from "next-intl/server";
 
 import { cn } from "@/components/ui";
 
@@ -14,6 +15,18 @@ interface TwitterIconProps {
   className?: string;
   [key: string]: unknown;
 }
+
+export type TweetLabels = {
+  verifiedAccount: string;
+  tweetNotFound: string;
+  linkToTweet: string;
+  browserUnsupported: string;
+  profilePictureOf: string;
+  photoBy: string;
+};
+
+const formatLabel = (template: string, name: string) =>
+  template.replace("{name}", name);
 const Twitter = ({ className, ...props }: TwitterIconProps) => (
   <svg
     stroke="currentColor"
@@ -33,9 +46,13 @@ const Twitter = ({ className, ...props }: TwitterIconProps) => (
   </svg>
 );
 
-const Verified = ({ className, ...props }: TwitterIconProps) => (
+const Verified = ({
+  className,
+  label,
+  ...props
+}: TwitterIconProps & { label: string }) => (
   <svg
-    aria-label="Verified Account"
+    aria-label={label}
     viewBox="0 0 24 24"
     className={className}
     {...props}
@@ -83,9 +100,11 @@ export const TweetSkeleton = ({
 );
 
 export const TweetNotFound = ({
+  labels,
   className,
   ...props
 }: {
+  labels: TweetLabels;
   className?: string;
   [key: string]: unknown;
 }) => (
@@ -96,16 +115,22 @@ export const TweetNotFound = ({
     )}
     {...props}
   >
-    <h3>Tweet not found</h3>
+    <h3>{labels.tweetNotFound}</h3>
   </div>
 );
 
-export const TweetHeader = ({ tweet }: { tweet: EnrichedTweet }) => (
+export const TweetHeader = ({
+  tweet,
+  labels,
+}: {
+  tweet: EnrichedTweet;
+  labels: TweetLabels;
+}) => (
   <div className="flex flex-row justify-between tracking-tight">
     <div className="flex items-center space-x-2">
       <a href={tweet.user.url} target="_blank" rel="noreferrer">
         <img
-          title={`Profile picture of ${tweet.user.name}`}
+          title={formatLabel(labels.profilePictureOf, tweet.user.name)}
           alt={tweet.user.screen_name}
           height={48}
           width={48}
@@ -123,7 +148,10 @@ export const TweetHeader = ({ tweet }: { tweet: EnrichedTweet }) => (
           {truncate(tweet.user.name, 20)}
           {tweet.user.verified ||
             (tweet.user.is_blue_verified && (
-              <Verified className="ml-1 inline size-4 text-blue-500" />
+              <Verified
+                className="ml-1 inline size-4 text-blue-500"
+                label={labels.verifiedAccount}
+              />
             ))}
         </a>
         <div className="flex items-center space-x-1">
@@ -139,7 +167,7 @@ export const TweetHeader = ({ tweet }: { tweet: EnrichedTweet }) => (
       </div>
     </div>
     <a href={tweet.url} target="_blank" rel="noreferrer">
-      <span className="sr-only">Link to tweet</span>
+      <span className="sr-only">{labels.linkToTweet}</span>
       <Twitter className="size-5 items-start text-[#3BA9EE] transition-all ease-in-out hover:scale-105" />
     </a>
   </div>
@@ -177,7 +205,13 @@ export const TweetBody = ({ tweet }: { tweet: EnrichedTweet }) => (
   </div>
 );
 
-export const TweetMedia = ({ tweet }: { tweet: EnrichedTweet }) => {
+export const TweetMedia = ({
+  tweet,
+  labels,
+}: {
+  tweet: EnrichedTweet;
+  labels: TweetLabels;
+}) => {
   if (!tweet.video && !tweet.photos) return null;
   return (
     <div className="flex flex-1 items-center justify-center">
@@ -191,7 +225,7 @@ export const TweetMedia = ({ tweet }: { tweet: EnrichedTweet }) => {
           className="rounded-xl border shadow-sm"
         >
           <source src={tweet.video.variants[0].src} type="video/mp4" />
-          Your browser does not support the video tag.
+          {labels.browserUnsupported}
         </video>
       )}
       {tweet.photos && (
@@ -201,7 +235,7 @@ export const TweetMedia = ({ tweet }: { tweet: EnrichedTweet }) => {
             <img
               key={photo.url}
               src={photo.url}
-              title={"Photo by " + tweet.user.name}
+              title={formatLabel(labels.photoBy, tweet.user.name)}
               alt={tweet.text}
               className="h-64 w-5/6 shrink-0 snap-center snap-always rounded-xl border object-cover shadow-sm"
             />
@@ -229,11 +263,13 @@ export const TweetMedia = ({ tweet }: { tweet: EnrichedTweet }) => {
 export const MagicTweet = ({
   tweet,
   components,
+  labels,
   className,
   ...props
 }: {
   tweet: Tweet;
   components?: TwitterComponents;
+  labels: TweetLabels;
   className?: string;
 }) => {
   const enrichedTweet = enrichTweet(tweet);
@@ -245,9 +281,9 @@ export const MagicTweet = ({
       )}
       {...props}
     >
-      <TweetHeader tweet={enrichedTweet} />
+      <TweetHeader tweet={enrichedTweet} labels={labels} />
       <TweetBody tweet={enrichedTweet} />
-      <TweetMedia tweet={enrichedTweet} />
+      <TweetMedia tweet={enrichedTweet} labels={labels} />
     </div>
   );
 };
@@ -264,6 +300,15 @@ export const TweetCard = async ({
 }: TweetProps & {
   className?: string;
 }) => {
+  const t = await getTranslations("TwitterCard");
+  const labels: TweetLabels = {
+    verifiedAccount: t("verifiedAccount"),
+    tweetNotFound: t("tweetNotFound"),
+    linkToTweet: t("linkToTweet"),
+    browserUnsupported: t("browserUnsupported"),
+    profilePictureOf: t("profilePictureOf", { name: "{name}" }),
+    photoBy: t("photoBy", { name: "{name}" }),
+  };
   const tweet = id
     ? await getTweet(id).catch((err) => {
         if (onError) {
@@ -276,12 +321,12 @@ export const TweetCard = async ({
 
   if (!tweet) {
     const NotFound = components?.TweetNotFound || TweetNotFound;
-    return <NotFound {...props} />;
+    return <NotFound labels={labels} {...props} />;
   }
 
   return (
     <Suspense fallback={fallback}>
-      <MagicTweet tweet={tweet} {...props} />
+      <MagicTweet tweet={tweet} labels={labels} {...props} />
     </Suspense>
   );
 };

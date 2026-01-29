@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useTransition } from "react";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 
 import { creem } from "@/lib/auth/client";
 import { Button } from "@/components/ui/button";
@@ -14,6 +15,7 @@ interface CreemSubscriptionCardProps {
 }
 
 export function CreemSubscriptionCard({ dict }: CreemSubscriptionCardProps) {
+  const t = useTranslations("CreemSubscription");
   const [hasAccess, setHasAccess] = useState(false);
   const [planLabel, setPlanLabel] = useState<string | null>(null);
   const [endsAt, setEndsAt] = useState<Date | null>(null);
@@ -54,8 +56,8 @@ export function CreemSubscriptionCard({ dict }: CreemSubscriptionCardProps) {
     startTransition(async () => {
       const { data, error } = await creem.createPortal();
       if (error) {
-        toast.error("Portal error", {
-          description: error.message ?? "Failed to open customer portal.",
+        toast.error(t("portalErrorTitle"), {
+          description: error.message ?? t("portalErrorDescription"),
         });
         return;
       }
@@ -65,8 +67,8 @@ export function CreemSubscriptionCard({ dict }: CreemSubscriptionCardProps) {
         return;
       }
 
-      toast.error("Portal error", {
-        description: "Missing portal URL from Creem.",
+      toast.error(t("portalErrorTitle"), {
+        description: t("portalMissingUrl"),
       });
     });
   };
@@ -80,13 +82,13 @@ export function CreemSubscriptionCard({ dict }: CreemSubscriptionCardProps) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Subscription</CardTitle>
+        <CardTitle>{t("title")}</CardTitle>
       </CardHeader>
       <CardContent>
         {isLoading ? (
           <div className="flex items-center text-sm text-muted-foreground">
             <Icons.Spinner className="mr-2 h-4 w-4 animate-spin" />
-            Loading...
+            {t("loading")}
           </div>
         ) : (
           <p dangerouslySetInnerHTML={{ __html: content }} />

@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { useTranslations } from "next-intl";
 
 import { cn } from "@/components/ui";
 import { buttonVariants } from "@/components/ui/button";
@@ -29,6 +30,7 @@ export function BillingForm({
   className,
   ...props
 }: BillingFormProps) {
+  const t = useTranslations("BillingForm");
   const [isLoading, setIsLoading] = React.useState<boolean>(false);
 
   async function onSubmit(event: { preventDefault: () => void }) {
@@ -39,8 +41,8 @@ export function BillingForm({
     const response = await fetch("/api/users/stripe");
 
     if (!response?.ok) {
-      return toast.error("Something went wrong.", {
-        description: "Please refresh the page and try again.",
+      return toast.error(t("errors.genericTitle"), {
+        description: t("errors.genericDescription"),
       });
     }
 
@@ -57,10 +59,9 @@ export function BillingForm({
     <form className={cn(className)} onSubmit={onSubmit} {...props}>
       <Card>
         <CardHeader>
-          <CardTitle>Subscription Plan</CardTitle>
+          <CardTitle>{t("title")}</CardTitle>
           <CardDescription>
-            You are currently on the <strong>{subscriptionPlan?.title}</strong>{" "}
-            plan.
+            {t("currentPlan", { plan: subscriptionPlan?.title ?? "" })}
           </CardDescription>
         </CardHeader>
         <CardContent>{subscriptionPlan?.description}</CardContent>
@@ -74,14 +75,14 @@ export function BillingForm({
               <Icons.Spinner className="mr-2 h-4 w-4 animate-spin" />
             )}
             {subscriptionPlan?.isPaid
-              ? "Manage Subscription"
-              : "Upgrade to PRO"}
+              ? t("actions.manageSubscription")
+              : t("actions.upgradePro")}
           </button>
           {subscriptionPlan?.isPaid ? (
             <p className="rounded-full text-xs font-medium">
               {subscriptionPlan?.isCanceled
-                ? "Your plan will be canceled on "
-                : "Your plan renews on "}
+                ? t("status.cancelsOn")
+                : t("status.renewsOn")}
               {formatDate(subscriptionPlan?.stripeCurrentPeriodEnd)}.
             </p>
           ) : null}

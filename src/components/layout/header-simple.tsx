@@ -39,6 +39,7 @@ export function HeaderSimple({
   const router = useLocaleRouter();
   const pathname = useLocalePathname();
   const tCommon = useTranslations("Common");
+  const tBrand = useTranslations("Brand");
   const tHeader = useTranslations("Header");
   const tLocale = useTranslations("Locale");
   const currentLocale = lang || "en";
@@ -66,7 +67,7 @@ export function HeaderSimple({
             <Menu className="h-5 w-5" />
           </button>
           <Link href={`/${lang}`} className="flex items-center gap-2">
-            <span className="text-xl font-semibold">VideoFly</span>
+            <span className="text-xl font-semibold">{tBrand("name")}</span>
           </Link>
         </div>
 

@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import type * as z from "zod";
+import { useTranslations } from "next-intl";
 
 import type { User } from "@/lib/auth";
 import { cn } from "@/components/ui";
@@ -33,6 +34,7 @@ interface UserNameFormProps extends React.HTMLAttributes<HTMLFormElement> {
 type FormData = z.infer<typeof userNameSchema>;
 
 export function UserNameForm({ user, className, ...props }: UserNameFormProps) {
+  const t = useTranslations("UserNameForm");
   const router = useRouter();
   const {
     handleSubmit,
@@ -51,12 +53,12 @@ export function UserNameForm({ user, className, ...props }: UserNameFormProps) {
     const result = await executeAsync({ name: data.name });
 
     if (!result?.data?.success) {
-      return toast.error("Something went wrong.", {
-        description: "Your name was not updated. Please try again.",
+      return toast.error(t("toast.errorTitle"), {
+        description: t("toast.errorDescription"),
       });
     }
 
-    toast.success("Your name has been updated.");
+    toast.success(t("toast.success"));
 
     router.refresh();
   }
@@ -67,18 +69,15 @@ export function UserNameForm({ user, className, ...props }: UserNameFormProps) {
       onSubmit={handleSubmit(onSubmit)}
       {...props}
     >
-      <Card>
-        <CardHeader>
-          <CardTitle>Your Name</CardTitle>
-          <CardDescription>
-            Please enter your full name or a display name you are comfortable
-            with.
-          </CardDescription>
-        </CardHeader>
+        <Card>
+          <CardHeader>
+            <CardTitle>{t("title")}</CardTitle>
+            <CardDescription>{t("description")}</CardDescription>
+          </CardHeader>
         <CardContent>
           <div className="grid gap-1">
             <Label className="sr-only" htmlFor="name">
-              Name
+              {t("nameLabel")}
             </Label>
             <Input
               id="name"
@@ -87,7 +86,7 @@ export function UserNameForm({ user, className, ...props }: UserNameFormProps) {
               {...register("name")}
             />
             {errors?.name && (
-              <p className="px-1 text-xs text-red-600">{errors.name.message}</p>
+              <p className="px-1 text-xs text-red-600">{t("errors.name")}</p>
             )}
           </div>
         </CardContent>
@@ -100,7 +99,7 @@ export function UserNameForm({ user, className, ...props }: UserNameFormProps) {
             {isSaving && (
               <Icons.Spinner className="mr-2 h-4 w-4 animate-spin" />
             )}
-            <span>Save</span>
+            <span>{t("actions.save")}</span>
           </button>
         </CardFooter>
       </Card>

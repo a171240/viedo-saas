@@ -138,6 +138,7 @@
     "generatingTag": "Generating",
     "generatingHint": "This video is being generated. You can start another task meanwhile.",
     "modelLabel": "Model",
+    "notAvailable": "N/A",
     "download": "Download",
     "toast": {
       "devUserMissing": "Dev user not available.",
@@ -1171,5 +1172,123 @@
     "outputMultiplier": "Outputs",
     "total": "Estimated total",
     "backendFinal": "Final credits are calculated on the server."
+  },
+  "Brand": {
+    "name": "VideoFly"
+  },
+  "BlogPosts": {
+    "lastPost": "Latest Post",
+    "blogPosts": "Blog Posts",
+    "viewArticle": "View article"
+  },
+  "BillingForm": {
+    "title": "Billing",
+    "currentPlan": "Current plan: {plan}",
+    "actions": {
+      "manageSubscription": "Manage subscription",
+      "upgradePro": "Upgrade to Pro"
+    },
+    "status": {
+      "cancelsOn": "Cancels on ",
+      "renewsOn": "Renews on "
+    },
+    "errors": {
+      "genericTitle": "Something went wrong.",
+      "genericDescription": "Please try again."
+    }
+  },
+  "UserNameForm": {
+    "title": "Your Name",
+    "description": "Please enter your full name or a display name you are comfortable with.",
+    "nameLabel": "Name",
+    "actions": {
+      "save": "Save"
+    },
+    "errors": {
+      "name": "Name must be between 3 and 32 characters."
+    },
+    "toast": {
+      "errorTitle": "Something went wrong.",
+      "errorDescription": "Your name was not updated. Please try again.",
+      "success": "Your name has been updated."
+    }
+  },
+  "Questions": {
+    "items": {
+      "about": {
+        "question": "About VideoFly",
+        "answer": "VideoFly is a workflow-first AI video studio for turning briefs into short video ads. It combines templates, prompt workflows, and generation tools so teams can produce variations quickly."
+      },
+      "nextjs": {
+        "question": "Why Next.js?",
+        "answer": "Next.js delivers fast performance, great SEO, and a strong developer experience for modern SaaS products."
+      },
+      "starter": {
+        "question": "Is this starter for you?",
+        "answer": "If you're building an AI video SaaS and need a solid foundation (auth, credits, payments, generation UI), this starter helps you launch faster. You can use it as-is or customize the pieces you need."
+      }
+    }
+  },
+  "CreemSubscription": {
+    "title": "Subscription",
+    "loading": "Loading...",
+    "portalErrorTitle": "Portal error",
+    "portalErrorDescription": "Failed to open customer portal.",
+    "portalMissingUrl": "Missing portal URL from Creem."
+  },
+  "Pagination": {
+    "ariaLabel": "Pagination",
+    "previous": "Previous",
+    "next": "Next",
+    "morePages": "More pages",
+    "previousAria": "Go to previous page",
+    "nextAria": "Go to next page"
+  },
+  "Breadcrumb": {
+    "ariaLabel": "Breadcrumb",
+    "more": "More"
+  },
+  "TwitterCard": {
+    "tweetNotFound": "Tweet not found",
+    "linkToTweet": "Link to tweet",
+    "verifiedAccount": "Verified account",
+    "browserUnsupported": "Your browser does not support the video tag.",
+    "profilePictureOf": "Profile picture of {name}",
+    "photoBy": "Photo by {name}"
+  },
+  "ModelPages": {
+    "comingSoon": "Coming soon...",
+    "tryImageToVideo": "Try Image to Video",
+    "tryTextToVideo": "Try Text to Video",
+    "wan26": {
+      "title": "Wan 2.6"
+    },
+    "veo31": {
+      "title": "Veo 3.1"
+    }
+  },
+  "ContentPanel": {
+    "title": "Transform Your Images into Stunning Videos",
+    "subtitle": "Powered by the latest AI models: Sora 2, Veo 3.1, Seedance 1.5, and Wan 2.6",
+    "examples": {
+      "items": [
+        "A girl walking on the beach",
+        "Futuristic city at night",
+        "Abstract flowing colors"
+      ]
+    },
+    "features": {
+      "title": "Features",
+      "items": [
+        "Multiple AI models to choose from",
+        "High quality 1080p output",
+        "Fast generation (2-5 minutes)",
+        "Various aspect ratios supported"
+      ]
+    },
+    "cta": {
+      "note": "Sign up now and get <highlight>50 free credits</highlight> to try!",
+      "button": "Login to Get Started"
+    }
   }
 }

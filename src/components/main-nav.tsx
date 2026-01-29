@@ -19,8 +19,9 @@ export function MainNav({
   items,
   children,
 }: MainNavProps) {
-  const t = useTranslations('MainNav');
-  const intro = t('introducing');
+  const t = useTranslations("MainNav");
+  const tBrand = useTranslations("Brand");
+  const intro = t("introducing");
   const [showMobileMenu, setShowMobileMenu] = React.useState<boolean>(false);
   const toggleMenu = () => {
     setShowMobileMenu(!showMobileMenu);
@@ -32,7 +33,7 @@ export function MainNav({
     <div className="flex gap-6 md:gap-10">
       <div className="flex items-center">
         <LocaleLink href="/" className="hidden items-center space-x-2 md:flex">
-          <div className="text-3xl">VideoFly</div>
+          <div className="text-3xl">{tBrand("name")}</div>
         </LocaleLink>
 
         <a
@@ -53,7 +54,7 @@ export function MainNav({
         onClick={() => setShowMobileMenu(!showMobileMenu)}
       >
         {showMobileMenu ? <Icons.Close/> : <Icons.Logo/>}
-        <span className="font-bold">{t('menu')}</span>
+        <span className="font-bold">{t("menu")}</span>
       </button>
       {showMobileMenu && items && (
         <MobileNav items={items} menuItemClick={handleMenuItemClick}>

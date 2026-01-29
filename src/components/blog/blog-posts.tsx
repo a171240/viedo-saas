@@ -1,6 +1,9 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
 import Balancer from "react-wrap-balancer";
+import { useTranslations } from "next-intl";
 
 import { formatDate } from "@/lib/utils";
 
@@ -20,10 +23,11 @@ interface BlogPostsProps {
 }
 
 export function BlogPosts({ posts }: BlogPostsProps) {
+  const t = useTranslations("BlogPosts");
   return (
     <div className="container space-y-10 py-6 md:py-10">
       <section>
-        <h2 className="font-heading mb-4 text-3xl">Last Post</h2>
+        <h2 className="font-heading mb-4 text-3xl">{t("lastPost")}</h2>
         <article className="relative grid grid-cols-1 gap-6 md:grid-cols-2">
           <div>
             {posts[0]?.image && (
@@ -46,14 +50,14 @@ export function BlogPosts({ posts }: BlogPostsProps) {
               </p>
             )}
             <Link href={posts[0]?.slug ?? "/#"} className="absolute inset-0">
-              <span className="sr-only">View Article</span>
+              <span className="sr-only">{t("viewArticle")}</span>
             </Link>
           </div>
         </article>
       </section>
 
       <section>
-        <h2 className="font-heading mb-4 text-3xl">Blog Posts</h2>
+        <h2 className="font-heading mb-4 text-3xl">{t("blogPosts")}</h2>
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {posts.slice(1).map((post) => (
             <article
@@ -83,7 +87,7 @@ export function BlogPosts({ posts }: BlogPostsProps) {
                 </p>
               )}
               <Link href={post.slug} className="absolute inset-0">
-                <span className="sr-only">View Article</span>
+                <span className="sr-only">{t("viewArticle")}</span>
               </Link>
             </article>
           ))}

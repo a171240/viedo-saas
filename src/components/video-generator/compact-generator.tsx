@@ -313,7 +313,7 @@ function CompactRenderer() {
             <PopoverTrigger asChild>
               <button type="button" className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-zinc-800/50 hover:bg-zinc-700/50 transition-colors text-xs text-zinc-400">
                 <Settings className="w-3.5 h-3.5" />
-                <span>{texts.settings ?? "Settings"}</span>
+                <span>{texts.settings}</span>
               </button>
             </PopoverTrigger>
             <PopoverContent className="w-64 bg-zinc-900 border-zinc-800 p-3" align="start">
@@ -405,12 +405,12 @@ function CompactRenderer() {
           {isLoading ? (
             <>
               <Loader2 className="w-3 h-3 animate-spin" />
-              {texts.generating ?? "Generating..."}
+              {texts.generating}
             </>
           ) : (
             <>
               <Send className="w-3 h-3" />
-              {texts.generate ?? "Generate"}
+              {texts.generate}
             </>
           )}
           <span className="text-zinc-500">•</span>
@@ -449,7 +449,7 @@ function CompactRenderer() {
           {computed.modelSupportsAudio && (
             <div className="flex items-center gap-2">
               <Volume2 className="w-3.5 h-3.5 text-zinc-500" />
-              <Label className="text-xs text-zinc-300">{texts.generateAudio ?? "Audio"}</Label>
+              <Label className="text-xs text-zinc-300">{texts.generateAudio}</Label>
               <Switch
                 checked={state.generateAudio}
                 onCheckedChange={actions.setGenerateAudio}
