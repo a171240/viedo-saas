@@ -22,6 +22,10 @@ type PromptStudioDialogProps = {
   trigger?: React.ReactNode;
   defaultTemplateId?: string;
   onApplyPrompt?: (prompt: string, output: PromptStudioOutput) => void;
+  onBatchCreate?: (prompts: string[], output: PromptStudioOutput) => void | Promise<void>;
+  batchOptions?: number[];
+  batchDisabled?: boolean;
+  batchDisabledHint?: string;
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
 };
@@ -35,6 +39,10 @@ export function PromptStudioDialog({
   trigger,
   defaultTemplateId,
   onApplyPrompt,
+  onBatchCreate,
+  batchOptions,
+  batchDisabled = false,
+  batchDisabledHint,
   open: controlledOpen,
   onOpenChange,
 }: PromptStudioDialogProps) {
@@ -47,6 +55,9 @@ export function PromptStudioDialog({
   const [templateId, setTemplateId] = useState(defaultTemplateId ?? templates[0]?.id ?? "");
   const [activeStep, setActiveStep] = useState(0);
   const [formValues, setFormValues] = useState<Record<string, string>>({});
+  const resolvedBatchOptions = useMemo(() => (batchOptions?.length ? batchOptions : [3, 5, 10]), [batchOptions]);
+  const [batchCount, setBatchCount] = useState(resolvedBatchOptions[0] ?? 3);
+  const [selectedAngles, setSelectedAngles] = useState<string[]>([]);
 
   useEffect(() => {
     const nextId = defaultTemplateId ?? templates[0]?.id ?? "";
@@ -61,6 +72,7 @@ export function PromptStudioDialog({
   useEffect(() => {
     setFormValues({});
     setActiveStep(0);
+    setSelectedAngles([]);
   }, [template?.id]);
 
   const normalizedInput = useMemo<PromptStudioInput>(() => {
@@ -95,6 +107,10 @@ export function PromptStudioDialog({
     return template.build(normalizedInput);
   }, [template, isReady, normalizedInput]);
 
+  useEffect(() => {
+    setSelectedAngles((prev) => prev.slice(0, batchCount));
+  }, [batchCount]);
+
   const steps = useMemo(
     () =>
       STEP_KEYS.map((key) => ({
@@ -107,6 +123,34 @@ export function PromptStudioDialog({
   const handleApply = () => {
     if (!output?.videoPrompt) return;
     onApplyPrompt?.(output.videoPrompt, output);
+    setOpen(false);
+  };
+
+  const buildAnglePrompt = (angle: string) => {
+    if (!output) return "";
+    const ratio = output.metadata?.ratio ?? "9:16";
+    const lines = [
+      `Create a short video in ${ratio}.`,
+      `Angle: ${angle}.`,
+      `Hook: ${angle}.`,
+      `Value points: ${output.script.valuePoints.join(", ")}.`,
+      `Proof: ${output.script.proof}.`,
+      `CTA: ${output.script.cta}.`,
+      "Storyboard:",
+      ...output.script.shotList.map((shot) => `- ${shot}`),
+      "No subtitles or text rendered inside the video.",
+    ];
+    return lines.join("\n");
+  };
+
+  const handleQueue = async () => {
+    if (!output || !onBatchCreate || batchDisabled) return;
+    const prompts = selectedAngles
+      .slice(0, batchCount)
+      .map((angle) => buildAnglePrompt(angle))
+      .filter(Boolean);
+    if (!prompts.length) return;
+    await onBatchCreate(prompts, output);
     setOpen(false);
   };
 
@@ -228,27 +272,106 @@ export function PromptStudioDialog({
         );
       case "calendar":
         return (
-          <div className="grid gap-4 md:grid-cols-2">
-            {output.calendar4x4.map((block) => (
-              <div key={block.stage} className="rounded-xl border border-border bg-muted/30 p-4">
-                <div className="text-sm font-semibold">{stageLabels[block.stage]}</div>
-                <ul className="mt-2 space-y-2 text-xs text-muted-foreground">
-                  {block.angles.map((angle) => (
-                    <li key={angle}>• {angle}</li>
-                  ))}
-                </ul>
+          <div className="space-y-6">
+            <div className="grid gap-4 md:grid-cols-2">
+              {output.calendar4x4.map((block) => (
+                <div key={block.stage} className="rounded-xl border border-border bg-muted/30 p-4">
+                  <div className="text-sm font-semibold">{stageLabels[block.stage]}</div>
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    {block.angles.map((angle) => {
+                      const selected = selectedAngles.includes(angle);
+                      return (
+                        <button
+                          type="button"
+                          key={angle}
+                          onClick={() =>
+                            setSelectedAngles((prev) => {
+                              if (prev.includes(angle)) {
+                                return prev.filter((item) => item !== angle);
+                              }
+                              if (prev.length >= batchCount) {
+                                return prev;
+                              }
+                              return [...prev, angle];
+                            })
+                          }
+                          className={cn(
+                            "rounded-full border px-3 py-1 text-xs transition-colors",
+                            selected
+                              ? "border-primary bg-primary/10 text-foreground"
+                              : "border-border bg-background text-muted-foreground hover:text-foreground",
+                          )}
+                        >
+                          {angle}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {onBatchCreate && (
+              <div className="space-y-3 rounded-xl border border-border bg-muted/30 p-4">
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <div>
+                    <div className="text-sm font-medium">{t("batch.title")}</div>
+                    <p className="text-xs text-muted-foreground">{t("batch.subtitle", { count: batchCount })}</p>
+                  </div>
+                  <Select value={batchCount.toString()} onValueChange={(value) => setBatchCount(Number(value))}>
+                    <SelectTrigger className="w-28">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {resolvedBatchOptions.map((option) => (
+                        <SelectItem key={option} value={option.toString()}>
+                          {t("batch.countOption", { count: option })}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="flex flex-wrap items-center justify-between gap-3 text-xs text-muted-foreground">
+                  <span>{t("batch.selectedCount", { count: selectedAngles.length, max: batchCount })}</span>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setSelectedAngles(output.angles.slice(0, batchCount))}
+                    >
+                      {t("batch.actions.selectTop", { count: batchCount })}
+                    </Button>
+                    <Button type="button" variant="outline" size="sm" onClick={() => setSelectedAngles([])}>
+                      {t("batch.actions.clear")}
+                    </Button>
+                  </div>
+                </div>
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  {batchDisabled && batchDisabledHint && (
+                    <p className="text-xs text-muted-foreground">{batchDisabledHint}</p>
+                  )}
+                  <Button
+                    type="button"
+                    size="sm"
+                    onClick={handleQueue}
+                    disabled={batchDisabled || selectedAngles.length === 0}
+                  >
+                    {t("batch.actions.queue", { count: selectedAngles.length })}
+                  </Button>
+                </div>
               </div>
-            ))}
+            )}
           </div>
         );
       case "scriptPrompt":
         return (
           <div className="space-y-4">
             <div className="grid gap-4 md:grid-cols-2">
-              <div className="rounded-xl border border-border bg-muted/30 p-4 space-y-2">
+              <div className="space-y-2 rounded-xl border border-border bg-muted/30 p-4">
                 <div className="text-xs uppercase text-muted-foreground">{t("sections.script")}</div>
                 <div className="text-sm font-medium">{output.script.hook}</div>
-                <ul className="text-xs text-muted-foreground space-y-1">
+                <ul className="space-y-1 text-xs text-muted-foreground">
                   {output.script.valuePoints.map((item) => (
                     <li key={item}>• {item}</li>
                   ))}
@@ -256,15 +379,15 @@ export function PromptStudioDialog({
                 <div className="text-xs text-muted-foreground">{output.script.proof}</div>
                 <div className="text-sm font-medium">{output.script.cta}</div>
               </div>
-              <div className="rounded-xl border border-border bg-muted/30 p-4 space-y-2">
+              <div className="space-y-2 rounded-xl border border-border bg-muted/30 p-4">
                 <div className="text-xs uppercase text-muted-foreground">{t("sections.onScreenText")}</div>
-                <ul className="text-xs text-muted-foreground space-y-1">
+                <ul className="space-y-1 text-xs text-muted-foreground">
                   {output.script.onScreenText.map((item) => (
                     <li key={item}>• {item}</li>
                   ))}
                 </ul>
                 <div className="pt-2 text-xs uppercase text-muted-foreground">{t("sections.shotList")}</div>
-                <ul className="text-xs text-muted-foreground space-y-1">
+                <ul className="space-y-1 text-xs text-muted-foreground">
                   {output.script.shotList.map((item) => (
                     <li key={item}>• {item}</li>
                   ))}
@@ -330,7 +453,7 @@ export function PromptStudioDialog({
             })}
           </div>
 
-          <div className="rounded-xl border border-border bg-card/60 p-5 space-y-4">
+          <div className="space-y-4 rounded-xl border border-border bg-card/60 p-5">
             <div className="space-y-2">
               <Label>{t("templateLabel")}</Label>
               <Select value={templateId} onValueChange={setTemplateId}>
@@ -345,19 +468,13 @@ export function PromptStudioDialog({
                   ))}
                 </SelectContent>
               </Select>
-              {template?.description && (
-                <p className="text-xs text-muted-foreground">{template.description}</p>
-              )}
+              {template?.description && <p className="text-xs text-muted-foreground">{template.description}</p>}
             </div>
 
-            <div className="grid gap-4 md:grid-cols-2">
-              {template?.fields.map((field) => renderField(field))}
-            </div>
+            <div className="grid gap-4 md:grid-cols-2">{template?.fields.map((field) => renderField(field))}</div>
           </div>
 
-          <div className="rounded-xl border border-border bg-card/60 p-5">
-            {renderStepContent()}
-          </div>
+          <div className="rounded-xl border border-border bg-card/60 p-5">{renderStepContent()}</div>
         </div>
 
         <DialogFooter className="gap-2">

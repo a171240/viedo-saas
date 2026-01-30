@@ -148,7 +148,8 @@
       "deleteSuccess": "Video deleted successfully",
       "deleteFailed": "Failed to delete video",
       "retryStarted": "Video retry started",
-      "retryFailed": "Failed to retry video"
+      "retryFailed": "Failed to retry video",
+      "batchQueued": "Queued {count} tasks"
     },
     "TextToVideo": {
       "hero": {
@@ -1449,6 +1450,19 @@
       "Trust": "Trust",
       "Convert": "Convert",
       "Retain": "Retain"
+    },
+    "batch": {
+      "title": "Batch queue",
+      "subtitle": "Select up to {count} angles to queue.",
+      "countOption": "{count} tasks",
+      "selectedCount": "Selected {count}/{max}",
+      "disabledMissingImage": "Add an image to queue prompts for this tool.",
+      "disabledBusy": "Please wait for the current request to finish.",
+      "actions": {
+        "selectTop": "Select top {count}",
+        "clear": "Clear",
+        "queue": "Queue {count}"
+      }
     }
   }
 }

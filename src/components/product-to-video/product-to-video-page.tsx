@@ -43,6 +43,7 @@ type ImageItem = {
 export function ProductToVideoPage({ locale }: { locale: string }) {
   const t = useTranslations("ProductToVideo");
   const tTool = useTranslations("ToolPage");
+  const tStudio = useTranslations("PromptStudio");
   const router = useRouter();
   const currentLocale = useLocale();
 
@@ -64,6 +65,10 @@ export function ProductToVideoPage({ locale }: { locale: string }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [studioPromptOverride, setStudioPromptOverride] = useState<string | null>(null);
   const [studioSignature, setStudioSignature] = useState<string | null>(null);
+  const batchDisabled = isSubmitting || images.length < 1;
+  const batchDisabledHint = isSubmitting
+    ? tStudio("batch.disabledBusy")
+    : (images.length < 1 ? tStudio("batch.disabledMissingImage") : undefined);
   const [lastResult, setLastResult] = useState<{
     videoUuid: string;
     creditsUsed: number;
@@ -250,6 +255,67 @@ export function ProductToVideoPage({ locale }: { locale: string }) {
     }
   };
 
+  const handleBatchQueue = async (prompts: string[]) => {
+    if (!prompts.length) return;
+    if (images.length < 1) {
+      toast.error(t("validation.images"));
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      const session = await authClient.getSession();
+      if (!session?.data?.user) {
+        router.push(`/${locale}/login?from=/product-to-video`);
+        return;
+      }
+
+      const imageUrls = await Promise.all(
+        images.map((image) => uploadImage(image.file))
+      );
+
+      let lastQueued: { videoUuid: string; creditsUsed: number } | null = null;
+      for (const prompt of prompts) {
+        const response = await fetch("/api/v1/video/generate", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            prompt,
+            model: modelId,
+            mode: "product-to-video",
+            duration: effectiveDuration,
+            aspectRatio: effectiveRatio,
+            quality: effectiveQuality,
+            outputNumber: 1,
+            generateAudio: false,
+            imageUrls,
+            imageUrl: imageUrls[0],
+          }),
+        });
+
+        const data = await response.json();
+        if (!response.ok || !data.success) {
+          throw new Error(data.error?.message || tTool("toast.generationFailed"));
+        }
+
+        lastQueued = {
+          videoUuid: data.data.videoUuid as string,
+          creditsUsed: data.data.creditsUsed as number,
+        };
+      }
+
+      if (lastQueued) {
+        setLastResult(lastQueued);
+      }
+      toast.success(tTool("toast.batchQueued", { count: prompts.length }));
+    } catch (error) {
+      const message = error instanceof Error ? error.message : tTool("toast.generationFailed");
+      toast.error(message);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
     <div className="flex flex-1 flex-col lg:flex-row h-full overflow-hidden">
       <div className="flex-1 overflow-y-auto">
@@ -271,6 +337,9 @@ export function ProductToVideoPage({ locale }: { locale: string }) {
                   setStudioPromptOverride(value);
                   setStudioSignature(formSignature);
                 }}
+                onBatchCreate={handleBatchQueue}
+                batchDisabled={batchDisabled}
+                batchDisabledHint={batchDisabledHint}
                 trigger={(
                   <Button variant="outline" type="button">
                     {t("promptStudio")}

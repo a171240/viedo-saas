@@ -148,7 +148,8 @@
       "deleteSuccess": "视频已删除",
       "deleteFailed": "删除失败",
       "retryStarted": "重试已开始",
-      "retryFailed": "重试失败"
+      "retryFailed": "重试失败",
+      "batchQueued": "已排队 {count} 个任务"
     },
     "TextToVideo": {
       "hero": {
@@ -1449,6 +1450,19 @@
       "Trust": "建立信任",
       "Convert": "转化",
       "Retain": "留存"
+    },
+    "batch": {
+      "title": "批量排队",
+      "subtitle": "最多选择 {count} 个角度排队。",
+      "countOption": "{count} 个任务",
+      "selectedCount": "已选 {count}/{max}",
+      "disabledMissingImage": "请先上传图片再批量排队。",
+      "disabledBusy": "请等待当前请求完成。",
+      "actions": {
+        "selectTop": "选前 {count} 个",
+        "clear": "清空",
+        "queue": "排队 {count} 个"
+      }
     }
   }
 }

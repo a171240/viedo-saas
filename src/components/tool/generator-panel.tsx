@@ -100,6 +100,8 @@ export function GeneratorPanel({
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imageUrl, setImageUrl] = useState<string | null>(initialImageUrl || null);
   const [isModelDropdownOpen, setIsModelDropdownOpen] = useState(false);
+  const requiresImage = toolType !== "text-to-video";
+  const hasImage = Boolean(imageFile || imageUrl);
 
   // Filter models based on tool type
   const availableModels = useMemo(() => {
@@ -115,7 +117,7 @@ export function GeneratorPanel({
 
   const currentModel = useMemo(
     () => availableModels.find((m) => m.id === selectedModel) || availableModels[0],
-    [selectedModel, availableModels]
+    [selectedModel, availableModels],
   );
 
   const modelMetadata = useMemo(() => {
@@ -138,13 +140,7 @@ export function GeneratorPanel({
     const sizeClass = size === "sm" ? "w-4 h-4 text-xs" : "w-6 h-6 text-xs";
 
     if (typeof icon === "string" && (icon.startsWith("http://") || icon.startsWith("https://") || icon.startsWith("/"))) {
-      return (
-        <img
-          src={icon}
-          alt={name}
-          className={cn(sizeClass, "rounded object-cover")}
-        />
-      );
+      return <img src={icon} alt={name} className={cn(sizeClass, "rounded object-cover")} />;
     }
 
     return (
@@ -240,8 +236,6 @@ export function GeneratorPanel({
 
   const handleSubmit = useCallback(() => {
     const hasPrompt = prompt.trim().length > 0;
-    const requiresImage = toolType !== "text-to-video";
-    const hasImage = Boolean(imageFile || imageUrl);
     if (!hasPrompt || isLoading) return;
     if (requiresImage && !hasImage) return;
 
@@ -271,7 +265,51 @@ export function GeneratorPanel({
     toolType,
     onSubmit,
     currentModel,
+    requiresImage,
+    hasImage,
   ]);
+
+  const handleBatchCreate = useCallback(
+    async (prompts: string[]) => {
+      if (!prompts.length || isLoading) return;
+      if (requiresImage && !hasImage) return;
+
+      const baseData = {
+        toolType,
+        model: selectedModel,
+        duration,
+        aspectRatio,
+        quality: currentModel?.qualities?.includes(quality) ? quality : undefined,
+        imageFile: imageFile || undefined,
+        imageUrl: imageUrl || undefined,
+        estimatedCredits,
+      };
+
+      for (const promptText of prompts) {
+        await Promise.resolve(
+          onSubmit?.({
+            ...baseData,
+            prompt: promptText,
+          }),
+        );
+      }
+    },
+    [
+      aspectRatio,
+      currentModel,
+      duration,
+      estimatedCredits,
+      hasImage,
+      imageFile,
+      imageUrl,
+      isLoading,
+      onSubmit,
+      quality,
+      requiresImage,
+      selectedModel,
+      toolType,
+    ],
+  );
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -286,10 +324,11 @@ export function GeneratorPanel({
     setImageUrl(null);
   };
 
-  const canSubmit = prompt.trim().length > 0 &&
-    (!((toolType !== "text-to-video") && !imageFile && !imageUrl)) &&
-    !isLoading;
-
+  const canSubmit = prompt.trim().length > 0 && (!(requiresImage && !hasImage)) && !isLoading;
+  const batchDisabled = isLoading || (requiresImage && !hasImage);
+  const batchDisabledHint = isLoading
+    ? tStudio("batch.disabledBusy")
+    : (requiresImage && !hasImage ? tStudio("batch.disabledMissingImage") : undefined);
 
   // Get page title
   const getPageTitle = () => {
@@ -305,9 +344,7 @@ export function GeneratorPanel({
       <div className="flex-1 flex flex-col rounded-xl bg-card border border-border overflow-hidden text-foreground">
         {/* Header Bar */}
         <div className="px-5 py-3 bg-muted/40 border-b border-border shrink-0">
-          <h2 className="text-sm text-muted-foreground font-medium uppercase tracking-wide">
-            {getPageTitle()}
-          </h2>
+          <h2 className="text-sm text-muted-foreground font-medium uppercase tracking-wide">{getPageTitle()}</h2>
         </div>
 
         {/* Scrollable Content */}
@@ -343,15 +380,11 @@ export function GeneratorPanel({
                           {renderModelIcon(model.id, model.name, "md")}
                           <span className="font-medium">{model.name}</span>
                         </div>
-                        {selectedModel === model.id && (
-                          <Check className="w-4 h-4 text-green-500" />
-                        )}
+                        {selectedModel === model.id && <Check className="w-4 h-4 text-green-500" />}
                       </div>
                       {model.description && (
                         <div className="text-xs text-zinc-500 mt-1 ml-8">
-                          {model.description.startsWith("models.")
-                            ? tRoot(model.description)
-                            : model.description}
+                          {model.description.startsWith("models.") ? tRoot(model.description) : model.description}
                         </div>
                       )}
                       <div className="text-xs text-zinc-400 mt-1 ml-8 flex items-center gap-2">
@@ -364,9 +397,7 @@ export function GeneratorPanel({
                             <span>•</span>
                           </>
                         )}
-                        {model.creditCost?.base != null && (
-                          <span>{model.creditCost.base} {t("labels.credits")}</span>
-                        )}
+                        {model.creditCost?.base != null && <span>{model.creditCost.base} {t("labels.credits")}</span>}
                       </div>
                     </DropdownMenuItem>
                   ))}
@@ -382,6 +413,9 @@ export function GeneratorPanel({
               <PromptStudioDialog
                 locale={locale === "zh" ? "zh" : "en"}
                 onApplyPrompt={(value) => setPrompt(value)}
+                onBatchCreate={handleBatchCreate}
+                batchDisabled={batchDisabled}
+                batchDisabledHint={batchDisabledHint}
                 trigger={(
                   <button
                     type="button"
@@ -414,11 +448,7 @@ export function GeneratorPanel({
                 {imageFile || imageUrl ? (
                   <div className="relative group h-32 rounded-lg overflow-hidden border-2 border-zinc-700">
                     {imageUrl ? (
-                      <img
-                        src={imageUrl}
-                        alt={t("labels.selectedImage")}
-                        className="w-full h-full object-cover"
-                      />
+                      <img src={imageUrl} alt={t("labels.selectedImage")} className="w-full h-full object-cover" />
                     ) : (
                       <div className="absolute inset-0 flex items-center justify-center p-3">
                         <span className="text-xs font-medium truncate bg-background/80 backdrop-blur-sm px-3 py-1.5 rounded-full border border-border">
@@ -453,7 +483,6 @@ export function GeneratorPanel({
               </div>
             )}
 
-
           {/* Settings Group */}
           <div className="space-y-5">
             {/* Aspect Ratio */}
@@ -471,7 +500,7 @@ export function GeneratorPanel({
                         "aspect-square w-full rounded-lg text-xs font-medium transition-all border flex items-center justify-center",
                         aspectRatio === ar
                           ? "bg-primary/10 text-foreground border-primary"
-                          : "bg-muted/40 text-muted-foreground border-border hover:border-muted-foreground/40"
+                          : "bg-muted/40 text-muted-foreground border-border hover:border-muted-foreground/40",
                       )}
                     >
                       <div className="flex flex-col items-center gap-2">
@@ -482,7 +511,7 @@ export function GeneratorPanel({
                           ar === "9:16" && "w-4 h-8",
                           ar === "1:1" && "w-6 h-6",
                           ar === "4:3" && "w-6 h-4",
-                          ar === "3:4" && "w-4 h-6"
+                          ar === "3:4" && "w-4 h-6",
                         )} />
                         <span>{ar}</span>
                       </div>
@@ -508,7 +537,7 @@ export function GeneratorPanel({
                           "h-10 rounded-lg text-sm font-medium transition-all",
                           duration === d
                             ? "bg-primary text-primary-foreground"
-                            : "bg-muted/40 text-muted-foreground hover:bg-muted/60"
+                            : "bg-muted/40 text-muted-foreground hover:bg-muted/60",
                         )}
                       >
                         {d}s
@@ -532,7 +561,7 @@ export function GeneratorPanel({
                           "h-10 rounded-lg text-sm font-medium transition-all capitalize",
                           quality === q
                             ? "bg-primary text-primary-foreground"
-                            : "bg-muted/40 text-muted-foreground hover:bg-muted/60"
+                            : "bg-muted/40 text-muted-foreground hover:bg-muted/60",
                         )}
                       >
                         {q}
@@ -617,7 +646,7 @@ export function GeneratorPanel({
               "w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-sm font-semibold transition-all",
               canSubmit
                 ? "bg-primary hover:bg-primary/90 text-primary-foreground"
-                : "bg-muted text-muted-foreground cursor-not-allowed"
+                : "bg-muted text-muted-foreground cursor-not-allowed",
             )}
           >
             {isLoading ? (
