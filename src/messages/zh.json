@@ -410,6 +410,44 @@
       "hint": "\u81ea\u52a8\u8ffd\u52a0\u54c1\u724c\u8bed\u6c14\u3001\u98ce\u683c\u8865\u5145\u548c\u7981\u7528\u8bcd\u3002"
     }
   },
+  "Share": {
+    "title": "分享视频",
+    "subtitle": "由 VideoFly 生成",
+    "emptyVideo": "该视频正在生成或暂时不可用。",
+    "viewImage": "查看参考图",
+    "sections": {
+      "prompt": "提示词（点击展开）",
+      "parameters": "参数（点击展开）",
+      "summary": "摘要"
+    },
+    "fields": {
+      "model": "模型",
+      "mode": "模式",
+      "duration": "时长",
+      "aspectRatio": "画面比例",
+      "quality": "清晰度",
+      "outputNumber": "输出数量",
+      "generateAudio": "音频",
+      "createdAt": "创建时间",
+      "referenceImage": "参考图"
+    },
+    "status": {
+      "pending": "等待中",
+      "generating": "生成中",
+      "uploading": "上传中",
+      "completed": "已完成",
+      "failed": "失败",
+      "unknown": "未知"
+    },
+    "actions": {
+      "remix": "再编辑"
+    },
+    "common": {
+      "yes": "是",
+      "no": "否"
+    },
+    "emptyParameters": "暂无参数记录。"
+  },
   "Showcase": {
     "badge": "亲眼见证",
     "title": "使用 VideoFly 创作",

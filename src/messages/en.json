@@ -410,6 +410,44 @@
       "hint": "Append your brand tone and constraints to the prompt."
     }
   },
+  "Share": {
+    "title": "Shared video",
+    "subtitle": "Generated with VideoFly",
+    "emptyVideo": "This video is still processing or unavailable.",
+    "viewImage": "View reference image",
+    "sections": {
+      "prompt": "Prompt (click to reveal)",
+      "parameters": "Parameters (click to reveal)",
+      "summary": "Summary"
+    },
+    "fields": {
+      "model": "Model",
+      "mode": "Mode",
+      "duration": "Duration",
+      "aspectRatio": "Aspect ratio",
+      "quality": "Quality",
+      "outputNumber": "Outputs",
+      "generateAudio": "Audio",
+      "createdAt": "Created",
+      "referenceImage": "Reference image"
+    },
+    "status": {
+      "pending": "Pending",
+      "generating": "Generating",
+      "uploading": "Uploading",
+      "completed": "Completed",
+      "failed": "Failed",
+      "unknown": "Unknown"
+    },
+    "actions": {
+      "remix": "Remix"
+    },
+    "common": {
+      "yes": "Yes",
+      "no": "No"
+    },
+    "emptyParameters": "No extra parameters recorded."
+  },
   "Showcase": {
     "badge": "See It in Action",
     "title": "Created With VideoFly",
