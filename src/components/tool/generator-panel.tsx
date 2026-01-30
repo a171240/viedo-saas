@@ -26,7 +26,10 @@ import {
   DropdownMenuLabel,
 } from "@/components/ui/dropdown-menu";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Switch } from "@/components/ui/switch";
 import PromptStudioDialog from "@/components/prompt-studio/prompt-studio-dialog";
+import { applyBrandKitToPrompt } from "@/config/brand-kit";
+import { useBrandKit } from "@/hooks/use-brand-kit";
 
 // ============================================================================
 // Types
@@ -91,6 +94,7 @@ export function GeneratorPanel({
   const tBreakdown = useTranslations("CreditsBreakdown");
   const tStudio = useTranslations("PromptStudio");
   const locale = useLocale();
+  const { brandKit } = useBrandKit();
   const models = getAvailableModels();
   const [prompt, setPrompt] = useState(initialPrompt || "");
   const [selectedModel, setSelectedModel] = useState(initialModelId || defaultModelId || models[0]?.id || "");
@@ -102,6 +106,12 @@ export function GeneratorPanel({
   const [isModelDropdownOpen, setIsModelDropdownOpen] = useState(false);
   const requiresImage = toolType !== "text-to-video";
   const hasImage = Boolean(imageFile || imageUrl);
+  const [useBrandKitEnabled, setUseBrandKitEnabled] = useState(brandKit.enabled);
+  const [brandDefaultsApplied, setBrandDefaultsApplied] = useState(false);
+
+  useEffect(() => {
+    setUseBrandKitEnabled(brandKit.enabled);
+  }, [brandKit.enabled]);
 
   // Filter models based on tool type
   const availableModels = useMemo(() => {
@@ -172,6 +182,21 @@ export function GeneratorPanel({
   }, [currentModel, duration, aspectRatio, quality]);
 
   useEffect(() => {
+    if (brandDefaultsApplied || !useBrandKitEnabled) return;
+    const nextRatio = brandKit.defaultAspectRatio;
+    const nextDuration = brandKit.defaultDuration;
+    if (nextRatio && currentModel?.aspectRatios?.includes(nextRatio)) {
+      setAspectRatio(nextRatio);
+    }
+    if (nextDuration && currentModel?.durations?.includes(nextDuration)) {
+      setDuration(nextDuration);
+    }
+    if (nextRatio || nextDuration) {
+      setBrandDefaultsApplied(true);
+    }
+  }, [brandDefaultsApplied, brandKit.defaultAspectRatio, brandKit.defaultDuration, currentModel, useBrandKitEnabled]);
+
+  useEffect(() => {
     if (!availableModels.length) return;
     if (selectedModel && availableModels.some((m) => m.id === selectedModel)) {
       return;
@@ -238,11 +263,15 @@ export function GeneratorPanel({
     const hasPrompt = prompt.trim().length > 0;
     if (!hasPrompt || isLoading) return;
     if (requiresImage && !hasImage) return;
+    const localeKey = locale === "zh" ? "zh" : "en";
+    const finalPrompt = useBrandKitEnabled
+      ? applyBrandKitToPrompt(prompt.trim(), brandKit, localeKey)
+      : prompt.trim();
 
     const data: GeneratorData = {
       toolType,
       model: selectedModel,
-      prompt: prompt.trim(),
+      prompt: finalPrompt,
       duration,
       aspectRatio,
       quality: currentModel?.qualities?.includes(quality) ? quality : undefined,
@@ -267,12 +296,19 @@ export function GeneratorPanel({
     currentModel,
     requiresImage,
     hasImage,
+    locale,
+    useBrandKitEnabled,
+    brandKit,
   ]);
 
   const handleBatchCreate = useCallback(
     async (prompts: string[]) => {
       if (!prompts.length || isLoading) return;
       if (requiresImage && !hasImage) return;
+      const localeKey = locale === "zh" ? "zh" : "en";
+      const mergedPrompts = useBrandKitEnabled
+        ? prompts.map((promptText) => applyBrandKitToPrompt(promptText, brandKit, localeKey))
+        : prompts;
 
       const baseData = {
         toolType,
@@ -285,7 +321,7 @@ export function GeneratorPanel({
         estimatedCredits,
       };
 
-      for (const promptText of prompts) {
+      for (const promptText of mergedPrompts) {
         await Promise.resolve(
           onSubmit?.({
             ...baseData,
@@ -308,6 +344,9 @@ export function GeneratorPanel({
       requiresImage,
       selectedModel,
       toolType,
+      locale,
+      useBrandKitEnabled,
+      brandKit,
     ],
   );
 
@@ -436,6 +475,17 @@ export function GeneratorPanel({
               rows={4}
               maxLength={2000}
             />
+            <div className="mt-3 flex items-center justify-between gap-3 rounded-lg border border-border bg-muted/30 px-3 py-2">
+              <div>
+                <div className="text-xs font-medium">{t("brandKit.label")}</div>
+                <div className="text-[11px] text-muted-foreground">{t("brandKit.hint")}</div>
+              </div>
+              <Switch
+                checked={useBrandKitEnabled}
+                onCheckedChange={(checked) => setUseBrandKitEnabled(checked)}
+                aria-label={t("brandKit.label")}
+              />
+            </div>
           </div>
 
           {/* Image Upload (for image-to-video) */}

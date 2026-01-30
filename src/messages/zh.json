@@ -368,7 +368,11 @@
       "images": "请上传至少 1 张商品图片。",
       "maxImages": "最多上传 3 张图片。"
     },
-    "promptStudio": "Prompt Studio"
+    "promptStudio": "Prompt Studio",
+    "brandKit": {
+      "label": "\u54c1\u724c\u5957\u4ef6",
+      "hint": "\u5e94\u7528\u5df2\u4fdd\u5b58\u7684\u54c1\u724c\u8bed\u6c14\u548c\u89c4\u5219\u3002"
+    }
   },
   "ToolGenerator": {
     "pageTitle": {
@@ -400,6 +404,10 @@
     "actions": {
       "generating": "生成中...",
       "generateVideo": "开始生成"
+    },
+    "brandKit": {
+      "label": "\u54c1\u724c\u5957\u4ef6",
+      "hint": "\u81ea\u52a8\u8ffd\u52a0\u54c1\u724c\u8bed\u6c14\u3001\u98ce\u683c\u8865\u5145\u548c\u7981\u7528\u8bcd\u3002"
     }
   },
   "Showcase": {
@@ -1090,7 +1098,25 @@
         "failed": "失败"
       },
       "noHistory": "暂无购买记录",
-      "loadMore": "加载更多"
+      "loadMore": "加载更多",
+      "brandKit": {
+        "title": "\u54c1\u724c\u5957\u4ef6",
+        "description": "\u4e3a\u6bcf\u6b21\u751f\u6210\u81ea\u52a8\u8ffd\u52a0\u54c1\u724c\u8bed\u6c14\u4e0e\u9650\u5236\u3002",
+        "enabled": "\u9ed8\u8ba4\u542f\u7528 Brand Kit",
+        "enabledHint": "\u6bcf\u6b21\u751f\u6210\u4ecd\u53ef\u624b\u52a8\u5173\u95ed\u3002",
+        "brandTone": "\u54c1\u724c\u8bed\u6c14",
+        "brandTonePlaceholder": "\u4f8b\u5982\uff1a\u81ea\u4fe1\u3001\u53cb\u597d\u3001\u7b80\u6d01",
+        "styleSuffix": "\u98ce\u683c\u8865\u5145",
+        "styleSuffixPlaceholder": "\u4f8b\u5982\uff1a\u6781\u7b80\u3001\u5e72\u51c0\u3001\u8d28\u611f",
+        "bannedWords": "\u7981\u7528\u8bcd",
+        "bannedWordsPlaceholder": "\u4f8b\u5982\uff1a\u514d\u8d39\u3001\u6700\u4fbf\u5b9c\u3001\u4fdd\u8bc1",
+        "bannedWordsHint": "\u7528\u9017\u53f7\u6216\u6362\u884c\u5206\u9694\u3002",
+        "defaultRatio": "\u9ed8\u8ba4\u753b\u5e45\u6bd4\u4f8b",
+        "defaultDuration": "\u9ed8\u8ba4\u65f6\u957f",
+        "defaultDurationHint": "\u4ec5\u5728\u6240\u9009\u6a21\u578b\u652f\u6301\u65f6\u751f\u6548\u3002",
+        "noDefault": "\u4e0d\u8bbe\u7f6e",
+        "durationOption": "{seconds} \u79d2"
+      }
     }
   },
   "VideoHistory": {

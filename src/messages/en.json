@@ -368,7 +368,11 @@
       "images": "Please upload at least 1 product image.",
       "maxImages": "You can upload up to 3 images."
     },
-    "promptStudio": "Prompt Studio"
+    "promptStudio": "Prompt Studio",
+    "brandKit": {
+      "label": "Brand Kit",
+      "hint": "Apply your saved brand tone and rules."
+    }
   },
   "ToolGenerator": {
     "pageTitle": {
@@ -400,6 +404,10 @@
     "actions": {
       "generating": "Generating...",
       "generateVideo": "Generate Video"
+    },
+    "brandKit": {
+      "label": "Brand Kit",
+      "hint": "Append your brand tone and constraints to the prompt."
     }
   },
   "Showcase": {
@@ -1090,7 +1098,25 @@
         "failed": "Failed"
       },
       "noHistory": "No purchase history yet",
-      "loadMore": "Load More"
+      "loadMore": "Load More",
+      "brandKit": {
+        "title": "Brand Kit",
+        "description": "Apply a consistent brand tone and constraints to every prompt.",
+        "enabled": "Enable Brand Kit by default",
+        "enabledHint": "You can still toggle it off per generation.",
+        "brandTone": "Brand tone",
+        "brandTonePlaceholder": "e.g. Confident, friendly, concise",
+        "styleSuffix": "Style suffix",
+        "styleSuffixPlaceholder": "e.g. minimal, clean, premium",
+        "bannedWords": "Banned words",
+        "bannedWordsPlaceholder": "e.g. free, cheap, guarantee",
+        "bannedWordsHint": "Separate with commas or new lines.",
+        "defaultRatio": "Default aspect ratio",
+        "defaultDuration": "Default duration",
+        "defaultDurationHint": "Applied only when supported by the selected model.",
+        "noDefault": "No default",
+        "durationOption": "{seconds}s"
+      }
     }
   },
   "VideoHistory": {

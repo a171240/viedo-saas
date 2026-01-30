@@ -32,8 +32,10 @@ import {
   type ProductToVideoStyle,
 } from "@/config/product-to-video";
 import { getAvailableModels, getModelConfig, calculateModelCredits } from "@/config/credits";
+import { applyBrandKitToPrompt } from "@/config/brand-kit";
 import { uploadImage } from "@/lib/video-api";
 import { authClient } from "@/lib/auth/client";
+import { useBrandKit } from "@/hooks/use-brand-kit";
 import { toast } from "sonner";
 import PromptStudioDialog from "@/components/prompt-studio/prompt-studio-dialog";
 
@@ -48,6 +50,7 @@ export function ProductToVideoPage({ locale }: { locale: string }) {
   const tStudio = useTranslations("PromptStudio");
   const router = useRouter();
   const currentLocale = useLocale();
+  const { brandKit } = useBrandKit();
 
   const [productName, setProductName] = useState("");
   const [targetAudience, setTargetAudience] = useState("");
@@ -67,6 +70,8 @@ export function ProductToVideoPage({ locale }: { locale: string }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [studioPromptOverride, setStudioPromptOverride] = useState<string | null>(null);
   const [studioSignature, setStudioSignature] = useState<string | null>(null);
+  const [useBrandKitEnabled, setUseBrandKitEnabled] = useState(brandKit.enabled);
+  const [brandDefaultsApplied, setBrandDefaultsApplied] = useState(false);
   const batchDisabled = isSubmitting || images.length < 1;
   const batchDisabledHint = isSubmitting
     ? tStudio("batch.disabledBusy")
@@ -81,8 +86,25 @@ export function ProductToVideoPage({ locale }: { locale: string }) {
     []
   );
 
+  useEffect(() => {
+    setUseBrandKitEnabled(brandKit.enabled);
+  }, [brandKit.enabled]);
+
   const platformConfig = PRODUCT_TO_VIDEO_PLATFORMS.find((p) => p.id === platform);
   const ratio = platformConfig?.ratio ?? "9:16";
+
+  useEffect(() => {
+    if (brandDefaultsApplied || !useBrandKitEnabled) return;
+    const preferredRatio = brandKit.defaultAspectRatio;
+    if (preferredRatio === "16:9" && platform !== "youtube") {
+      setPlatform("youtube");
+    } else if (preferredRatio === "9:16" && platform !== "tiktok") {
+      setPlatform("tiktok");
+    }
+    if (preferredRatio) {
+      setBrandDefaultsApplied(true);
+    }
+  }, [brandDefaultsApplied, brandKit.defaultAspectRatio, platform, useBrandKitEnabled]);
 
   const benefits = useMemo(
     () =>
@@ -95,10 +117,12 @@ export function ProductToVideoPage({ locale }: { locale: string }) {
 
   const modelConfig = useMemo(() => getModelConfig(modelId), [modelId]);
   const effectiveDuration = useMemo(() => {
-    const desired = PRODUCT_TO_VIDEO_DEFAULTS.duration;
+    const desired = useBrandKitEnabled && brandKit.defaultDuration
+      ? brandKit.defaultDuration
+      : PRODUCT_TO_VIDEO_DEFAULTS.duration;
     if (modelConfig?.durations?.includes(desired)) return desired;
     return modelConfig?.durations?.[0] ?? desired;
-  }, [modelConfig]);
+  }, [brandKit.defaultDuration, modelConfig, useBrandKitEnabled]);
 
   const effectiveQuality = useMemo(() => {
     const desired = PRODUCT_TO_VIDEO_DEFAULTS.quality;
@@ -136,7 +160,11 @@ export function ProductToVideoPage({ locale }: { locale: string }) {
     );
   }, [productName, targetAudience, benefits, platform, style, variationCount, effectiveRatio, currentLocale]);
 
-  const promptPreview = studioPromptOverride ?? computedPrompts[0] ?? "";
+  const previewLocale = currentLocale === "zh" ? "zh" : "en";
+  const promptPreviewBase = studioPromptOverride ?? computedPrompts[0] ?? "";
+  const promptPreview = useBrandKitEnabled
+    ? applyBrandKitToPrompt(promptPreviewBase, brandKit, previewLocale)
+    : promptPreviewBase;
 
   const formSignature = useMemo(
     () => JSON.stringify({ productName, targetAudience, benefitsText, platform, style, variationCount }),
@@ -222,9 +250,12 @@ export function ProductToVideoPage({ locale }: { locale: string }) {
       const promptsToQueue = studioPromptOverride
         ? variationMeta.map((variation) => applyProductToVideoVariationNotes(localeKey, studioPromptOverride, variation))
         : variationPrompts;
+      const promptsWithBrandKit = useBrandKitEnabled
+        ? promptsToQueue.map((prompt) => applyBrandKitToPrompt(prompt, brandKit, localeKey))
+        : promptsToQueue;
 
       let lastQueued: { videoUuid: string; creditsUsed: number } | null = null;
-      for (const prompt of promptsToQueue) {
+      for (const prompt of promptsWithBrandKit) {
         const response = await fetch("/api/v1/video/generate", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -253,7 +284,7 @@ export function ProductToVideoPage({ locale }: { locale: string }) {
         };
       }
 
-      toast.success(tTool("toast.batchQueued", { count: promptsToQueue.length }));
+      toast.success(tTool("toast.batchQueued", { count: promptsWithBrandKit.length }));
       if (lastQueued) {
         setLastResult(lastQueued);
       }
@@ -283,9 +314,13 @@ export function ProductToVideoPage({ locale }: { locale: string }) {
       const imageUrls = await Promise.all(
         images.map((image) => uploadImage(image.file))
       );
+      const localeKey = currentLocale === "zh" ? "zh" : "en";
+      const mergedPrompts = useBrandKitEnabled
+        ? prompts.map((prompt) => applyBrandKitToPrompt(prompt, brandKit, localeKey))
+        : prompts;
 
       let lastQueued: { videoUuid: string; creditsUsed: number } | null = null;
-      for (const prompt of prompts) {
+      for (const prompt of mergedPrompts) {
         const response = await fetch("/api/v1/video/generate", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -317,7 +352,7 @@ export function ProductToVideoPage({ locale }: { locale: string }) {
       if (lastQueued) {
         setLastResult(lastQueued);
       }
-      toast.success(tTool("toast.batchQueued", { count: prompts.length }));
+      toast.success(tTool("toast.batchQueued", { count: mergedPrompts.length }));
     } catch (error) {
       const message = error instanceof Error ? error.message : tTool("toast.generationFailed");
       toast.error(message);
@@ -341,6 +376,17 @@ export function ProductToVideoPage({ locale }: { locale: string }) {
               </p>
             </div>
             <div className="flex flex-wrap items-center gap-2">
+              <div className="flex items-center gap-3 rounded-lg border border-border bg-muted/30 px-3 py-2">
+                <div>
+                  <div className="text-xs font-medium">{t("brandKit.label")}</div>
+                  <div className="text-[11px] text-muted-foreground">{t("brandKit.hint")}</div>
+                </div>
+                <Switch
+                  checked={useBrandKitEnabled}
+                  onCheckedChange={(checked) => setUseBrandKitEnabled(checked)}
+                  aria-label={t("brandKit.label")}
+                />
+              </div>
               <PromptStudioDialog
                 locale={currentLocale === "zh" ? "zh" : "en"}
                 onApplyPrompt={(value) => {
