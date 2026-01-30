@@ -58,3 +58,4 @@ package-lock.json
 reports/
 test-results/
 tmp-zh.txt
+tmp/
