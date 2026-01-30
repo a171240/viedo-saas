@@ -1,5 +1,11 @@
 # VideoFly 🎬
 
+## Docs
+- Current setup & progress: docs/DEV_SETUP.md
+- Full product spec: docs/VIDEOFLY_DEV_SPEC.md
+- Docs index: docs/INDEX.md
+
+
 一个生产级 AI 视频生成 SaaS 模板，基于 Next.js 15 构建，支持 Sora 2、Veo 3.1 等先进 AI 模型。
 
 > 本模板帮助你在几分钟内搭建自己的 AI 视频生成平台，包含完整的用户认证、积分系统、支付集成和精美的 UI 界面。
