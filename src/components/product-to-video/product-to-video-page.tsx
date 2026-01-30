@@ -44,6 +44,8 @@ type ImageItem = {
   previewUrl: string;
 };
 
+const TOOL_PREFILL_KEY = "videofly_tool_prefill";
+
 export function ProductToVideoPage({ locale }: { locale: string }) {
   const t = useTranslations("ProductToVideo");
   const tTool = useTranslations("ToolPage");
@@ -178,6 +180,34 @@ export function ProductToVideoPage({ locale }: { locale: string }) {
       setStudioSignature(null);
     }
   }, [studioPromptOverride, studioSignature, formSignature]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try {
+      const raw = sessionStorage.getItem(TOOL_PREFILL_KEY);
+      if (!raw) return;
+      const data = JSON.parse(raw) as {
+        prompt?: string;
+        model?: string;
+        aspectRatio?: string;
+      };
+      if (data.prompt) {
+        setStudioPromptOverride(data.prompt);
+        setStudioSignature(null);
+      }
+      if (data.model) {
+        setModelId(data.model);
+      }
+      if (data.aspectRatio === "16:9") {
+        setPlatform("youtube");
+      } else if (data.aspectRatio === "9:16") {
+        setPlatform("tiktok");
+      }
+      sessionStorage.removeItem(TOOL_PREFILL_KEY);
+    } catch (error) {
+      console.warn("Failed to read remix data:", error);
+    }
+  }, []);
 
   const handleImagesChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(event.target.files ?? []);
