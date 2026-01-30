@@ -30,7 +30,8 @@ export function getRequestIp(request: NextRequest) {
     return realIp;
   }
 
-  return request.ip ?? "unknown";
+  const directIp = (request as { ip?: string }).ip;
+  return directIp ?? "unknown";
 }
 
 export function rateLimit(

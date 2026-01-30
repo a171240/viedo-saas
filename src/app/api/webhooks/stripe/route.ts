@@ -13,7 +13,7 @@ const handler = async (req: NextRequest) => {
       payload,
       signature,
       env.STRIPE_WEBHOOK_SECRET,
-    ) as Stripe.DiscriminatedEvent;
+    ) as Stripe.Event;
     const reserved = await reserveWebhookEvent("stripe", event.id);
     if (!reserved) {
       return NextResponse.json(

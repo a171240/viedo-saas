@@ -6,7 +6,7 @@ import { eq } from "drizzle-orm";
 import { stripe } from ".";
 import { getSubscriptionPlan } from "./plans";
 
-export async function handleEvent(event: Stripe.DiscriminatedEvent) {
+export async function handleEvent(event: Stripe.Event) {
   const session = event.data.object as Stripe.Checkout.Session;
   if (event.type === "checkout.session.completed") {
     const subscription = await stripe.subscriptions.retrieve(
