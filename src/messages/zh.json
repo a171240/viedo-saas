@@ -355,7 +355,7 @@
       "placeholder": "填写表单后将生成 Prompt 预览。",
       "hint": "该 Prompt 将用于生成视频。"
     },
-    "estimatedCredits": "预计消耗积分：{credits}",
+    "estimatedCredits": "\u9884\u8ba1\u6d88\u8017\u79ef\u5206\uff08{count} \u4e2a\u53d8\u4f53\uff09\uff1a{credits}",
     "result": {
       "title": "已开始生成",
       "subtitle": "预计扣除 {credits} 积分",

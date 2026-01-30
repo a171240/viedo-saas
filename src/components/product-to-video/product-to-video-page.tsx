@@ -25,7 +25,9 @@ import {
   PRODUCT_TO_VIDEO_PLATFORMS,
   PRODUCT_TO_VIDEO_STYLES,
   PRODUCT_TO_VIDEO_VARIATIONS,
-  buildProductToVideoPrompt,
+  buildProductToVideoVariationPrompts,
+  buildProductToVideoVariations,
+  applyProductToVideoVariationNotes,
   type ProductToVideoPlatform,
   type ProductToVideoStyle,
 } from "@/config/product-to-video";
@@ -118,9 +120,9 @@ export function ProductToVideoPage({ locale }: { locale: string }) {
     return base * variationCount;
   }, [modelId, effectiveDuration, effectiveQuality, variationCount]);
 
-  const computedPrompt = useMemo(() => {
-    if (!productName || !targetAudience || benefits.length < 1) return "";
-    return buildProductToVideoPrompt(
+  const computedPrompts = useMemo(() => {
+    if (!productName || !targetAudience || benefits.length < 1) return [];
+    return buildProductToVideoVariationPrompts(
       (currentLocale === "zh" ? "zh" : "en"),
       {
         productName,
@@ -134,7 +136,7 @@ export function ProductToVideoPage({ locale }: { locale: string }) {
     );
   }, [productName, targetAudience, benefits, platform, style, variationCount, effectiveRatio, currentLocale]);
 
-  const promptPreview = studioPromptOverride ?? computedPrompt;
+  const promptPreview = studioPromptOverride ?? computedPrompts[0] ?? "";
 
   const formSignature = useMemo(
     () => JSON.stringify({ productName, targetAudience, benefitsText, platform, style, variationCount }),
@@ -206,47 +208,55 @@ export function ProductToVideoPage({ locale }: { locale: string }) {
         images.map((image) => uploadImage(image.file))
       );
 
-      const prompt = buildProductToVideoPrompt(
-        (currentLocale === "zh" ? "zh" : "en"),
-        {
-          productName: productName.trim(),
-          targetAudience: targetAudience.trim(),
-          keyBenefits: benefits,
-          platform,
-          style,
-          variationCount,
-        },
-        effectiveRatio
-      );
-      const finalPrompt = studioPromptOverride ?? prompt;
+      const baseInput = {
+        productName: productName.trim(),
+        targetAudience: targetAudience.trim(),
+        keyBenefits: benefits,
+        platform,
+        style,
+        variationCount,
+      };
+      const localeKey = currentLocale === "zh" ? "zh" : "en";
+      const variationPrompts = buildProductToVideoVariationPrompts(localeKey, baseInput, effectiveRatio);
+      const variationMeta = buildProductToVideoVariations(localeKey, baseInput);
+      const promptsToQueue = studioPromptOverride
+        ? variationMeta.map((variation) => applyProductToVideoVariationNotes(localeKey, studioPromptOverride, variation))
+        : variationPrompts;
 
-      const response = await fetch("/api/v1/video/generate", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          prompt: finalPrompt,
-          model: modelId,
-          mode: "product-to-video",
-          duration: effectiveDuration,
-          aspectRatio: effectiveRatio,
-          quality: effectiveQuality,
-          outputNumber: variationCount,
-          generateAudio: false,
-          imageUrls,
-          imageUrl: imageUrls[0],
-        }),
-      });
+      let lastQueued: { videoUuid: string; creditsUsed: number } | null = null;
+      for (const prompt of promptsToQueue) {
+        const response = await fetch("/api/v1/video/generate", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            prompt,
+            model: modelId,
+            mode: "product-to-video",
+            duration: effectiveDuration,
+            aspectRatio: effectiveRatio,
+            quality: effectiveQuality,
+            outputNumber: 1,
+            generateAudio: false,
+            imageUrls,
+            imageUrl: imageUrls[0],
+          }),
+        });
 
-      const data = await response.json();
-      if (!response.ok || !data.success) {
-        throw new Error(data.error?.message || tTool("toast.generationFailed"));
+        const data = await response.json();
+        if (!response.ok || !data.success) {
+          throw new Error(data.error?.message || tTool("toast.generationFailed"));
+        }
+
+        lastQueued = {
+          videoUuid: data.data.videoUuid as string,
+          creditsUsed: data.data.creditsUsed as number,
+        };
       }
 
-      toast.success(tTool("toast.generationStarted"));
-      setLastResult({
-        videoUuid: data.data.videoUuid as string,
-        creditsUsed: data.data.creditsUsed as number,
-      });
+      toast.success(tTool("toast.batchQueued", { count: promptsToQueue.length }));
+      if (lastQueued) {
+        setLastResult(lastQueued);
+      }
     } catch (error) {
       const message = error instanceof Error ? error.message : tTool("toast.generationFailed");
       toast.error(message);
@@ -536,7 +546,7 @@ export function ProductToVideoPage({ locale }: { locale: string }) {
 
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <div className="text-sm text-muted-foreground">
-                    {t("estimatedCredits", { credits: estimatedCredits })}
+                    {t("estimatedCredits", { credits: estimatedCredits, count: variationCount })}
                   </div>
                   <Button
                     onClick={handleSubmit}

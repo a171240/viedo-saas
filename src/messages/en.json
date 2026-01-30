@@ -355,7 +355,7 @@
       "placeholder": "Fill in the form to generate a prompt preview.",
       "hint": "This prompt will be used to generate the video."
     },
-    "estimatedCredits": "Estimated credits: {credits}",
+    "estimatedCredits": "Estimated credits ({count} variations): {credits}",
     "result": {
       "title": "Generation started",
       "subtitle": "Credits used: {credits}",
