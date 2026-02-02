@@ -10,6 +10,7 @@
 "use client";
 
 import * as React from "react";
+import { useTranslations } from "next-intl";
 import {
   ChevronDown,
   Send,
@@ -19,6 +20,7 @@ import {
   Plus,
   Volume2,
   Settings,
+  Info,
 } from "lucide-react";
 import { cn } from "@/components/ui";
 import {
@@ -44,6 +46,7 @@ import {
   useVideoGeneratorCore,
   type VideoGeneratorCoreConfig,
 } from "./video-generator-core";
+import { getCreditBreakdown } from "@/config/credits";
 
 // ============================================================================
 // Types
@@ -112,7 +115,32 @@ function CompactRenderer() {
     isPro,
   } = useVideoGeneratorCore();
 
+  const tBreakdown = useTranslations("CreditsBreakdown");
   const [isSettingsOpen, setIsSettingsOpen] = React.useState(false);
+
+  const formatMultiplier = (value: number) => {
+    const rounded = Math.round(value * 100) / 100;
+    return Number.isInteger(rounded) ? `${rounded}` : `${rounded}`;
+  };
+
+  const creditBreakdown = React.useMemo(() => {
+    if (state.generationType !== "video" || !computed.currentModel) return null;
+    const durationSeconds = Number.parseInt(state.duration, 10);
+    if (!Number.isFinite(durationSeconds)) return null;
+    const quality = computed.showResolutionControl ? state.resolution : undefined;
+    return getCreditBreakdown(computed.currentModel.id, {
+      duration: durationSeconds,
+      quality,
+      outputNumber: computed.currentOutputNumber,
+    });
+  }, [
+    state.generationType,
+    computed.currentModel,
+    state.duration,
+    state.resolution,
+    computed.showResolutionControl,
+    computed.currentOutputNumber,
+  ]);
 
   // 检查是否显示类型切换
   const showTypeSwitch = features.showGenerationTypeSwitch !== false &&
@@ -391,31 +419,86 @@ function CompactRenderer() {
           </Popover>
         )}
 
-        {/* 生成按钮 */}
-        <button type="button"
-          onClick={handlers.handleSubmit}
-          disabled={!validation.canSubmit}
-          className={cn(
-            "ml-auto flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all",
-            validation.canSubmit
-              ? "bg-white text-black hover:bg-zinc-200"
-              : "bg-zinc-800 text-zinc-600 cursor-not-allowed"
+        <div className="ml-auto flex items-center gap-2">
+          {/* 生成按钮 */}
+          <button type="button"
+            onClick={handlers.handleSubmit}
+            disabled={!validation.canSubmit}
+            className={cn(
+              "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all",
+              validation.canSubmit
+                ? "bg-white text-black hover:bg-zinc-200"
+                : "bg-zinc-800 text-zinc-600 cursor-not-allowed"
+            )}
+          >
+            {isLoading ? (
+              <>
+                <Loader2 className="w-3 h-3 animate-spin" />
+                {texts.generating}
+              </>
+            ) : (
+              <>
+                <Send className="w-3 h-3" />
+                {texts.generate}
+              </>
+            )}
+            <span className="text-zinc-500">•</span>
+            <span>{calculatedCredits} {texts.credits}</span>
+          </button>
+
+          {creditBreakdown && (
+            <Popover>
+              <PopoverTrigger asChild>
+                <button
+                  type="button"
+                  aria-label={tBreakdown("label")}
+                  className="inline-flex items-center justify-center w-7 h-7 rounded-full border border-zinc-800 text-zinc-400 hover:text-white hover:border-zinc-600 transition-colors"
+                >
+                  <Info className="w-3.5 h-3.5" />
+                </button>
+              </PopoverTrigger>
+              <PopoverContent className="w-72 bg-zinc-900 border-zinc-800 text-zinc-200" align="end">
+                <div className="text-sm font-semibold text-white">{tBreakdown("label")}</div>
+                <p className="mt-1 text-xs text-zinc-500">{tBreakdown("backendFinal")}</p>
+                <div className="mt-3 space-y-2 text-xs">
+                  <div className="flex items-center justify-between gap-4">
+                    <span>
+                      {creditBreakdown.baseSeconds
+                        ? tBreakdown("baseWithSeconds", { seconds: creditBreakdown.baseSeconds })
+                        : tBreakdown("base")}
+                    </span>
+                    <span className="text-zinc-100">
+                      {creditBreakdown.baseCredits} {texts.credits}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between gap-4">
+                    <span>{tBreakdown("extraSeconds")}</span>
+                    <span className="text-zinc-100">
+                      {creditBreakdown.extraSeconds} × {creditBreakdown.perExtraSecond} ={" "}
+                      {creditBreakdown.extraSeconds * creditBreakdown.perExtraSecond}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between gap-4">
+                    <span>{tBreakdown("resolutionMultiplier")}</span>
+                    <span className="text-zinc-100">
+                      ×{formatMultiplier(creditBreakdown.resolutionMultiplier)}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between gap-4">
+                    <span>{tBreakdown("outputMultiplier")}</span>
+                    <span className="text-zinc-100">×{creditBreakdown.outputMultiplier}</span>
+                  </div>
+                  <div className="flex items-center justify-between gap-4 border-t border-zinc-800 pt-2 font-medium">
+                    <span>{tBreakdown("total")}</span>
+                    <span className="text-white">
+                      {creditBreakdown.total} {texts.credits}
+                    </span>
+                  </div>
+                </div>
+              </PopoverContent>
+            </Popover>
           )}
-        >
-          {isLoading ? (
-            <>
-              <Loader2 className="w-3 h-3 animate-spin" />
-              {texts.generating}
-            </>
-          ) : (
-            <>
-              <Send className="w-3 h-3" />
-              {texts.generate}
-            </>
-          )}
-          <span className="text-zinc-500">•</span>
-          <span>{calculatedCredits} {texts.credits}</span>
-        </button>
+        </div>
       </div>
 
       {/* 高级设置（仅显示需要时） */}

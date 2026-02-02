@@ -129,16 +129,17 @@ export function PromptStudioDialog({
   const buildAnglePrompt = (angle: string) => {
     if (!output) return "";
     const ratio = output.metadata?.ratio ?? "9:16";
+    const valuePoints = output.script.valuePoints.join(locale === "zh" ? "、" : ", ");
     const lines = [
-      `Create a short video in ${ratio}.`,
-      `Angle: ${angle}.`,
-      `Hook: ${angle}.`,
-      `Value points: ${output.script.valuePoints.join(", ")}.`,
-      `Proof: ${output.script.proof}.`,
-      `CTA: ${output.script.cta}.`,
-      "Storyboard:",
+      t("batchPrompt.intro", { ratio }),
+      t("batchPrompt.angle", { angle }),
+      t("batchPrompt.hook", { hook: angle }),
+      t("batchPrompt.valuePoints", { valuePoints }),
+      t("batchPrompt.proof", { proof: output.script.proof }),
+      t("batchPrompt.cta", { cta: output.script.cta }),
+      t("batchPrompt.storyboard"),
       ...output.script.shotList.map((shot) => `- ${shot}`),
-      "No subtitles or text rendered inside the video.",
+      t("batchPrompt.noText"),
     ];
     return lines.join("\n");
   };

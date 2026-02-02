@@ -22,6 +22,7 @@ export interface CreditPackageConfig {
   expireDays?: number;       // 覆盖默认过期天数
   features?: string[];       // 功能列表（用于展示）
   parallelTasks?: number;
+  priorityQueue?: boolean;
   commercialUse?: boolean;
   noWatermark?: boolean;
   /** 是否允许免费用户购买（仅积分包有效） */
@@ -208,9 +209,9 @@ export const CREDITS_CONFIG = {
             description: "models.seedance.description",
             supportImageToVideo: true,
             maxDuration: 12,
-            durations: [4, 5, 6, 8, 10, 12],
+            durations: [4, 8, 12],
             aspectRatios: ["16:9", "9:16", "1:1", "4:3", "3:4", "21:9"],
-            qualities: ["480P", "720P", "1080P"],
+            qualities: ["480P", "720P"],
           },
         };
 

@@ -3,6 +3,7 @@
 import { SignInModalContent } from "@/components/sign-in-modal";
 import { useSigninModal } from "@/hooks/use-signin-modal";
 import { useMounted } from "@/hooks/use-mounted";
+import { useTranslations } from "next-intl";
 import {
   Dialog,
   DialogContent,
@@ -10,16 +11,15 @@ import {
 } from "@/components/ui/dialog";
 
 export const ModalProvider = ({
-  dict,
   locale,
   children,
 }: {
-  dict: Record<string, unknown>;
   locale: string;
   children: React.ReactNode;
 }) => {
   const mounted = useMounted();
   const signInModal = useSigninModal();
+  const t = useTranslations("SignInModal");
 
   return (
     <>
@@ -35,9 +35,9 @@ export const ModalProvider = ({
           <DialogContent className="p-0 gap-0 max-w-md">
             {/* Hidden title for accessibility */}
             <DialogTitle className="sr-only">
-              Sign In
+              {t("signin_title")}
             </DialogTitle>
-            <SignInModalContent lang={locale} dict={dict as Record<string, string>} />
+            <SignInModalContent lang={locale} />
           </DialogContent>
         </Dialog>
       )}

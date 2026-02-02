@@ -18,6 +18,7 @@ import { creditPackages, db, users } from "@/db";
 import * as schema from "@/db/schema";
 import { env } from "./env.mjs";
 import { eq } from "drizzle-orm";
+import { releaseWebhookEvent, reserveWebhookEvent } from "@/lib/webhook-events";
 
 const toLogString = (value: unknown) => {
   if (value === null || value === undefined) return String(value);
@@ -132,7 +133,8 @@ if (env.CREEM_API_KEY) {
       persistSubscriptions: true,
       defaultSuccessUrl: "/dashboard",
 
-      onGrantAccess: async ({ product, customer, metadata }) => {
+      onGrantAccess: async (context) => {
+        const { product, customer, metadata } = context;
         const productConfig = getProductById(product.id);
         if (!productConfig) {
           console.error(`[Creem] Unknown product: ${product.id}`);
@@ -146,20 +148,40 @@ if (env.CREEM_API_KEY) {
         const metaOrderId =
           typeof meta.paymentId === "string"
             ? meta.paymentId
-            : typeof meta.subscriptionId === "string"
-              ? meta.subscriptionId
-              : typeof meta.orderId === "string"
-                ? meta.orderId
-                : undefined;
+            : typeof meta.orderId === "string"
+              ? meta.orderId
+              : typeof meta.subscriptionId === "string"
+                ? meta.subscriptionId
+                : typeof meta.transactionId === "string"
+                  ? meta.transactionId
+                  : undefined;
         const customerData = customer as unknown as {
           userId: string;
           subscriptionId?: string;
         };
+        const subscriptionId =
+          typeof (context as { id?: string }).id === "string"
+            ? (context as { id: string }).id
+            : undefined;
+        const lastTransactionId =
+          typeof (context as { last_transaction_id?: string }).last_transaction_id === "string"
+            ? (context as { last_transaction_id: string }).last_transaction_id
+            : undefined;
 
-        const orderId = metaOrderId ?? customerData.subscriptionId;
+        const orderId =
+          metaOrderId ??
+          lastTransactionId ??
+          customerData.subscriptionId ??
+          subscriptionId;
         const orderNo = orderId
           ? `creem_${orderId}`
-          : `creem_${productConfig.type}_${customerData.userId}_${Date.now()}`;
+          : `creem_${productConfig.type}_${customerData.userId}`;
+
+        const reserved = await reserveWebhookEvent("creem", orderNo);
+        if (!reserved) {
+          console.log(`[Creem] Duplicate webhook ignored: ${orderNo}`);
+          return;
+        }
 
         const [existing] = await db
           .select({ id: creditPackages.id })
@@ -179,14 +201,19 @@ if (env.CREEM_API_KEY) {
 
         const productName = product?.name ?? productConfig.id;
 
-        await creditService.recharge({
-          userId: customerData.userId,
-          credits,
-          orderNo,
-          transType,
-          expiryDays: getProductExpiryDays(productConfig),
-          remark: `Creem payment: ${productName}`,
-        });
+        try {
+          await creditService.recharge({
+            userId: customerData.userId,
+            credits,
+            orderNo,
+            transType,
+            expiryDays: getProductExpiryDays(productConfig),
+            remark: `Creem payment: ${productName}`,
+          });
+        } catch (error) {
+          await releaseWebhookEvent("creem", orderNo);
+          throw error;
+        }
       },
 
       onRevokeAccess: async ({ customer, product }) => {

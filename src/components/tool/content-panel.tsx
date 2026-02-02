@@ -9,9 +9,9 @@ interface ContentPanelProps {
 }
 
 const exampleThumbnails = [
-  "https://placehold.co/400x225/1a1a1a/FFF?text=Example+1",
-  "https://placehold.co/400x225/1a1a1a/FFF?text=Example+2",
-  "https://placehold.co/400x225/1a1a1a/FFF?text=Example+3",
+  "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=600&q=80",
+  "https://images.unsplash.com/photo-1480714378408-67cf0d13bc1b?w=600&q=80",
+  "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=600&q=80",
 ];
 
 export function ContentPanel({ lang = "en" }: ContentPanelProps) {

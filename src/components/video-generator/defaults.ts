@@ -35,12 +35,13 @@ import type {
   GeneratorTexts,
   OutputNumberOption,
 } from "./types";
+import { MODEL_CAPABILITIES } from "@/config/model-capabilities";
 
 // ============================================================================
 // Video Models
 // ============================================================================
 
-export const DEFAULT_VIDEO_MODELS: VideoModel[] = [
+const RAW_VIDEO_MODELS: VideoModel[] = [
   // ============================================================================
   // Sora Series - OpenAI
   // ============================================================================
@@ -68,11 +69,10 @@ export const DEFAULT_VIDEO_MODELS: VideoModel[] = [
     icon: "https://videocdn.pollo.ai/model-icon/svg/Group.svg",
     color: "#ff6a00",
     description: "Text/Image/Reference image to video with audio support",
-    maxDuration: "10 sec",
+    maxDuration: "15 sec",
     creditCost: 25, // 5s 720p = 25 积分
-    // Text/Image to Video mode: duration supports 5, 10 sec (❌ 不支持 15s)
-    // Reference Image mode: duration supports 5, 10 sec
-    durations: ["5s", "10s"],
+    // Text/Image/Reference Image mode: duration supports 5, 10, 15 sec
+    durations: ["5s", "10s", "15s"],
     // API: aspect_ratio supports 16:9, 9:16, 1:1, 4:3, 3:4
     aspectRatios: ["16:9", "9:16", "1:1", "4:3", "3:4"],
     // API: 720p/1080p
@@ -147,12 +147,12 @@ export const DEFAULT_VIDEO_MODELS: VideoModel[] = [
     description: "Text/Image/Frames to video with audio",
     maxDuration: "12 sec",
     creditCost: 16, // 最小 4s 720p 有音频 = 16 积分 (4秒 × 4积分/秒)
-    // API: duration supports 4-12 sec (any integer)
-    durations: ["4s", "5s", "6s", "7s", "8s", "9s", "10s", "11s", "12s"],
+    // API: duration supports 4 / 8 / 12 sec
+    durations: ["4s", "8s", "12s"],
     // API: aspect_ratio supports 16:9, 9:16, 1:1, 4:3, 3:4, 21:9
     aspectRatios: ["16:9", "9:16", "1:1", "4:3", "3:4", "21:9"],
-    // API: quality 480p, 720p (default), 1080p
-    resolutions: ["480P", "720P", "1080P"],
+    // API: quality 480p, 720p (default)
+    resolutions: ["480P", "720P"],
     // API: 0 images = T2V, 1 image = I2V, 2 images = first-last-frame
     maxImages: 2,
     // Image constraints
@@ -164,6 +164,29 @@ export const DEFAULT_VIDEO_MODELS: VideoModel[] = [
     supportsAudio: true,
   },
 ];
+
+const applyModelCapabilities = (model: VideoModel): VideoModel => {
+  const capability = MODEL_CAPABILITIES[model.id];
+  if (!capability) return model;
+
+  const durations = capability.supportedDurations?.length
+    ? capability.supportedDurations.map((d) => `${d}s`)
+    : model.durations;
+  const maxDuration = capability.supportedDurations?.length
+    ? `${Math.max(...capability.supportedDurations)} sec`
+    : model.maxDuration;
+
+  return {
+    ...model,
+    durations,
+    maxDuration,
+    aspectRatios: capability.supportedRatios ?? model.aspectRatios,
+    resolutions: capability.supportedResolutions ?? model.resolutions,
+    supportsAudio: capability.supportsAudio ?? model.supportsAudio,
+  };
+};
+
+export const DEFAULT_VIDEO_MODELS: VideoModel[] = RAW_VIDEO_MODELS.map(applyModelCapabilities);
 
 const VIDEO_MODEL_TEXTS_ZH: Record<string, Partial<VideoModel>> = {
   "sora-2": {

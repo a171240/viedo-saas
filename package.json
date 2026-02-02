@@ -133,6 +133,7 @@
     "dotenv-cli": "^11.0.0",
     "drizzle-kit": "^0.31.8",
     "esbuild": "0.20.2",
+    "playwright": "^1.58.1",
     "postcss": "^8",
     "react-email": "^5.2.5",
     "tailwindcss": "^4.0.14",

@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState, useTransition } from "react";
 import Balancer from "react-wrap-balancer";
+import { useTranslations } from "next-intl";
 
 import { creem } from "@/lib/auth/client";
 import { Button } from "@/components/ui/button";
@@ -47,12 +48,21 @@ export function CreemPricing({
   dictPrice,
   dictCredits,
 }: CreemPricingProps) {
+  const t = useTranslations("PricingCards");
   const [activeTab, setActiveTab] = useState<PricingTab>("onetime");
   const [hasAccess, setHasAccess] = useState(false);
   const [activeProductId, setActiveProductId] = useState<string | null>(null);
   const [isCheckingAccess, setIsCheckingAccess] = useState(false);
   const [isPending, startTransition] = useTransition();
   const signInModal = useSigninModal();
+  const pricingSubtitle = dictPrice.pricing_subtitle ?? t("pricing_subtitle");
+  const creditPacksLabel = dictPrice.credit_packs ?? t("credit_packs");
+  const monthlyLabel =
+    dictPrice.monthly_bill ?? dictPrice.monthly ?? t("monthly_bill");
+  const yearlyLabel =
+    dictPrice.annual_bill ?? dictPrice.yearly ?? t("annual_bill");
+  const offPercentLabel = dictPrice.off_percent ?? t("off_percent");
+  const contactEmailLabel = dictPrice.contact_email ?? t("contact_email");
 
   // 组织产品数据
   const allSubscriptionProducts = useMemo(
@@ -125,15 +135,15 @@ export function CreemPricing({
       });
 
       if (error) {
-        toast.error("Checkout error", {
-          description: error.message ?? "Failed to create checkout session.",
+        toast.error(t("toast.checkoutTitle"), {
+          description: error.message ?? t("toast.checkoutDescription"),
         });
         return;
       }
 
       if (!data || !("url" in data) || !data.url) {
-        toast.error("Checkout error", {
-          description: "Missing checkout URL from Creem.",
+        toast.error(t("toast.checkoutTitle"), {
+          description: t("toast.checkoutMissingUrl"),
         });
         return;
       }
@@ -141,20 +151,18 @@ export function CreemPricing({
       window.location.href = data.url;
     });
   };
-  const buyCreditsLabel = dictCredits.buy_credits ?? "Buy Credits";
-
   const handlePortal = async () => {
     const { data, error } = await creem.createPortal();
     if (error) {
-      toast.error("Portal error", {
-        description: error.message ?? "Failed to open customer portal.",
+      toast.error(t("toast.portalTitle"), {
+        description: error.message ?? t("toast.portalDescription"),
       });
       return;
     }
 
     if (!data || !("url" in data) || !data.url) {
-      toast.error("Portal error", {
-        description: "Missing portal URL from Creem.",
+      toast.error(t("toast.portalTitle"), {
+        description: t("toast.portalMissingUrl"),
       });
       return;
     }
@@ -172,20 +180,18 @@ export function CreemPricing({
         <h2 className="font-heading text-3xl leading-[1.1] md:text-5xl">
           {dictPrice.slogan}
         </h2>
-        <p className="mt-4 text-muted-foreground">
-          选择适合您的积分方案，灵活满足不同需求
-        </p>
+        <p className="mt-4 text-muted-foreground">{pricingSubtitle}</p>
       </div>
 
       {/* Tab 切换 */}
       <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as PricingTab)} className="w-full">
         <TabsList className="mx-auto grid max-w-2xl grid-cols-3">
-          <TabsTrigger value="onetime">一次性积分包</TabsTrigger>
-          <TabsTrigger value="monthly">按月订阅</TabsTrigger>
+          <TabsTrigger value="onetime">{creditPacksLabel}</TabsTrigger>
+          <TabsTrigger value="monthly">{monthlyLabel}</TabsTrigger>
           <TabsTrigger value="yearly" className="relative">
-            按年订阅
+            {yearlyLabel}
             <Badge className="absolute -top-2 -right-2 h-5 px-2 bg-destructive text-xs">
-              40% OFF
+              {offPercentLabel}
             </Badge>
           </TabsTrigger>
         </TabsList>
@@ -245,7 +251,7 @@ export function CreemPricing({
       {/* 底部联系信息 */}
       <p className="mt-16 text-center text-base text-muted-foreground">
         <Balancer>
-          Email{" "}
+          {contactEmailLabel}{" "}
           <a
             className="font-medium text-primary hover:underline"
             href="mailto:support@videofly.app"
@@ -292,12 +298,19 @@ function PricingGrid({
   onPortal,
   signInModal,
 }: PricingGridProps) {
-  const buyCreditsLabel = dictCredits.buy_credits ?? "Buy Credits";
+  const t = useTranslations("PricingCards");
+  const buyCreditsLabel =
+    dictCredits.buy_credits ?? dictPrice.buy_credits ?? t("buy_credits");
+  const recommendedLabel = dictPrice.recommended ?? t("recommended");
+  const noProductsLabel = dictPrice.no_products ?? t("no_products");
+  const perYearLabel = dictPrice.per_year ?? t("per_year");
+  const perMonthLabel = dictPrice.per_month ?? t("per_month");
+  const loadingLabel = dictPrice.loading ?? t("loading");
 
   if (products.length === 0) {
     return (
       <div className="py-12 text-center text-muted-foreground">
-        暂无可用产品
+        {noProductsLabel}
       </div>
     );
   }
@@ -318,7 +331,7 @@ function PricingGrid({
           >
             {isRecommended && (
               <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 z-10">
-                推荐
+                {recommendedLabel}
               </Badge>
             )}
 
@@ -332,7 +345,7 @@ function PricingGrid({
                   </span>
                   {product.billingPeriod && (
                     <span className="text-muted-foreground text-sm">
-                      /{product.billingPeriod === "year" ? "年" : "月"}
+                      {product.billingPeriod === "year" ? perYearLabel : perMonthLabel}
                     </span>
                   )}
                 </div>
@@ -374,7 +387,7 @@ function PricingGrid({
                     {isPending ? (
                       <>
                         <Icons.Spinner className="mr-2 h-4 w-4 animate-spin" />
-                        Loading...
+                        {loadingLabel}
                       </>
                     ) : product.billingPeriod ? (
                       dictPrice.upgrade

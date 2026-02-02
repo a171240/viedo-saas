@@ -273,6 +273,10 @@ function PricingCard({
         included: true,
       },
       {
+        label: `${t("priority_queue")}: ${product.priorityQueue ? yesLabel : noLabel}`,
+        included: !!product.priorityQueue,
+      },
+      {
         label: `${t("commercial_use")}: ${product.commercialUse ? yesLabel : noLabel}`,
         included: !!product.commercialUse,
       },

@@ -14,6 +14,7 @@
     "delete": "删除",
     "edit": "编辑",
     "loading": "加载中...",
+    "noResults": "暂无结果",
     "error": "出错了",
     "success": "成功",
     "openMenu": "打开菜单",
@@ -149,7 +150,11 @@
       "deleteFailed": "删除失败",
       "retryStarted": "重试已开始",
       "retryFailed": "重试失败",
-      "batchQueued": "已排队 {count} 个任务"
+      "batchQueued": "已排队 {count} 个任务",
+      "generationRateLimited": "请求过于频繁，请稍后再试。",
+      "generationCooldown": "新账号有短暂冷却时间，请稍等几分钟再试。",
+      "generationDailyLimit": "已达到今日生成上限，升级可提升额度。",
+      "generationParallelLimit": "并发任务已达上限，升级可提升并发数。"
     },
     "TextToVideo": {
       "hero": {
@@ -276,7 +281,7 @@
       "features": {
         "items": [
           "上传 1-3 张商品图",
-          "自动生成脚本 + 分镜 Prompt",
+          "自动生成脚本 + 分镜提示词",
           "默认优化 9:16 短视频平台",
           "不同钩子批量生成变体",
           "支持商用投放"
@@ -321,11 +326,11 @@
       "youtube": "YouTube（16:9）"
     },
     "styles": {
-      "ugc": "UGC",
-      "luxury": "Luxury",
-      "minimal": "Minimal",
-      "tech": "Tech",
-      "cute": "Cute"
+      "ugc": "UGC（真实口播）",
+      "luxury": "轻奢",
+      "minimal": "极简",
+      "tech": "科技感",
+      "cute": "可爱"
     },
     "variations": {
       "option": "{count} 个变体"
@@ -351,11 +356,11 @@
       "auto": "自动"
     },
     "preview": {
-      "title": "Prompt 预览",
-      "placeholder": "填写表单后将生成 Prompt 预览。",
-      "hint": "该 Prompt 将用于生成视频。"
+      "title": "提示词预览",
+      "placeholder": "填写表单后将生成提示词预览。",
+      "hint": "该提示词将用于生成视频。"
     },
-    "estimatedCredits": "\u9884\u8ba1\u6d88\u8017\u79ef\u5206\uff08{count} \u4e2a\u53d8\u4f53\uff09\uff1a{credits}",
+    "estimatedCredits": "预计消耗积分（{count} 个变体）：{credits}",
     "result": {
       "title": "已开始生成",
       "subtitle": "预计扣除 {credits} 积分",
@@ -368,10 +373,10 @@
       "images": "请上传至少 1 张商品图片。",
       "maxImages": "最多上传 3 张图片。"
     },
-    "promptStudio": "Prompt Studio",
+    "promptStudio": "提示词工作室",
     "brandKit": {
-      "label": "\u54c1\u724c\u5957\u4ef6",
-      "hint": "\u5e94\u7528\u5df2\u4fdd\u5b58\u7684\u54c1\u724c\u8bed\u6c14\u548c\u89c4\u5219\u3002"
+      "label": "品牌套件",
+      "hint": "应用已保存的品牌语气和规则。"
     }
   },
   "ToolGenerator": {
@@ -406,8 +411,8 @@
       "generateVideo": "开始生成"
     },
     "brandKit": {
-      "label": "\u54c1\u724c\u5957\u4ef6",
-      "hint": "\u81ea\u52a8\u8ffd\u52a0\u54c1\u724c\u8bed\u6c14\u3001\u98ce\u683c\u8865\u5145\u548c\u7981\u7528\u8bcd\u3002"
+      "label": "品牌套件",
+      "hint": "自动追加品牌语气、风格补充和禁用词。"
     }
   },
   "Share": {
@@ -454,7 +459,39 @@
     "subtitle": "AI 生成的精彩视频",
     "description": "探索我们社区使用 AI 视频生成创作的精彩作品。从电影级风景到产品动画，无所不能。",
     "ctaText": "准备好创作自己的杰作了吗？",
-    "ctaButton": "立即开始创作"
+    "ctaButton": "立即开始创作",
+    "items": [
+      {
+        "title": "电影感自然风光",
+        "description": "震撼的山川风景短片",
+        "tag": "文本生成视频"
+      },
+      {
+        "title": "产品动画",
+        "description": "流畅的产品展示",
+        "tag": "图片生成视频"
+      },
+      {
+        "title": "抽象艺术",
+        "description": "富有创意的 AI 视觉",
+        "tag": "AI 创意"
+      },
+      {
+        "title": "都市街景",
+        "description": "城市生活的动感瞬间",
+        "tag": "文本生成视频"
+      },
+      {
+        "title": "角色动画",
+        "description": "让角色动起来",
+        "tag": "角色"
+      },
+      {
+        "title": "太空之旅",
+        "description": "探索宇宙的旅程",
+        "tag": "文本生成视频"
+      }
+    ]
   },
   "Features": {
     "badge": "强大功能",
@@ -860,6 +897,7 @@
   "PricingCards": {
     "pricing": "定价",
     "slogan": "简单透明的定价",
+    "pricing_subtitle": "选择适合你的方案。",
     "subscription": "订阅",
     "credit_packs": "积分包",
     "one_time": "一次性",
@@ -868,16 +906,19 @@
     "credits_one_time": "一次性积分：{credits}",
     "credit_expiry": "有效期 {days} 天",
     "parallel_tasks": "并发任务",
+    "priority_queue": "优先队列",
     "commercial_use": "商用授权",
     "watermark": "水印",
     "watermark_removed": "无水印",
     "watermark_included": "包含水印",
     "yes": "是",
     "no": "否",
+    "recommended": "推荐",
     "onetime": "一次性",
     "monthly": "按月",
     "yearly": "按年",
-    "off_percent": "40% OFF",
+    "off_percent": "40% 优惠",
+    "off_percent_short": "40%",
     "no_products": "暂无可用产品",
     "per_year": "/年",
     "per_month": "/月",
@@ -951,8 +992,20 @@
     "continue_google": "使用 Google 继续",
     "continue_email": "使用邮箱继续",
     "or_continue_with": "或使用以下方式继续",
+    "email_label": "邮箱",
     "email_placeholder": "name@example.com",
-    "terms_notice": "继续即表示您同意我们的服务条款和隐私政策。"
+    "terms_notice": "继续即表示您同意我们的服务条款和隐私政策。",
+    "validation": {
+      "invalidEmail": "请输入有效的邮箱地址"
+    },
+    "toast": {
+      "loginFailedTitle": "登录失败",
+      "loginFailedDescription": "无法使用 {provider} 登录，请稍后重试。",
+      "magicLinkTitle": "请查收邮件",
+      "magicLinkDescription": "我们已发送登录链接，请注意查看垃圾邮件。",
+      "signInFailedTitle": "出错了",
+      "signInFailedDescription": "登录请求失败，请稍后重试。"
+    }
   },
   "MainNav": {
     "introducing": "介绍 VideoFly",
@@ -1138,22 +1191,22 @@
       "noHistory": "暂无购买记录",
       "loadMore": "加载更多",
       "brandKit": {
-        "title": "\u54c1\u724c\u5957\u4ef6",
-        "description": "\u4e3a\u6bcf\u6b21\u751f\u6210\u81ea\u52a8\u8ffd\u52a0\u54c1\u724c\u8bed\u6c14\u4e0e\u9650\u5236\u3002",
-        "enabled": "\u9ed8\u8ba4\u542f\u7528 Brand Kit",
-        "enabledHint": "\u6bcf\u6b21\u751f\u6210\u4ecd\u53ef\u624b\u52a8\u5173\u95ed\u3002",
-        "brandTone": "\u54c1\u724c\u8bed\u6c14",
-        "brandTonePlaceholder": "\u4f8b\u5982\uff1a\u81ea\u4fe1\u3001\u53cb\u597d\u3001\u7b80\u6d01",
-        "styleSuffix": "\u98ce\u683c\u8865\u5145",
-        "styleSuffixPlaceholder": "\u4f8b\u5982\uff1a\u6781\u7b80\u3001\u5e72\u51c0\u3001\u8d28\u611f",
-        "bannedWords": "\u7981\u7528\u8bcd",
-        "bannedWordsPlaceholder": "\u4f8b\u5982\uff1a\u514d\u8d39\u3001\u6700\u4fbf\u5b9c\u3001\u4fdd\u8bc1",
-        "bannedWordsHint": "\u7528\u9017\u53f7\u6216\u6362\u884c\u5206\u9694\u3002",
-        "defaultRatio": "\u9ed8\u8ba4\u753b\u5e45\u6bd4\u4f8b",
-        "defaultDuration": "\u9ed8\u8ba4\u65f6\u957f",
-        "defaultDurationHint": "\u4ec5\u5728\u6240\u9009\u6a21\u578b\u652f\u6301\u65f6\u751f\u6548\u3002",
-        "noDefault": "\u4e0d\u8bbe\u7f6e",
-        "durationOption": "{seconds} \u79d2"
+        "title": "品牌套件",
+        "description": "为每次生成自动追加品牌语气与限制。",
+        "enabled": "默认启用品牌套件",
+        "enabledHint": "每次生成仍可手动关闭。",
+        "brandTone": "品牌语气",
+        "brandTonePlaceholder": "例如：自信、友好、简洁",
+        "styleSuffix": "风格补充",
+        "styleSuffixPlaceholder": "例如：极简、干净、质感",
+        "bannedWords": "禁用词",
+        "bannedWordsPlaceholder": "例如：免费、最便宜、保证",
+        "bannedWordsHint": "用逗号或换行分隔。",
+        "defaultRatio": "默认画幅比例",
+        "defaultDuration": "默认时长",
+        "defaultDurationHint": "仅在所选模型支持时生效。",
+        "noDefault": "不设置",
+        "durationOption": "{seconds} 秒"
       }
     }
   },
@@ -1321,9 +1374,62 @@
     },
     "analytics": {
       "title": "数据分析",
-      "subtitle": "查看详细的数据分析与趋势",
-      "cardTitle": "即将推出",
-      "cardDescription": "更完整的数据分析功能正在开发中，敬请期待！"
+      "subtitle": "最近 {days} 天视频生成表现",
+      "since": "起始时间 {date}",
+      "na": "暂无",
+      "unknown": "未知",
+      "empty": "暂无数据",
+      "costNotConfigured": "请设置 COST_PER_CREDIT_USD 以启用成本估算",
+      "summary": {
+        "totalTasks": "任务总数",
+        "successRate": "成功率",
+        "avgLatency": "平均耗时",
+        "totalCredits": "消耗积分",
+        "estimatedCost": "成本估算"
+      },
+      "tables": {
+        "provider": {
+          "title": "供应商表现"
+        },
+        "model": {
+          "title": "模型表现"
+        },
+        "failures": {
+          "title": "失败原因"
+        },
+        "rawFailures": {
+          "title": "高频错误信息"
+        }
+      },
+      "columns": {
+        "provider": "供应商",
+        "model": "模型",
+        "total": "总数",
+        "completed": "完成",
+        "failed": "失败",
+        "successRate": "成功率",
+        "avgLatency": "平均耗时",
+        "avgCredits": "平均积分",
+        "totalCredits": "总积分",
+        "estimatedCost": "成本估算",
+        "reason": "原因",
+        "count": "次数",
+        "message": "错误信息"
+      },
+      "failCodes": {
+        "insufficient_credits": "积分不足",
+        "provider_timeout": "供应商超时",
+        "provider_rate_limit": "供应商限流",
+        "callback_signature": "回调签名错误",
+        "storage_upload": "存储上传失败",
+        "invalid_input": "输入不合法",
+        "unknown": "未知"
+      },
+      "units": {
+        "seconds": "{value}秒",
+        "minutes": "{value}分",
+        "hours": "{value}小时"
+      }
     },
     "settings": {
       "title": "系统设置",
@@ -1365,122 +1471,128 @@
     "name": "VideoFly"
   },
   "BlogPosts": {
-    "lastPost": "????",
-    "blogPosts": "????",
-    "viewArticle": "????"
+    "lastPost": "最新文章",
+    "blogPosts": "博客文章",
+    "viewArticle": "查看文章"
   },
   "BillingForm": {
-    "title": "??",
-    "currentPlan": "?????{plan}",
+    "title": "账单",
+    "currentPlan": "当前方案：{plan}",
     "actions": {
-      "manageSubscription": "????",
-      "upgradePro": "??? Pro"
+      "manageSubscription": "管理订阅",
+      "upgradePro": "升级到 Pro"
     },
     "status": {
-      "cancelsOn": "??? ",
-      "renewsOn": "??? "
+      "cancelsOn": "将于 ",
+      "renewsOn": "续订于 "
     },
     "errors": {
-      "genericTitle": "????",
-      "genericDescription": "??????"
+      "genericTitle": "出错了。",
+      "genericDescription": "请重试。"
     }
   },
   "UserNameForm": {
-    "title": "????",
-    "description": "??????????????????",
-    "nameLabel": "??",
+    "title": "你的姓名",
+    "description": "请输入你的姓名或显示名称。",
+    "nameLabel": "姓名",
     "actions": {
-      "save": "??"
+      "save": "保存"
     },
     "errors": {
-      "name": "???? 3-32 ????"
+      "name": "姓名需为 3-32 个字符。"
     },
     "toast": {
-      "errorTitle": "????",
-      "errorDescription": "??????????",
-      "success": "??????"
+      "errorTitle": "出错了。",
+      "errorDescription": "未能更新姓名，请重试。",
+      "success": "姓名已更新。"
     }
   },
   "Questions": {
     "items": {
       "about": {
-        "question": "?? VideoFly",
-        "answer": "VideoFly ?????? AI ???????????????????????????????????????????????????????"
+        "question": "关于 VideoFly",
+        "answer": "VideoFly 是面向工作流的 AI 视频工作室，帮助团队将 brief 快速转成短视频广告，结合模板、提示词工作流与生成工具实现高效变体产出。"
       },
       "nextjs": {
-        "question": "????? Next.js?",
-        "answer": "Next.js ????????SEO ???????????? SaaS?"
+        "question": "为什么选择 Next.js？",
+        "answer": "Next.js 具备优秀性能、SEO 能力和开发体验，非常适合现代 SaaS 产品。"
       },
       "starter": {
-        "question": "?????????",
-        "answer": "????? AI ?? SaaS ?????????????? UI ??????????????????????????"
+        "question": "这个 Starter 适合你吗？",
+        "answer": "如果你要做 AI 视频 SaaS，需要认证、积分、支付、生成 UI 等基础能力，这套 Starter 能帮你更快上线，并可按需定制。"
       }
     }
   },
   "CreemSubscription": {
-    "title": "??",
-    "loading": "???...",
-    "portalErrorTitle": "????",
-    "portalErrorDescription": "?????????",
-    "portalMissingUrl": "Creem ????????"
+    "title": "订阅",
+    "loading": "加载中...",
+    "portalErrorTitle": "打开失败",
+    "portalErrorDescription": "无法打开客户门户。",
+    "portalMissingUrl": "Creem 未返回门户地址。"
   },
   "Pagination": {
-    "ariaLabel": "??",
-    "previous": "???",
-    "next": "???",
-    "morePages": "????",
-    "previousAria": "?????",
-    "nextAria": "?????"
+    "ariaLabel": "分页",
+    "previous": "上一页",
+    "next": "下一页",
+    "morePages": "更多页面",
+    "previousAria": "前往上一页",
+    "nextAria": "前往下一页"
   },
   "Breadcrumb": {
-    "ariaLabel": "?????",
-    "more": "??"
+    "ariaLabel": "面包屑导航",
+    "more": "更多"
   },
   "TwitterCard": {
-    "tweetNotFound": "?????",
-    "linkToTweet": "????",
-    "verifiedAccount": "?????",
-    "browserUnsupported": "??????????????",
-    "profilePictureOf": "?{name}????",
-    "photoBy": "? {name} ?????"
+    "tweetNotFound": "未找到推文",
+    "linkToTweet": "查看推文",
+    "verifiedAccount": "已验证账号",
+    "browserUnsupported": "当前浏览器不支持视频播放。",
+    "profilePictureOf": "{name} 的头像",
+    "photoBy": "照片来自 {name}"
   },
   "ModelPages": {
-    "comingSoon": "????...",
-    "tryImageToVideo": "???????",
-    "tryTextToVideo": "???????",
+    "comingSoon": "即将上线...",
+    "tryImageToVideo": "试试图生视频",
+    "tryTextToVideo": "试试文生视频",
+    "sora2": {
+      "title": "Sora 2"
+    },
     "wan26": {
       "title": "Wan 2.6"
+    },
+    "seedance15": {
+      "title": "Seedance 1.5"
     },
     "veo31": {
       "title": "Veo 3.1"
     }
   },
   "ContentPanel": {
-    "title": "?????????",
-    "subtitle": "??? AI ?????Sora 2?Veo 3.1?Seedance 1.5?Wan 2.6",
+    "title": "把图片变成精彩视频",
+    "subtitle": "由最新 AI 模型驱动：Sora 2、Veo 3.1、Seedance 1.5、Wan 2.6",
     "examples": {
       "items": [
-        "???????",
-        "??????",
-        "???????"
+        "海边行走的女孩",
+        "夜晚的未来城市",
+        "流动的抽象色彩"
       ]
     },
     "features": {
-      "title": "????",
+      "title": "功能亮点",
       "items": [
-        "?? AI ????",
-        "?? 1080p ??",
-        "2-5 ??????",
-        "????????"
+        "多款 AI 模型可选",
+        "1080p 高清输出",
+        "2-5 分钟快速生成",
+        "支持多种画面比例"
       ]
     },
     "cta": {
-      "note": "???????? <highlight>50 ????</highlight> ???",
-      "button": "???????"
+      "note": "立即注册，获得 <highlight>50 免费积分</highlight> 体验！",
+      "button": "登录开始体验"
     }
   },
   "PromptStudio": {
-    "title": "Prompt Studio",
+    "title": "提示词工作室",
     "subtitle": "把简要需求转成定位、角度、4x4 选题矩阵和可用的视频提示词。",
     "templateLabel": "模板",
     "steps": {
@@ -1490,7 +1602,7 @@
       "scriptPrompt": "脚本与提示词"
     },
     "actions": {
-      "open": "Prompt Studio",
+      "open": "提示词工作室",
       "next": "下一步",
       "back": "上一步",
       "apply": "使用该提示词"
@@ -1527,6 +1639,16 @@
         "clear": "清空",
         "queue": "排队 {count} 个"
       }
+    },
+    "batchPrompt": {
+      "intro": "生成比例为 {ratio} 的短视频。",
+      "angle": "角度：{angle}。",
+      "hook": "钩子：{hook}。",
+      "valuePoints": "价值点：{valuePoints}。",
+      "proof": "证明：{proof}。",
+      "cta": "行动号召：{cta}。",
+      "storyboard": "分镜：",
+      "noText": "视频内不要渲染字幕或文字。"
     }
   }
 }

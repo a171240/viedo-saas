@@ -54,6 +54,8 @@ interface GeneratorPanelProps {
   toolType: "image-to-video" | "text-to-video" | "reference-to-video";
   isLoading?: boolean;
   onSubmit?: (data: GeneratorData) => void;
+  availableCredits?: number;
+  onBatchInsufficientCredits?: (requiredCredits: number) => void;
   availableModelIds?: string[];
   defaultModelId?: string;
   initialPrompt?: string;
@@ -74,12 +76,18 @@ export interface GeneratorData {
   imageFile?: File;
   imageUrl?: string;
   estimatedCredits: number;
+  batch?: {
+    total: number;
+    index: number;
+  };
 }
 
 export function GeneratorPanel({
   toolType,
   isLoading = false,
   onSubmit,
+  availableCredits,
+  onBatchInsufficientCredits,
   availableModelIds,
   defaultModelId,
   initialPrompt,
@@ -309,6 +317,17 @@ export function GeneratorPanel({
       const mergedPrompts = useBrandKitEnabled
         ? prompts.map((promptText) => applyBrandKitToPrompt(promptText, brandKit, localeKey))
         : prompts;
+      const totalTasks = mergedPrompts.length;
+      const totalCredits =
+        estimatedCredits > 0 ? estimatedCredits * totalTasks : 0;
+      if (
+        typeof availableCredits === "number" &&
+        totalCredits > 0 &&
+        totalCredits > availableCredits
+      ) {
+        onBatchInsufficientCredits?.(totalCredits);
+        return;
+      }
 
       const baseData = {
         toolType,
@@ -321,17 +340,22 @@ export function GeneratorPanel({
         estimatedCredits,
       };
 
-      for (const promptText of mergedPrompts) {
+      for (const [index, promptText] of mergedPrompts.entries()) {
         await Promise.resolve(
           onSubmit?.({
             ...baseData,
             prompt: promptText,
+            batch: {
+              total: totalTasks,
+              index,
+            },
           }),
         );
       }
     },
     [
       aspectRatio,
+      availableCredits,
       currentModel,
       duration,
       estimatedCredits,
@@ -345,6 +369,7 @@ export function GeneratorPanel({
       selectedModel,
       toolType,
       locale,
+      onBatchInsufficientCredits,
       useBrandKitEnabled,
       brandKit,
     ],
@@ -451,7 +476,25 @@ export function GeneratorPanel({
               <SectionLabel className="mb-0">{t("labels.prompt")}</SectionLabel>
               <PromptStudioDialog
                 locale={locale === "zh" ? "zh" : "en"}
-                onApplyPrompt={(value) => setPrompt(value)}
+                onApplyPrompt={(value, output) => {
+                  setPrompt(value);
+                  const meta = output?.metadata;
+                  if (meta?.ratio && currentModel?.aspectRatios?.includes(meta.ratio)) {
+                    setAspectRatio(meta.ratio);
+                  }
+                  if (
+                    typeof meta?.durationSeconds === "number" &&
+                    currentModel?.durations?.includes(meta.durationSeconds)
+                  ) {
+                    setDuration(meta.durationSeconds);
+                  }
+                  if (meta?.resolution && currentModel?.qualities?.length) {
+                    const normalized = meta.resolution.toUpperCase();
+                    if (currentModel.qualities.includes(normalized)) {
+                      setQuality(normalized);
+                    }
+                  }
+                }}
                 onBatchCreate={handleBatchCreate}
                 batchDisabled={batchDisabled}
                 batchDisabledHint={batchDisabledHint}

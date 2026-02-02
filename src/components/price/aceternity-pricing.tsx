@@ -4,6 +4,7 @@ import { useMemo, useState, useTransition } from "react";
 import Balancer from "react-wrap-balancer";
 import { IconCheck } from "@tabler/icons-react";
 import { motion } from "motion/react";
+import { useTranslations } from "next-intl";
 
 import { creem } from "@/lib/auth/client";
 import { Button } from "@/components/ui/button";
@@ -36,11 +37,23 @@ export function AceternityPricing({
   dictPrice,
   dictCredits,
 }: AceternityPricingProps) {
+  const t = useTranslations("PricingCards");
   const [activeTab, setActiveTab] = useState<PricingTab>("onetime");
   const [hasAccess, setHasAccess] = useState(false);
   const [activeProductId, setActiveProductId] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
   const signInModal = useSigninModal();
+  const sloganLabel = dictPrice.slogan ?? t("slogan");
+  const pricingSubtitle = dictPrice.pricing_subtitle ?? t("pricing_subtitle");
+  const creditPacksLabel = dictPrice.credit_packs ?? t("credit_packs");
+  const monthlyLabel =
+    dictPrice.monthly_bill ?? dictPrice.monthly ?? t("monthly_bill");
+  const yearlyLabel =
+    dictPrice.annual_bill ?? dictPrice.yearly ?? t("annual_bill");
+  const offPercentShortLabel =
+    dictPrice.off_percent_short ?? t("off_percent_short");
+  const noProductsLabel = dictPrice.no_products ?? t("no_products");
+  const contactEmailLabel = dictPrice.contact_email ?? t("contact_email");
 
   // 组织产品数据
   const allSubscriptionProducts = useMemo(
@@ -86,15 +99,15 @@ export function AceternityPricing({
       });
 
       if (error) {
-        toast.error("Checkout error", {
-          description: error.message ?? "Failed to create checkout session.",
+        toast.error(t("toast.checkoutTitle"), {
+          description: error.message ?? t("toast.checkoutDescription"),
         });
         return;
       }
 
       if (!data || !("url" in data) || !data.url) {
-        toast.error("Checkout error", {
-          description: "Missing checkout URL from Creem.",
+        toast.error(t("toast.checkoutTitle"), {
+          description: t("toast.checkoutMissingUrl"),
         });
         return;
       }
@@ -106,15 +119,15 @@ export function AceternityPricing({
   const handlePortal = async () => {
     const { data, error } = await creem.createPortal();
     if (error) {
-      toast.error("Portal error", {
-        description: error.message ?? "Failed to open customer portal.",
+      toast.error(t("toast.portalTitle"), {
+        description: error.message ?? t("toast.portalDescription"),
       });
       return;
     }
 
     if (!data || !("url" in data) || !data.url) {
-      toast.error("Portal error", {
-        description: "Missing portal URL from Creem.",
+      toast.error(t("toast.portalTitle"), {
+        description: t("toast.portalMissingUrl"),
       });
       return;
     }
@@ -137,7 +150,8 @@ export function AceternityPricing({
   };
 
   const currentProducts = getCurrentProducts();
-  const buyCreditsLabel = dictCredits.buy_credits ?? "Buy Credits";
+  const buyCreditsLabel =
+    dictCredits.buy_credits ?? dictPrice.buy_credits ?? t("buy_credits");
 
   return (
     <main className="flex min-h-[60vh] flex-col bg-background">
@@ -149,11 +163,11 @@ export function AceternityPricing({
           transition={{ duration: 0.5 }}
         >
           <h1 className="pt-4 text-center text-2xl font-bold tracking-tight text-foreground md:text-4xl">
-            {dictPrice.slogan || "Choose Your Plan"}
+            {sloganLabel}
           </h1>
           <p className="mx-auto mt-4 max-w-md text-center text-base text-muted-foreground">
             <Balancer>
-              选择适合您的积分方案，灵活满足不同需求
+              {pricingSubtitle}
             </Balancer>
           </p>
         </motion.div>
@@ -165,20 +179,20 @@ export function AceternityPricing({
               active={activeTab === "onetime"}
               onClick={() => setActiveTab("onetime")}
             >
-              一次性积分包
+              {creditPacksLabel}
             </TabButton>
             <TabButton
               active={activeTab === "monthly"}
               onClick={() => setActiveTab("monthly")}
             >
-              按月订阅
+              {monthlyLabel}
             </TabButton>
             <TabButton
               active={activeTab === "yearly"}
               onClick={() => setActiveTab("yearly")}
-              showBadge
+              badgeText={offPercentShortLabel}
             >
-              按年订阅
+              {yearlyLabel}
             </TabButton>
           </div>
         </div>
@@ -211,7 +225,7 @@ export function AceternityPricing({
             </div>
           ) : (
             <div className="py-12 text-center text-muted-foreground">
-              暂无可用产品
+              {noProductsLabel}
             </div>
           )}
         </div>
@@ -225,7 +239,7 @@ export function AceternityPricing({
         >
           <p className="text-muted-foreground">
             <Balancer>
-              Email{" "}
+              {contactEmailLabel}{" "}
               <a
                 className="font-medium text-primary hover:underline"
                 href="mailto:support@videofly.app"
@@ -251,12 +265,13 @@ interface TabButtonProps {
   active: boolean;
   children: React.ReactNode;
   onClick: () => void;
-  showBadge?: boolean;
+  badgeText?: string;
 }
 
-function TabButton({ active, children, onClick, showBadge }: TabButtonProps) {
+function TabButton({ active, children, onClick, badgeText }: TabButtonProps) {
   return (
-    <button type="button"
+    <button
+      type="button"
       onClick={onClick}
       className={cn(
         "relative rounded-md px-6 py-2.5 text-sm font-medium transition-all duration-200",
@@ -267,11 +282,11 @@ function TabButton({ active, children, onClick, showBadge }: TabButtonProps) {
       )}
     >
       {children}
-      {showBadge && (
-        <span className="absolute -top-2 -right-2 flex h-5 w-5 items-center justify-center rounded-full bg-destructive text-[10px] font-bold text-white">
-          40%
+      {badgeText ? (
+        <span className="absolute -top-2 -right-2 flex h-5 items-center justify-center rounded-full bg-destructive px-2 text-[10px] font-bold text-white">
+          {badgeText}
         </span>
-      )}
+      ) : null}
     </button>
   );
 }
@@ -307,6 +322,12 @@ function PricingCard({
   signInModal,
   index,
 }: PricingCardProps) {
+  const t = useTranslations("PricingCards");
+  const recommendedLabel = dictPrice.recommended ?? t("recommended");
+  const perYearLabel = dictPrice.per_year ?? t("per_year");
+  const perMonthLabel = dictPrice.per_month ?? t("per_month");
+  const loadingLabel = dictPrice.loading ?? t("loading");
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -324,7 +345,7 @@ function PricingCard({
         {isRecommended && (
           <div className="absolute -top-3 left-1/2 -translate-x-1/2">
             <span className="rounded-full bg-primary px-4 py-1 text-xs font-bold text-primary-foreground">
-              推荐
+              {recommendedLabel}
             </span>
           </div>
         )}
@@ -350,7 +371,7 @@ function PricingCard({
               </span>
               {product.billingPeriod && (
                 <span className="text-muted-foreground mb-1 text-sm">
-                  /{product.billingPeriod === "year" ? "年" : "月"}
+                  {product.billingPeriod === "year" ? perYearLabel : perMonthLabel}
                 </span>
               )}
             </div>
@@ -379,7 +400,7 @@ function PricingCard({
                 {isPending ? (
                   <span className="flex items-center gap-2">
                     <div className="h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-                    Loading...
+                    {loadingLabel}
                   </span>
                 ) : product.billingPeriod ? (
                   dictPrice.upgrade

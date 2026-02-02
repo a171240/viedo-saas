@@ -403,6 +403,7 @@ export function ToolPageLayout({
     // 检查积分
     const requiredCredits = data.estimatedCredits || 0;
     const availableCredits = balance?.availableCredits ?? 0;
+    const isBatch = Boolean(data.batch && data.batch.total > 1);
 
     if (availableCredits < requiredCredits) {
       // 打开升级弹窗
@@ -465,14 +466,44 @@ export function ToolPageLayout({
       });
 
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || tTool("toast.generationFailed"));
+        let errorPayload: unknown = null;
+        try {
+          errorPayload = await response.json();
+        } catch {
+          errorPayload = null;
+        }
+
+        const payload = errorPayload as {
+          error?: { message?: string; details?: { reason?: string } };
+        } | null;
+        const reason = payload?.error?.details?.reason;
+        const defaultMessage =
+          payload?.error?.message || tTool("toast.generationFailed");
+        const reasonMessages: Record<string, string> = {
+          rate_limit: tTool("toast.generationRateLimited"),
+          cooldown: tTool("toast.generationCooldown"),
+          daily_limit: tTool("toast.generationDailyLimit"),
+          parallel_limit: tTool("toast.generationParallelLimit"),
+        };
+        const message = reason ? reasonMessages[reason] ?? defaultMessage : defaultMessage;
+
+        if (reason === "parallel_limit" || reason === "daily_limit") {
+          openModal({ reason: "upgrade" });
+        }
+
+        throw new Error(message);
       }
 
       const result = await response.json();
       const videoUuid = result.data.videoUuid as string;
 
-      toast.success(tTool("toast.generationStarted"));
+      if (isBatch) {
+        if (data.batch?.index === data.batch.total - 1) {
+          toast.success(tTool("toast.batchQueued", { count: data.batch.total }));
+        }
+      } else {
+        toast.success(tTool("toast.generationStarted"));
+      }
 
       // 添加到历史记录
       videoHistoryStorage.addHistory({
@@ -624,6 +655,10 @@ export function ToolPageLayout({
                   toolType={toolRoute as "image-to-video" | "text-to-video" | "reference-to-video"}
                   isLoading={isSubmitting}
                   onSubmit={handleSubmit}
+                  availableCredits={balance?.availableCredits}
+                  onBatchInsufficientCredits={(totalCredits) =>
+                    openModal({ reason: "insufficient_credits", requiredCredits: totalCredits })
+                  }
                   availableModelIds={config.generator.models.available}
                   defaultModelId={config.generator.models.default}
                   initialPrompt={prefillData?.prompt}
@@ -700,6 +735,10 @@ export function ToolPageLayout({
               toolType={toolRoute as "image-to-video" | "text-to-video" | "reference-to-video"}
               isLoading={isSubmitting}
               onSubmit={handleSubmit}
+              availableCredits={balance?.availableCredits}
+              onBatchInsufficientCredits={(totalCredits) =>
+                openModal({ reason: "insufficient_credits", requiredCredits: totalCredits })
+              }
               availableModelIds={config.generator.models.available}
               defaultModelId={config.generator.models.default}
               initialPrompt={prefillData?.prompt}

@@ -48,6 +48,11 @@ export const parseBannedWords = (value?: string) =>
 
 export const applyBrandKitToPrompt = (prompt: string, brandKit: BrandKit, locale: "en" | "zh") => {
   if (!brandKit.enabled) return prompt;
+  const trimmedPrompt = prompt.trim();
+  const existingMarkers = ["Brand tone:", "Style suffix:", "Avoid words:", "品牌语气：", "风格补充：", "避免用词："];
+  if (existingMarkers.some((marker) => trimmedPrompt.includes(marker))) {
+    return trimmedPrompt;
+  }
   const lines: string[] = [];
   if (brandKit.brandTone) {
     lines.push(locale === "zh" ? `品牌语气：${brandKit.brandTone}` : `Brand tone: ${brandKit.brandTone}`);
@@ -61,5 +66,5 @@ export const applyBrandKitToPrompt = (prompt: string, brandKit: BrandKit, locale
   }
 
   if (lines.length === 0) return prompt;
-  return [prompt.trim(), "", ...lines].filter(Boolean).join("\n");
+  return [trimmedPrompt, "", ...lines].filter(Boolean).join("\n");
 };

@@ -3,6 +3,7 @@
 import { useMobileMenu } from "@/components/layout/mobile-menu-context";
 import { HeaderSimple } from "@/components/layout/header-simple";
 import { Sidebar } from "@/components/layout/sidebar";
+import { UpgradeModal } from "@/components/upgrade/upgrade-modal";
 
 interface ToolLayoutContentProps {
   children: React.ReactNode;
@@ -35,6 +36,8 @@ export function ToolLayoutContent({
 
         <div className="flex flex-1 overflow-hidden">{children}</div>
       </div>
+
+      <UpgradeModal />
     </div>
   );
 }

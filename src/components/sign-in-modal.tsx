@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import Image from "next/image";
 import { useSearchParams } from "next/navigation";
+import { useTranslations } from "next-intl";
 
 import { authClient } from "@/lib/auth/client";
 import { Button } from "@/components/ui/button";
@@ -14,14 +15,12 @@ import { siteConfig } from "@/config/site";
 import { useSigninModal } from "@/hooks/use-signin-modal";
 import { toast } from "sonner";
 
-type Dictionary = Record<string, string>;
-
 interface SignInModalContentProps {
   lang: string;
-  dict: Dictionary;
 }
 
-export const SignInModalContent = ({ lang, dict }: SignInModalContentProps) => {
+export const SignInModalContent = ({ lang }: SignInModalContentProps) => {
+  const t = useTranslations("SignInModal");
   const signInModal = useSigninModal();
   const searchParams = useSearchParams();
   const [signInClicked, setSignInClicked] = useState<string | null>(null);
@@ -41,8 +40,8 @@ export const SignInModalContent = ({ lang, dict }: SignInModalContentProps) => {
     } catch (error) {
       console.error(`${provider} signIn error:`, error);
       setSignInClicked(null);
-      toast.error("Login failed", {
-        description: `Could not sign in with ${provider}. Please try again.`,
+      toast.error(t("toast.loginFailedTitle"), {
+        description: t("toast.loginFailedDescription", { provider }),
       });
     }
   };
@@ -53,7 +52,7 @@ export const SignInModalContent = ({ lang, dict }: SignInModalContentProps) => {
     // Email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!email || !emailRegex.test(email)) {
-      setEmailError("Please enter a valid email address");
+      setEmailError(t("validation.invalidEmail"));
       return;
     }
 
@@ -66,16 +65,16 @@ export const SignInModalContent = ({ lang, dict }: SignInModalContentProps) => {
         callbackURL,
       });
 
-      toast.success("Check your email", {
-        description: "We sent you a login link. Be sure to check your spam too.",
+      toast.success(t("toast.magicLinkTitle"), {
+        description: t("toast.magicLinkDescription"),
       });
 
       setEmail("");
       signInModal.onClose();
     } catch (error) {
       console.error("Magic link signIn error:", error);
-      toast.error("Something went wrong", {
-        description: "Your sign in request failed. Please try again.",
+      toast.error(t("toast.signInFailedTitle"), {
+        description: t("toast.signInFailedDescription"),
       });
     } finally {
       setSignInClicked(null);
@@ -89,10 +88,10 @@ export const SignInModalContent = ({ lang, dict }: SignInModalContentProps) => {
       {/* Header */}
       <div className="flex flex-col items-center justify-center space-y-3 border-b bg-background px-4 py-6 pt-8 text-center">
         <h3 className="font-urban text-2xl font-bold">
-          {dict.signin_title || "Sign in to your account"}
+          {t("signin_title")}
         </h3>
         <p className="text-sm text-muted-foreground">
-          {dict.signin_subtitle || "Get started with VideoFly today"}
+          {t("signin_subtitle")}
         </p>
       </div>
 
@@ -111,7 +110,7 @@ export const SignInModalContent = ({ lang, dict }: SignInModalContentProps) => {
             ) : (
               <Icons.Google className="mr-2 h-4 w-4" />
             )}
-            {dict.continue_google || "Continue with Google"}
+            {t("continue_google")}
           </Button>
         )}
 
@@ -125,7 +124,7 @@ export const SignInModalContent = ({ lang, dict }: SignInModalContentProps) => {
                 </div>
                 <div className="relative flex justify-center text-xs uppercase">
                   <span className="bg-secondary/50 px-2 text-muted-foreground">
-                    {dict.or_continue_with || "or continue with"}
+                    {t("or_continue_with")}
                   </span>
                 </div>
               </div>
@@ -134,11 +133,11 @@ export const SignInModalContent = ({ lang, dict }: SignInModalContentProps) => {
             <form onSubmit={handleMagicLinkLogin} className="grid gap-2">
               <div className="grid gap-1">
                 <Label className="sr-only" htmlFor="email">
-                  Email
+                  {t("email_label")}
                 </Label>
                 <Input
                   id="email"
-                  placeholder="name@example.com"
+                  placeholder={t("email_placeholder")}
                   type="email"
                   autoCapitalize="none"
                   autoComplete="email"
@@ -166,7 +165,7 @@ export const SignInModalContent = ({ lang, dict }: SignInModalContentProps) => {
                 ) : (
                   <Icons.Mail className="mr-2 h-4 w-4" />
                 )}
-                {dict.continue_email || "Continue with Email"}
+                {t("continue_email")}
               </Button>
             </form>
           </>
@@ -174,7 +173,7 @@ export const SignInModalContent = ({ lang, dict }: SignInModalContentProps) => {
 
         {/* Footer text */}
         <p className="text-center text-xs text-muted-foreground">
-          {dict.terms_notice || "By continuing, you agree to our Terms of Service and Privacy Policy."}
+          {t("terms_notice")}
         </p>
       </div>
     </div>
@@ -182,11 +181,11 @@ export const SignInModalContent = ({ lang, dict }: SignInModalContentProps) => {
 };
 
 // Legacy component for backward compatibility
-export const SignInModal = ({ lang, dict }: SignInModalContentProps) => {
-  return <SignInModalContent lang={lang} dict={dict} />;
+export const SignInModal = ({ lang }: SignInModalContentProps) => {
+  return <SignInModalContent lang={lang} />;
 };
 
 // Wrapper component for use with Modal
-export function SignInModalWrapper({ lang, dict }: SignInModalContentProps) {
-  return <SignInModalContent lang={lang} dict={dict} />;
+export function SignInModalWrapper({ lang }: SignInModalContentProps) {
+  return <SignInModalContent lang={lang} />;
 }

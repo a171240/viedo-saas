@@ -6,7 +6,6 @@ import { ModalProvider } from "@/components/modal-provider";
 import { LandingHeader } from "@/components/landing/header";
 import { LandingFooter } from "@/components/landing/footer";
 import type { Locale } from "@/config/i18n-config";
-import { getDictionary } from "@/lib/get-dictionary";
 
 export default async function MarketingLayout({
   children,
@@ -20,7 +19,6 @@ export default async function MarketingLayout({
   const { locale } = await params;
   const resolvedLocale = locale as Locale;
   const user = await getCurrentUser();
-  const dict = await getDictionary(resolvedLocale);
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -28,7 +26,7 @@ export default async function MarketingLayout({
         <LandingHeader user={user ?? null} />
       </Suspense>
 
-      <ModalProvider dict={dict} locale={resolvedLocale}>
+      <ModalProvider locale={resolvedLocale}>
         <main className="flex-1">{children}</main>
       </ModalProvider>
 

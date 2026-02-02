@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { Play, Download, Trash2, Sparkles, Clock, Zap } from "lucide-react";
+import { useLocale, useTranslations } from "next-intl";
 import { cn } from "@/components/ui";
 import { Card, CardContent } from "@/components/ui/card";
 import { BlurFade } from "@/components/magicui/blur-fade";
@@ -25,38 +26,38 @@ interface VideoCardProps {
   showActions?: boolean;
 }
 
-const statusConfig = {
-  PENDING: {
-    label: "Pending",
-    color: "bg-yellow-500/20 text-yellow-400 border-yellow-500/30",
-    icon: Clock,
-  },
-  GENERATING: {
-    label: "Generating",
-    color: "bg-blue-500/20 text-blue-400 border-blue-500/30",
-    icon: Sparkles,
-  },
-  UPLOADING: {
-    label: "Uploading",
-    color: "bg-purple-500/20 text-purple-400 border-purple-500/30",
-    icon: Zap,
-  },
-  COMPLETED: {
-    label: "Completed",
-    color: "bg-green-500/20 text-green-400 border-green-500/30",
-    icon: Sparkles,
-  },
-  FAILED: {
-    label: "Failed",
-    color: "bg-red-500/20 text-red-400 border-red-500/30",
-    icon: null,
-  },
-};
-
 function VideoThumbnail({ video }: { video: Video }) {
+  const tStatus = useTranslations("dashboard.myCreations.status");
   const videoRef = React.useRef<HTMLVideoElement>(null);
   const [isPlaying, setIsPlaying] = React.useState(false);
   const [showOverlay, setShowOverlay] = React.useState(false);
+  const statusConfig = {
+    PENDING: {
+      label: tStatus("pending"),
+      color: "bg-yellow-500/20 text-yellow-400 border-yellow-500/30",
+      icon: Clock,
+    },
+    GENERATING: {
+      label: tStatus("generating"),
+      color: "bg-blue-500/20 text-blue-400 border-blue-500/30",
+      icon: Sparkles,
+    },
+    UPLOADING: {
+      label: tStatus("uploading"),
+      color: "bg-purple-500/20 text-purple-400 border-purple-500/30",
+      icon: Zap,
+    },
+    COMPLETED: {
+      label: tStatus("completed"),
+      color: "bg-green-500/20 text-green-400 border-green-500/30",
+      icon: Sparkles,
+    },
+    FAILED: {
+      label: tStatus("failed"),
+      color: "bg-red-500/20 text-red-400 border-red-500/30",
+      icon: null,
+    },
+  };
 
   const handleMouseEnter = () => {
     setShowOverlay(true);
@@ -169,6 +170,7 @@ function VideoThumbnail({ video }: { video: Video }) {
 }
 
 function VideoActions({ video, onDelete }: { video: Video; onDelete?: () => void }) {
+  const tActions = useTranslations("dashboard.myCreations.actions");
   if (video.status !== "COMPLETED" || !video.video_url) return null;
 
   return (
@@ -183,7 +185,7 @@ function VideoActions({ video, onDelete }: { video: Video; onDelete?: () => void
         )}
       >
         <Play className="w-4 h-4" />
-        Play
+        {tActions("play")}
       </a>
       <a
         href={video.video_url}
@@ -192,7 +194,7 @@ function VideoActions({ video, onDelete }: { video: Video; onDelete?: () => void
           "flex items-center justify-center w-10 h-10 rounded-xl transition-all",
           "bg-zinc-800 hover:bg-zinc-700 text-white"
         )}
-        title="Download"
+        title={tActions("download")}
       >
         <Download className="w-4 h-4" />
       </a>
@@ -204,7 +206,7 @@ function VideoActions({ video, onDelete }: { video: Video; onDelete?: () => void
             "flex items-center justify-center w-10 h-10 rounded-xl transition-all",
             "bg-red-500/10 hover:bg-red-500/20 text-red-400"
           )}
-          title="Delete"
+          title={tActions("delete")}
         >
           <Trash2 className="w-4 h-4" />
         </button>
@@ -214,7 +216,10 @@ function VideoActions({ video, onDelete }: { video: Video; onDelete?: () => void
 }
 
 export function VideoCard({ video, onDelete, showActions = true }: VideoCardProps) {
-  const createdAt = new Date(video.created_at).toLocaleDateString();
+  const locale = useLocale();
+  const createdAt = new Date(video.created_at).toLocaleDateString(
+    locale === "zh" ? "zh-CN" : "en-US"
+  );
 
   return (
     <BlurFade inView>

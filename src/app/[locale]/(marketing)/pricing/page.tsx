@@ -15,9 +15,19 @@ type CreditsDictionary = {
 
 type UserSubscriptionPlan = Awaited<ReturnType<typeof getUserPlans>>;
 
-export const metadata = {
-  title: "Pricing",
-};
+interface PricingPageProps {
+  params: Promise<{
+    locale: string;
+  }>;
+}
+
+export async function generateMetadata({ params }: PricingPageProps) {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "Header" });
+  return {
+    title: t("pricing"),
+  };
+}
 
 export default async function PricingPage() {
   const user = await getCurrentUser();

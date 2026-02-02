@@ -1,4 +1,6 @@
-﻿export type ProductToVideoPlatform = "tiktok" | "youtube";
+import { getPromptStudioTemplate } from "./prompt-studio";
+
+export type ProductToVideoPlatform = "tiktok" | "youtube";
 export type ProductToVideoStyle = "ugc" | "luxury" | "minimal" | "tech" | "cute";
 
 export type ProductToVideoInput = {
@@ -46,6 +48,24 @@ export const PRODUCT_TO_VIDEO_STYLES = [
 ];
 
 export const PRODUCT_TO_VIDEO_VARIATIONS = [3, 5, 10];
+
+const STYLE_LABELS: Record<ProductToVideoStyle, string> = {
+  ugc: "UGC",
+  luxury: "Luxury",
+  minimal: "Minimal",
+  tech: "Tech",
+  cute: "Cute",
+};
+
+const PLATFORM_LABELS: Record<ProductToVideoPlatform, string> = {
+  tiktok: "TikTok/Reels/Shorts (9:16)",
+  youtube: "YouTube (16:9)",
+};
+
+const DEFAULT_CTA: Record<ProductToVideoLocale, string> = {
+  en: "Shop now",
+  zh: "立即购买",
+};
 
 const STYLE_VARIANTS_EN: Record<ProductToVideoStyle, string[]> = {
   ugc: [
@@ -179,6 +199,22 @@ export function buildProductToVideoPrompt(
   ratio: string,
   variation?: ProductToVideoVariation,
 ) {
+  const promptTemplate = getPromptStudioTemplate(locale, "product_ads_hvc_v1");
+  if (promptTemplate) {
+    const basePrompt = promptTemplate.build({
+      productName: input.productName,
+      targetAudience: input.targetAudience,
+      benefits: input.keyBenefits,
+      platform: PLATFORM_LABELS[input.platform],
+      style: STYLE_LABELS[input.style],
+      cta: DEFAULT_CTA[locale],
+    }).videoPrompt;
+
+    return variation
+      ? applyProductToVideoVariationNotes(locale, basePrompt, variation)
+      : basePrompt;
+  }
+
   const benefits = input.keyBenefits.slice(0, 5);
   const benefitsText = benefits.length > 0 ? benefits.join(", ") : "";
   const styleLabel = variation?.style ?? input.style.toUpperCase();

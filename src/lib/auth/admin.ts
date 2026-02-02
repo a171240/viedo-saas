@@ -17,6 +17,7 @@ import { auth } from "@/lib/auth";
 import { db } from "@/db";
 import { users } from "@/db/schema";
 import { eq } from "drizzle-orm";
+import { getDevBypassUser, isDevBypassEnabled } from "@/lib/auth/dev-bypass";
 import { env } from "./env.mjs";
 import type { Locale } from "@/config/i18n-config";
 
@@ -30,6 +31,20 @@ import type { Locale } from "@/config/i18n-config";
  * @throws 如果未登录或不是管理员，则重定向
  */
 export async function requireAdmin(redirectTo?: string) {
+  if (isDevBypassEnabled()) {
+    const devUser = await getDevBypassUser();
+    if (devUser) {
+      if (!devUser.isAdmin) {
+        await db
+          .update(users)
+          .set({ isAdmin: true })
+          .where(eq(users.id, devUser.id));
+      }
+
+      return { ...devUser, isAdmin: true };
+    }
+  }
+
   const session = await auth.api.getSession({
     headers: await headers(),
   });
@@ -76,6 +91,10 @@ export async function requireAdmin(redirectTo?: string) {
  * @returns 是否是管理员
  */
 export async function isAdmin(): Promise<boolean> {
+  if (isDevBypassEnabled()) {
+    return true;
+  }
+
   const session = await auth.api.getSession({
     headers: await headers(),
   });

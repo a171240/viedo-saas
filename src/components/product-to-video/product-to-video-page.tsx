@@ -35,6 +35,7 @@ import { getAvailableModels, getModelConfig, calculateModelCredits } from "@/con
 import { applyBrandKitToPrompt } from "@/config/brand-kit";
 import { uploadImage } from "@/lib/video-api";
 import { authClient } from "@/lib/auth/client";
+import { fetchDevBypassUser, isDevBypassEnabled } from "@/lib/auth/dev-bypass-client";
 import { useBrandKit } from "@/hooks/use-brand-kit";
 import { toast } from "sonner";
 import PromptStudioDialog from "@/components/prompt-studio/prompt-studio-dialog";
@@ -91,6 +92,16 @@ export function ProductToVideoPage({ locale }: { locale: string }) {
   useEffect(() => {
     setUseBrandKitEnabled(brandKit.enabled);
   }, [brandKit.enabled]);
+
+  useEffect(() => {
+    if (!availableModels.length) return;
+    if (availableModels.some((model) => model.id === modelId)) return;
+    const fallback = availableModels.find((model) => model.id === PRODUCT_TO_VIDEO_DEFAULTS.model)?.id
+      ?? availableModels[0]?.id;
+    if (fallback) {
+      setModelId(fallback);
+    }
+  }, [availableModels, modelId]);
 
   const platformConfig = PRODUCT_TO_VIDEO_PLATFORMS.find((p) => p.id === platform);
   const ratio = platformConfig?.ratio ?? "9:16";
@@ -257,8 +268,12 @@ export function ProductToVideoPage({ locale }: { locale: string }) {
     setIsSubmitting(true);
     try {
       const session = await authClient.getSession();
-      if (!session?.data?.user) {
-        router.push(`/${locale}/login?from=/product-to-video`);
+      let activeUser = session?.data?.user ?? null;
+      if (!activeUser && isDevBypassEnabled()) {
+        activeUser = await fetchDevBypassUser();
+      }
+      if (!activeUser) {
+        router.push(`/${locale}/login?from=/${locale}/product-to-video`);
         return;
       }
 
@@ -336,8 +351,12 @@ export function ProductToVideoPage({ locale }: { locale: string }) {
     setIsSubmitting(true);
     try {
       const session = await authClient.getSession();
-      if (!session?.data?.user) {
-        router.push(`/${locale}/login?from=/product-to-video`);
+      let activeUser = session?.data?.user ?? null;
+      if (!activeUser && isDevBypassEnabled()) {
+        activeUser = await fetchDevBypassUser();
+      }
+      if (!activeUser) {
+        router.push(`/${locale}/login?from=/${locale}/product-to-video`);
         return;
       }
 

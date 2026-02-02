@@ -1,12 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/db";
 import { videos } from "@/db/schema";
-import { eq, or, sql } from "drizzle-orm";
-import { getProvider, type ProviderType, type VideoTaskResponse } from "@/ai";
+import { eq } from "drizzle-orm";
+import { type ProviderType, type VideoTaskResponse } from "@/ai";
+import { VIDEO_RECOVERY_CONFIG } from "@/config/video-recovery";
+import { recoverStuckVideos } from "@/services/video-recovery";
 
 /**
  * 恢复卡住的视频任务
- * GET /api/v1/video/recover?secret=YOUR_SECRET
+ * GET /api/v1/video/recover?secret=YOUR_SECRET&limit=20 (dry-run preview)
  */
 export async function GET(request: NextRequest) {
   try {
@@ -18,95 +20,27 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // 查找所有非完成状态的视频
-    const stuckVideos = await db
-      .select()
-      .from(videos)
-      .where(
-        or(
-          eq(videos.status, "PENDING"),
-          eq(videos.status, "GENERATING"),
-          eq(videos.status, "UPLOADING")
-        )
-      )
-      .orderBy(sql`"videos"."created_at" DESC`)
-      .limit(20);
+    const limit = Number.parseInt(
+      searchParams.get("limit") || `${VIDEO_RECOVERY_CONFIG.maxBatchSize}`
+    );
 
-    if (stuckVideos.length === 0) {
+    const summary = await recoverStuckVideos({
+      dryRun: true,
+      limit,
+    });
+
+    if (summary.total === 0) {
       return NextResponse.json({
         success: true,
         message: "No stuck videos found",
         recovered: 0,
+        ...summary,
       });
-    }
-
-    const results: Array<{
-      uuid: string;
-      status: string;
-      evolinkStatus: string;
-      action: string;
-      videoUrl?: string;
-      thumbnailUrl?: string;
-      error?: string;
-    }> = [];
-
-    // 检查每个视频的实际状态
-    for (const video of stuckVideos) {
-      if (!video.externalTaskId || !video.provider) {
-        results.push({
-          uuid: video.uuid,
-          status: video.status,
-          evolinkStatus: "missing_task",
-          action: "skipped",
-        });
-        continue;
-      }
-
-      try {
-        // 从 evolink 获取状态
-        const provider = getProvider(video.provider as ProviderType);
-        const taskStatus = await provider.getTaskStatus(video.externalTaskId);
-
-        if (taskStatus.status === "completed" && taskStatus.videoUrl) {
-          // 任务已完成，返回信息
-          results.push({
-            uuid: video.uuid,
-            status: video.status,
-            evolinkStatus: taskStatus.status,
-            action: "ready_to_complete",
-            videoUrl: taskStatus.videoUrl,
-            thumbnailUrl: taskStatus.thumbnailUrl,
-          });
-        } else if (taskStatus.status === "failed") {
-          results.push({
-            uuid: video.uuid,
-            status: video.status,
-            evolinkStatus: "failed",
-            action: "mark_as_failed",
-          });
-        } else {
-          results.push({
-            uuid: video.uuid,
-            status: video.status,
-            evolinkStatus: taskStatus.status || "unknown",
-            action: "still_processing",
-          });
-        }
-      } catch (error) {
-        results.push({
-          uuid: video.uuid,
-          status: video.status,
-          evolinkStatus: "error",
-          action: "query_failed",
-          error: error instanceof Error ? error.message : "Unknown error",
-        });
-      }
     }
 
     return NextResponse.json({
       success: true,
-      total: stuckVideos.length,
-      results,
+      ...summary,
     });
   } catch (error) {
     console.error("Recover API error:", error);
@@ -121,9 +55,11 @@ export async function GET(request: NextRequest) {
 }
 
 /**
- * 手动触发视频完成
+ * 手动触发视频完成 / 批量恢复
  * POST /api/v1/video/recover?secret=YOUR_SECRET
- * Body: { videoUuid, videoUrl, thumbnailUrl }
+ * Body:
+ * 1) { videoUuid, videoUrl, thumbnailUrl }  // manual completion
+ * 2) { action: "recover", dryRun?: boolean, limit?: number } // auto recovery
  */
 export async function POST(request: NextRequest) {
   try {
@@ -135,8 +71,37 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const body = await request.json();
-    const { videoUuid, videoUrl, thumbnailUrl } = body;
+    let body: Record<string, unknown> | null = null;
+    try {
+      body = await request.json();
+    } catch {
+      body = null;
+    }
+
+    if (body?.action === "recover") {
+      const dryRun = body?.dryRun === true;
+      const rawLimit =
+        typeof body?.limit === "number"
+          ? body.limit
+          : Number.parseInt(String(body?.limit ?? ""), 10);
+      const limit = Number.isFinite(rawLimit) && rawLimit > 0
+        ? rawLimit
+        : VIDEO_RECOVERY_CONFIG.maxBatchSize;
+
+      const summary = await recoverStuckVideos({
+        dryRun,
+        limit,
+      });
+
+      return NextResponse.json({
+        success: true,
+        ...summary,
+      });
+    }
+
+    const videoUuid = body?.videoUuid as string | undefined;
+    const videoUrl = body?.videoUrl as string | undefined;
+    const thumbnailUrl = body?.thumbnailUrl as string | undefined;
 
     if (!videoUuid || !videoUrl) {
       return NextResponse.json(
@@ -167,13 +132,7 @@ export async function POST(request: NextRequest) {
       videoUrl,
       thumbnailUrl: thumbnailUrl || undefined,
     };
-    const videoServiceAny = videoService as unknown as {
-      tryCompleteGeneration: (
-        videoUuid: string,
-        result: VideoTaskResponse
-      ) => Promise<unknown>;
-    };
-    await videoServiceAny.tryCompleteGeneration(videoUuid, result);
+    await videoService.recoverComplete(videoUuid, result);
 
     return NextResponse.json({
       success: true,

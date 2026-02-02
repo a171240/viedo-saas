@@ -10,8 +10,8 @@ import { toast } from "sonner";
 import {
   VideoGeneratorInput,
   type SubmitData,
-  DEFAULT_CONFIG,
   DEFAULT_DEFAULTS,
+  mergeConfig,
 } from "@/components/video-generator";
 import { BlurFade } from "@/components/magicui/blur-fade";
 import { Meteors } from "@/components/magicui/meteors";
@@ -70,13 +70,14 @@ export function HeroSection() {
 
   const generatorConfig = useMemo(() => {
     const availableIds = new Set(getAvailableModels().map((model) => model.id));
-    const baseVideoModels = DEFAULT_CONFIG.videoModels ?? [];
+    const baseConfig = mergeConfig(undefined, locale);
+    const baseVideoModels = baseConfig.videoModels ?? [];
     const filteredVideoModels = baseVideoModels.filter((model) => availableIds.has(model.id));
     return {
-      ...DEFAULT_CONFIG,
+      ...baseConfig,
       videoModels: filteredVideoModels.length > 0 ? filteredVideoModels : baseVideoModels,
     };
-  }, []);
+  }, [locale]);
 
   const generatorDefaults = useMemo(() => {
     const preferredModel = generatorConfig.videoModels[0]?.id ?? DEFAULT_DEFAULTS.videoModel;

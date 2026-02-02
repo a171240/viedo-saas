@@ -353,6 +353,7 @@ export class VideoService {
       }
 
       if (
+        video.status !== VideoStatus.PENDING &&
         video.status !== VideoStatus.GENERATING &&
         video.status !== VideoStatus.UPLOADING
       ) {
@@ -395,6 +396,11 @@ export class VideoService {
 
       await creditService.settle(videoUuid);
 
+      const generationTimeSeconds = Math.max(
+        0,
+        Math.round((Date.now() - video.createdAt.getTime()) / 1000)
+      );
+
       await trx
         .update(videos)
         .set({
@@ -402,6 +408,7 @@ export class VideoService {
           videoUrl: finalVideoUrl,
           thumbnailUrl: result.thumbnailUrl || null,
           completedAt: new Date(),
+          generationTime: generationTimeSeconds,
           updatedAt: new Date(),
         })
         .where(eq(videos.uuid, videoUuid));
@@ -442,11 +449,17 @@ export class VideoService {
 
       await creditService.release(videoUuid);
 
+      const generationTimeSeconds = Math.max(
+        0,
+        Math.round((Date.now() - video.createdAt.getTime()) / 1000)
+      );
+
       await trx
         .update(videos)
         .set({
           status: VideoStatus.FAILED,
           errorMessage: errorMessage || "Generation failed",
+          generationTime: generationTimeSeconds,
           updatedAt: new Date(),
         })
         .where(eq(videos.uuid, videoUuid));
@@ -463,6 +476,20 @@ export class VideoService {
         errorMessage: errorMessage || "Generation failed",
       };
     });
+  }
+
+  /**
+   * Recovery: force complete a video from admin tooling or background jobs.
+   */
+  async recoverComplete(videoUuid: string, result: VideoTaskResponse) {
+    return this.tryCompleteGeneration(videoUuid, result);
+  }
+
+  /**
+   * Recovery: force fail a video and release credits.
+   */
+  async recoverFail(videoUuid: string, errorMessage?: string) {
+    return this.tryFailGeneration(videoUuid, errorMessage);
   }
 
   /**

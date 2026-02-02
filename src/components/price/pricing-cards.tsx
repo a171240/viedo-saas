@@ -51,6 +51,7 @@ export function PricingCards({
 
   const buildPlanSpecs = (plan: {
     parallelTasks?: number;
+    priorityQueue?: boolean;
     commercialUse?: boolean;
     noWatermark?: boolean;
   }): PlanSpec[] => {
@@ -61,6 +62,10 @@ export function PricingCards({
       {
         label: `${t("parallel_tasks")}: ${plan.parallelTasks ?? 1}`,
         included: true,
+      },
+      {
+        label: `${t("priority_queue")}: ${plan.priorityQueue ? yesLabel : noLabel}`,
+        included: !!plan.priorityQueue,
       },
       {
         label: `${t("commercial_use")}: ${plan.commercialUse ? yesLabel : noLabel}`,

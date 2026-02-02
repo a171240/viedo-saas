@@ -19,60 +19,71 @@ import { LocaleLink } from "@/i18n/navigation";
  * - 参考 Linear/Vercel 的产品展示风格
  */
 
-// 示例视频数据
+// 示例视频数据（文本由 i18n 提供）
 const showcaseVideos = [
   {
     id: 1,
     title: "Cinematic Nature",
     description: "A stunning landscape video",
+    tag: "Text to Video",
     thumbnail: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80",
     gradient: "from-blue-500 to-cyan-500",
-    tag: "Text to Video",
   },
   {
     id: 2,
     title: "Product Animation",
     description: "Smooth product showcase",
+    tag: "Image to Video",
     thumbnail: "https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=800&q=80",
     gradient: "from-purple-500 to-pink-500",
-    tag: "Image to Video",
   },
   {
     id: 3,
     title: "Abstract Art",
     description: "Creative AI-generated visuals",
+    tag: "AI Creative",
     thumbnail: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800&q=80",
     gradient: "from-orange-500 to-red-500",
-    tag: "AI Creative",
   },
   {
     id: 4,
     title: "Urban Scene",
     description: "City life in motion",
+    tag: "Text to Video",
     thumbnail: "https://images.unsplash.com/photo-1480714378408-67cf0d13bc1b?w=800&q=80",
     gradient: "from-green-500 to-emerald-500",
-    tag: "Text to Video",
   },
   {
     id: 5,
     title: "Character Animation",
     description: "Bringing characters to life",
+    tag: "Character",
     thumbnail: "https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=800&q=80",
     gradient: "from-indigo-500 to-purple-500",
-    tag: "Character",
   },
   {
     id: 6,
     title: "Space Journey",
     description: "Explore the cosmos",
+    tag: "Text to Video",
     thumbnail: "https://images.unsplash.com/photo-1462331940025-496dfbfc7564?w=800&q=80",
     gradient: "from-teal-500 to-cyan-500",
-    tag: "Text to Video",
   },
 ];
 
 export function ShowcaseSection() {
   const t = useTranslations("Showcase");
+  const localizedItems = t.raw("items") as Array<{
+    title?: string;
+    description?: string;
+    tag?: string;
+  }>;
+  const localizedVideos = showcaseVideos.map((video, index) => ({
+    ...video,
+    title: localizedItems?.[index]?.title ?? video.title,
+    description: localizedItems?.[index]?.description ?? video.description,
+    tag: localizedItems?.[index]?.tag ?? video.tag,
+  }));
 
   return (
     <section className="relative py-24 md:py-32 overflow-hidden">
@@ -128,7 +139,7 @@ export function ShowcaseSection() {
 
         {/* 视频展示网格 */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-          {showcaseVideos.map((video, index) => (
+          {localizedVideos.map((video, index) => (
             <BlurFade key={video.id} delay={index * 0.05} inView>
               <motion.div
                 initial={{ opacity: 0, y: 30 }}

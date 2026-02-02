@@ -11,7 +11,7 @@ export const MODEL_CAPABILITIES: Record<string, ModelCapability> = {
     supportedRatios: ["16:9", "9:16"],
   },
   "wan2.6": {
-    supportedDurations: [5, 10],
+    supportedDurations: [5, 10, 15],
     supportedRatios: ["16:9", "9:16", "1:1", "4:3", "3:4"],
     supportedResolutions: ["720P", "1080P"],
     supportsAudio: true,
@@ -21,9 +21,9 @@ export const MODEL_CAPABILITIES: Record<string, ModelCapability> = {
     supportedRatios: ["16:9", "9:16"],
   },
   "seedance-1.5-pro": {
-    supportedDurations: [4, 5, 6, 7, 8, 9, 10, 11, 12],
+    supportedDurations: [4, 8, 12],
     supportedRatios: ["16:9", "9:16", "1:1", "4:3", "3:4", "21:9"],
-    supportedResolutions: ["480P", "720P", "1080P"],
+    supportedResolutions: ["480P", "720P"],
     supportsAudio: true,
   },
 };
