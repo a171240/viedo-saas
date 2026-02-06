@@ -1238,7 +1238,7 @@
       "title": "Create an account",
       "subtitle": "Enter your email below to create your account",
       "loginLink": "Login",
-      "termsNotice": "By clicking continue, you agree to our {terms} and {privacy}."
+      "termsNotice": "By clicking continue, you agree to our <terms>Terms of Service</terms> and <privacy>Privacy Policy</privacy>."
     },
     "form": {
       "emailLabel": "Email",
