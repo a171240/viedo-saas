@@ -3,11 +3,15 @@ import os from "node:os";
 import path from "node:path";
 import { chromium } from "playwright";
 
-const baseURL = process.env.BASE_URL || "http://localhost:3001";
+let baseURL = process.env.BASE_URL || process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3001";
 
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 const TEST_IMAGE_BASE64 =
   "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR4nGMAAQAABQABDQottAAAAABJRU5ErkJggg==";
+
+function uniq(items) {
+  return [...new Set(items.filter(Boolean))];
+}
 
 function ensureTestImage() {
   const filePath = path.join(os.tmpdir(), "vf-playwright-test.png");
@@ -15,6 +19,32 @@ function ensureTestImage() {
     fs.writeFileSync(filePath, Buffer.from(TEST_IMAGE_BASE64, "base64"));
   }
   return filePath;
+}
+
+async function resolveBaseURL(page) {
+  const candidates = uniq([
+    process.env.BASE_URL,
+    process.env.NEXT_PUBLIC_APP_URL,
+    "http://127.0.0.1:3001",
+    "http://127.0.0.1:3002",
+    "http://localhost:3001",
+    "http://localhost:3002",
+  ]);
+
+  const testPaths = ["/en", "/"];
+  for (const candidate of candidates) {
+    for (const testPath of testPaths) {
+      try {
+        const resp = await page.goto(`${candidate}${testPath}`, { waitUntil: "domcontentloaded", timeout: 45000 });
+        const status = resp?.status() ?? 0;
+        if (status && status !== 404) return candidate;
+      } catch {
+        // ignore connection errors and try next candidate
+      }
+    }
+  }
+
+  throw new Error(`No reachable BASE_URL from candidates: ${candidates.join(", ")}`);
 }
 
 async function setLocalStorage(page, items) {
@@ -25,7 +55,7 @@ async function setLocalStorage(page, items) {
   }, items);
 }
 
-async function waitForCreditBalance(page) {
+async function installCreditBalanceStub(page) {
   let balanceResponse = null;
   await page.route("**/api/v1/credit/balance", async (route) => {
     balanceResponse = await route.fetch();
@@ -48,16 +78,18 @@ async function waitForCreditBalance(page) {
     }
     await route.fulfill({ response: balanceResponse });
   });
+  return () => balanceResponse;
+}
 
+async function waitForCreditBalance(page) {
   try {
     await page.waitForResponse((resp) => resp.url().includes("/api/v1/credit/balance"), {
       timeout: 8000,
     });
+    return true;
   } catch (error) {
     return null;
   }
-
-  return balanceResponse;
 }
 
 async function ensureBrandKitToggle(page) {
@@ -444,6 +476,8 @@ async function main() {
     }),
   });
 
+  await installCreditBalanceStub(page);
+  baseURL = await resolveBaseURL(page);
   await gotoFirstAvailable(page, ["/en/text-to-video", "/text-to-video"]);
   await waitForCreditBalance(page);
 
