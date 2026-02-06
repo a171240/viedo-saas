@@ -5,7 +5,9 @@
  */
 
 const API_BASE = "https://videofly.app/api/v1/video";
-const SECRET = process.env.CALLBACK_HMAC_SECRET || "your_callback_secret_for_hmac";
+const SECRET = process.env.AI_CALLBACK_SECRET
+  || process.env.CALLBACK_HMAC_SECRET
+  || "your_callback_secret_for_hmac";
 
 async function checkStuckVideos() {
   console.log("🔍 检查卡住的视频状态...\n");

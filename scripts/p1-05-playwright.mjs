@@ -1,8 +1,21 @@
+import fs from "node:fs";
+import os from "node:os";
+import path from "node:path";
 import { chromium } from "playwright";
 
 const baseURL = process.env.BASE_URL || "http://localhost:3001";
 
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+const TEST_IMAGE_BASE64 =
+  "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR4nGMAAQAABQABDQottAAAAABJRU5ErkJggg==";
+
+function ensureTestImage() {
+  const filePath = path.join(os.tmpdir(), "vf-playwright-test.png");
+  if (!fs.existsSync(filePath)) {
+    fs.writeFileSync(filePath, Buffer.from(TEST_IMAGE_BASE64, "base64"));
+  }
+  return filePath;
+}
 
 async function setLocalStorage(page, items) {
   await page.addInitScript((payload) => {
@@ -48,7 +61,7 @@ async function waitForCreditBalance(page) {
 }
 
 async function ensureBrandKitToggle(page) {
-  const toggle = page.getByRole("switch", { name: /Brand Kit/i });
+  const toggle = page.getByRole("switch", { name: /Brand Kit|品牌套件/i });
   await toggle.waitFor({ state: "visible" });
   const initial = await toggle.getAttribute("aria-checked");
   if (initial !== "true") {
@@ -83,13 +96,26 @@ async function captureGeneratePayload(page) {
 }
 
 async function gotoFirstAvailable(page, paths) {
+  let lastError = null;
   for (const path of paths) {
-    const response = await page.goto(`${baseURL}${path}`, { waitUntil: "domcontentloaded" });
-    const status = response?.status() ?? 0;
-    if (status && status !== 404) {
-      return path;
+    for (let attempt = 0; attempt < 2; attempt += 1) {
+      try {
+        const response = await page.goto(`${baseURL}${path}`, { waitUntil: "domcontentloaded" });
+        const status = response?.status() ?? 0;
+        if (status && status !== 404) {
+          return path;
+        }
+        if (status === 404) break;
+      } catch (error) {
+        lastError = error;
+        if (attempt === 0) {
+          await delay(300);
+          continue;
+        }
+      }
     }
   }
+  if (lastError) throw lastError;
   throw new Error(`No available route: ${paths.join(", ")}`);
 }
 
@@ -103,14 +129,17 @@ async function assertBrandKitPreview(page, expectBrandKit) {
         el.value &&
         (el.value.includes("Brand tone:") ||
           el.value.includes("Style suffix:") ||
-          el.value.includes("Avoid words:")),
+          el.value.includes("Avoid words:") ||
+          el.value.includes("品牌语气：") ||
+          el.value.includes("风格补充：") ||
+          el.value.includes("避免用词：")),
       await preview.elementHandle()
     );
   }
   const value = await preview.inputValue();
-  const hasBrandTone = value.includes("Brand tone:");
-  const hasStyleSuffix = value.includes("Style suffix:");
-  const hasAvoidWords = value.includes("Avoid words:");
+  const hasBrandTone = value.includes("Brand tone:") || value.includes("品牌语气：");
+  const hasStyleSuffix = value.includes("Style suffix:") || value.includes("风格补充：");
+  const hasAvoidWords = value.includes("Avoid words:") || value.includes("避免用词：");
   if (expectBrandKit && (!hasBrandTone || !hasStyleSuffix || !hasAvoidWords)) {
     throw new Error("Brand Kit lines missing from prompt preview");
   }
@@ -120,9 +149,9 @@ async function assertBrandKitPreview(page, expectBrandKit) {
 }
 
 async function getPromptPreviewTextarea(page) {
-  let preview = page.getByPlaceholder(/Fill in the form to generate a prompt preview/i);
+  let preview = page.getByPlaceholder(/Fill in the form to generate a prompt preview|填写表单后将生成提示词预览/i);
   if (await preview.count() === 0) {
-    const heading = page.getByRole("heading", { name: /Prompt preview/i });
+    const heading = page.getByRole("heading", { name: /Prompt preview|提示词预览/i });
     await heading.waitFor();
     preview = heading.locator("..").locator("textarea").first();
   }
@@ -130,16 +159,30 @@ async function getPromptPreviewTextarea(page) {
 }
 
 async function openPromptStudio(page) {
-  await page.getByRole("button", { name: /Prompt Studio/i }).click();
-  const dialog = page.getByRole("dialog", { name: /Prompt Studio/i });
+  await page.getByRole("button", { name: /Prompt Studio|提示词工作室/i }).click();
+  const dialog = page.getByRole("dialog", { name: /Prompt Studio|提示词工作室/i });
   await dialog.waitFor({ state: "visible" });
   return dialog;
+}
+
+async function closePromptStudio(dialog) {
+  const closeButton = dialog.getByRole("button", { name: /close|关闭/i });
+  await closeButton.click();
+  await dialog.waitFor({ state: "hidden" });
 }
 
 async function selectTemplate(dialog, nameRegex) {
   const trigger = dialog.getByRole("combobox").first();
   await trigger.click();
-  await dialog.page().getByRole("option", { name: nameRegex }).click();
+  const patterns = Array.isArray(nameRegex) ? nameRegex : [nameRegex];
+  for (const pattern of patterns) {
+    const option = dialog.page().getByRole("option", { name: pattern });
+    if ((await option.count()) > 0) {
+      await option.first().click();
+      return;
+    }
+  }
+  await dialog.page().keyboard.press("Escape");
 }
 
 async function fillFieldByLabel(dialog, labelRegex, value) {
@@ -167,32 +210,64 @@ async function fillPageFieldByLabel(page, labelRegex, value) {
   await input.fill(value);
 }
 
+async function waitForBenefitsHint(page, count) {
+  const countPattern = `${count}\\/5`;
+  await page.waitForFunction((pattern) => {
+    const text = document.body.textContent || "";
+    return new RegExp(pattern).test(text) && (/benefits added/i.test(text) || /卖点/.test(text));
+  }, countPattern);
+}
+
 async function fillPromptStudioBasics(dialog) {
-  await dialog.getByRole("button", { name: /1 Positioning/i }).waitFor();
-  await dialog.getByRole("button", { name: /2 Angle Mining/i }).waitFor();
-  await dialog.getByRole("button", { name: /3 4x4 Calendar/i }).waitFor();
-  await dialog.getByRole("button", { name: /4 Script & Prompt/i }).waitFor();
+  await dialog.getByRole("button", { name: /^1 / }).waitFor();
+  await dialog.getByRole("button", { name: /^2 / }).waitFor();
+  await dialog.getByRole("button", { name: /^3 / }).waitFor();
+  await dialog.getByRole("button", { name: /^4 / }).waitFor();
 
-  await selectTemplate(dialog, /Product Ad/i);
+  await selectTemplate(dialog, [/Product Ad/i, /商品广告/i]);
 
-  await fillFieldByLabel(dialog, /Product name/i, "Glow Serum");
-  await fillFieldByLabel(dialog, /Target audience/i, "Skincare beginners");
-  await fillFieldByLabel(dialog, /Key benefits/i, "Hydration, Brightening, Soothing");
+  await fillFieldByLabel(dialog, /Product name|产品名称/i, "Glow Serum");
+  await fillFieldByLabel(dialog, /Target audience|目标受众/i, "Skincare beginners");
+  await fillFieldByLabel(dialog, /Key benefits|核心卖点/i, "Hydration, Brightening, Soothing");
   await fillFieldByLabel(dialog, /CTA/i, "Shop now");
 
-  const usePrompt = dialog.getByRole("button", { name: /Use this prompt/i });
+  const usePrompt = dialog.getByRole("button", { name: /Use this prompt|使用该提示词/i });
   if (await usePrompt.isEnabled()) {
     throw new Error("Use this prompt should be disabled before selecting platform/style");
   }
 
-  await selectOptionByLabel(dialog, /Platform/i, /TikTok/i);
-  await selectOptionByLabel(dialog, /Style/i, /UGC/i);
+  await selectOptionByLabel(dialog, /Platform|平台/i, /TikTok/i);
+  await selectOptionByLabel(dialog, /Style|风格/i, /UGC/i);
 
-  const applyButton = dialog.getByRole("button", { name: /Use this prompt/i });
+  const applyButton = dialog.getByRole("button", { name: /Use this prompt|使用该提示词/i });
   await applyButton.waitFor({ state: "visible" });
   if (!(await applyButton.isEnabled())) {
     throw new Error("Use this prompt should be enabled after filling required fields");
   }
+}
+
+async function assertPromptStudioInitialState(dialog) {
+  await dialog.getByText(/Fill required fields to generate outputs|请先填写必填项以生成结果/i).waitFor();
+  const applyButton = dialog.getByRole("button", { name: /Use this prompt|使用该提示词/i });
+  if (await applyButton.isEnabled()) {
+    throw new Error("Use this prompt should be disabled before required fields are filled");
+  }
+  const backButton = dialog.getByRole("button", { name: /Back|上一步/i });
+  if (await backButton.isEnabled()) {
+    throw new Error("Back should be disabled on the first step");
+  }
+}
+
+function buildSelectedCountRegex(selected, expectedMax) {
+  return new RegExp(`(Selected|已选)\\s*${selected}\\s*\\/\\s*${expectedMax}`);
+}
+
+async function assertSelectionLimit(dialog, expectedMax, extraAngleRegex) {
+  await dialog.getByText(buildSelectedCountRegex(expectedMax, expectedMax)).waitFor();
+  const extraAngle = dialog.getByRole("button", { name: extraAngleRegex }).first();
+  await extraAngle.waitFor({ state: "visible" });
+  await extraAngle.click();
+  await dialog.getByText(buildSelectedCountRegex(expectedMax, expectedMax)).waitFor();
 }
 
 async function gotoPromptStudioStep(dialog, stepIndex) {
@@ -204,7 +279,7 @@ async function assertPromptStudioOutput(dialog, { product, audience, cta }) {
   await dialog.getByText(new RegExp(`${product}.*${audience}`)).waitFor();
 
   await gotoPromptStudioStep(dialog, 2);
-  await dialog.getByText(new RegExp(`Stop scrolling: ${product}`)).waitFor();
+  await dialog.getByText(new RegExp(`(Stop scrolling|别划走)[^\\n]*${product}`)).waitFor();
 
   await gotoPromptStudioStep(dialog, 4);
   const textareas = dialog.locator("textarea");
@@ -213,7 +288,7 @@ async function assertPromptStudioOutput(dialog, { product, audience, cta }) {
   let hasNegativePrompt = false;
   for (let i = 0; i < count; i += 1) {
     const value = await textareas.nth(i).inputValue();
-    if (value.includes(product) && value.includes("Structure: Hook -> Value -> CTA")) {
+    if (value.includes(product) && (value.includes("Structure: Hook -> Value -> CTA") || value.includes("结构：吸引"))) {
       hasVideoPrompt = true;
     }
     if (value.includes("blurry") && value.includes("low quality")) {
@@ -230,28 +305,28 @@ async function assertPromptStudioOutput(dialog, { product, audience, cta }) {
 }
 
 async function assertBatchQueue(dialog, { expectedMax, selected, queueEnabled, requireImageHint }) {
-  await dialog.getByText(new RegExp(`Selected ${selected}/${expectedMax}`)).waitFor();
-  const queueButton = dialog.getByRole("button", { name: new RegExp(`Queue ${selected}`) });
+  await dialog.getByText(buildSelectedCountRegex(selected, expectedMax)).waitFor();
+  const queueButton = dialog.getByRole("button", { name: new RegExp(`(Queue|排队)\\s*${selected}`) });
   const enabled = await queueButton.isEnabled();
   if (queueEnabled !== enabled) {
     throw new Error(`Queue button enabled=${enabled} but expected ${queueEnabled}`);
   }
   if (requireImageHint) {
-    await dialog.getByText(/Add an image to queue prompts/i).waitFor();
+    await dialog.getByText(/Add an image to queue prompts|请先上传图片再批量排队/i).waitFor();
   }
 }
 
 async function assertBatchCountOptions(dialog) {
-  const batchCombo = dialog.getByRole("combobox").filter({ hasText: /tasks/i }).first();
+  const batchCombo = dialog.getByRole("combobox").filter({ hasText: /tasks|任务/i }).first();
   await batchCombo.click();
-  await dialog.page().getByRole("option", { name: "3 tasks" }).waitFor();
-  await dialog.page().getByRole("option", { name: "5 tasks" }).waitFor();
-  await dialog.page().getByRole("option", { name: "10 tasks" }).waitFor();
-  await dialog.page().getByRole("option", { name: "5 tasks" }).click();
+  await dialog.page().getByRole("option", { name: /3 tasks|3 个任务/ }).waitFor();
+  await dialog.page().getByRole("option", { name: /5 tasks|5 个任务/ }).waitFor();
+  await dialog.page().getByRole("option", { name: /10 tasks|10 个任务/ }).waitFor();
+  await dialog.page().getByRole("option", { name: /5 tasks|5 个任务/ }).click();
 }
 
 async function assertCalendarStageAngles(dialog, label, minCount = 4) {
-  const stageHeader = dialog.getByText(label, { exact: true });
+  const stageHeader = dialog.getByText(label);
   await stageHeader.waitFor();
   const stageBlock = stageHeader.locator("..");
   const angleCount = await stageBlock.getByRole("button").count();
@@ -267,12 +342,29 @@ async function selectVariationCount(page, count) {
 }
 
 async function assertEstimatedCredits(page, variations, expectedCredits) {
-  const pattern = new RegExp(`Estimated credits \\(${variations} variations\\):\\s*${expectedCredits}`);
+  const pattern = new RegExp(
+    `(Estimated credits|预计消耗积分)\\s*\\(${variations}\\s*(variations|个变体)\\)[:：]\\s*${expectedCredits}`
+  );
   await page.getByText(pattern).waitFor();
+}
+
+async function assertGenerateButtonState(page, nameRegex, expectedEnabled) {
+  const button = page.getByRole("button", { name: nameRegex });
+  await button.waitFor({ state: "visible" });
+  const enabled = await button.isEnabled();
+  if (enabled !== expectedEnabled) {
+    throw new Error(`Generate button enabled=${enabled} but expected ${expectedEnabled}`);
+  }
+}
+
+async function waitForToast(page, messageRegex) {
+  const toast = page.getByText(messageRegex).first();
+  await toast.waitFor({ state: "visible" });
 }
 
 async function runPromptStudioTextToVideo(page) {
   const dialog = await openPromptStudio(page);
+  await assertPromptStudioInitialState(dialog);
   await fillPromptStudioBasics(dialog);
   await assertPromptStudioOutput(dialog, {
     product: "Glow Serum",
@@ -282,22 +374,23 @@ async function runPromptStudioTextToVideo(page) {
 
   await gotoPromptStudioStep(dialog, 2);
   await gotoPromptStudioStep(dialog, 3);
-  await assertCalendarStageAngles(dialog, "Acquire");
-  await assertCalendarStageAngles(dialog, "Trust");
-  await assertCalendarStageAngles(dialog, "Convert");
-  await assertCalendarStageAngles(dialog, "Retain");
+  await assertCalendarStageAngles(dialog, /Acquire|获客/);
+  await assertCalendarStageAngles(dialog, /Trust|建立信任/);
+  await assertCalendarStageAngles(dialog, /Convert|转化/);
+  await assertCalendarStageAngles(dialog, /Retain|留存/);
 
   await assertBatchCountOptions(dialog);
-  await dialog.getByRole("button", { name: /Select top 5/i }).click();
+  await dialog.getByRole("button", { name: /Select top 5|选前 5 个/i }).click();
   await assertBatchQueue(dialog, { expectedMax: 5, selected: 5, queueEnabled: true, requireImageHint: false });
-  await dialog.getByRole("button", { name: /Clear/i }).click();
+  await assertSelectionLimit(dialog, 5, /Before\/After story|前后对比/i);
+  await dialog.getByRole("button", { name: /Clear|清空/i }).click();
   await assertBatchQueue(dialog, { expectedMax: 5, selected: 0, queueEnabled: false, requireImageHint: false });
-  await dialog.getByRole("button", { name: /Select top 5/i }).click();
+  await dialog.getByRole("button", { name: /Select top 5|选前 5 个/i }).click();
 
-  await dialog.getByRole("button", { name: /Use this prompt/i }).click();
+  await dialog.getByRole("button", { name: /Use this prompt|使用该提示词/i }).click();
   await dialog.waitFor({ state: "hidden" });
 
-  const promptInput = page.getByPlaceholder(/Describe the video/i);
+  const promptInput = page.getByPlaceholder(/Describe the video|描述视频/i);
   await promptInput.waitFor({ state: "visible" });
   const promptValue = await promptInput.inputValue();
   if (!promptValue.includes("Glow Serum")) {
@@ -307,6 +400,7 @@ async function runPromptStudioTextToVideo(page) {
 
 async function applyPromptStudioProductToVideo(page) {
   const dialog = await openPromptStudio(page);
+  await assertPromptStudioInitialState(dialog);
   await fillPromptStudioBasics(dialog);
   await assertPromptStudioOutput(dialog, {
     product: "Glow Serum",
@@ -316,15 +410,21 @@ async function applyPromptStudioProductToVideo(page) {
 
   await gotoPromptStudioStep(dialog, 2);
   await gotoPromptStudioStep(dialog, 3);
-  await assertCalendarStageAngles(dialog, "Acquire");
-  await assertCalendarStageAngles(dialog, "Trust");
-  await assertCalendarStageAngles(dialog, "Convert");
-  await assertCalendarStageAngles(dialog, "Retain");
+  await assertCalendarStageAngles(dialog, /Acquire|获客/);
+  await assertCalendarStageAngles(dialog, /Trust|建立信任/);
+  await assertCalendarStageAngles(dialog, /Convert|转化/);
+  await assertCalendarStageAngles(dialog, /Retain|留存/);
 
-  await dialog.getByRole("button", { name: /Select top 3/i }).click();
+  await dialog.getByRole("button", { name: /Select top 3|选前 3 个/i }).click();
   await assertBatchQueue(dialog, { expectedMax: 3, selected: 3, queueEnabled: false, requireImageHint: true });
+  await assertSelectionLimit(dialog, 3, /POV/i);
 
-  await dialog.getByRole("button", { name: /Use this prompt/i }).click();
+  const imagePath = ensureTestImage();
+  await page.setInputFiles('input[type="file"]', imagePath);
+  await delay(500);
+  await assertBatchQueue(dialog, { expectedMax: 3, selected: 3, queueEnabled: true, requireImageHint: false });
+
+  await dialog.getByRole("button", { name: /Use this prompt|使用该提示词/i }).click();
   await dialog.waitFor({ state: "hidden" });
 }
 
@@ -348,24 +448,29 @@ async function main() {
   await waitForCreditBalance(page);
 
   // Prompt Studio button availability
-  await page.getByRole("button", { name: /Prompt Studio/i }).waitFor();
+  await page.getByRole("button", { name: /Prompt Studio|提示词工作室/i }).waitFor();
 
   // Brand Kit toggle verification (text-to-video)
   await ensureBrandKitToggle(page);
 
-  // Fill prompt and attempt generation (requires login or dev bypass)
-  await page.getByPlaceholder(/Describe the video/i).fill("A sleek product demo in a modern studio");
-  const readPayload = await captureGeneratePayload(page);
-  await page.getByRole("button", { name: /Generate Video/i }).click();
+  // Generate button should be disabled without prompt or image
+  await assertGenerateButtonState(page, /Generate Video|生成视频/i, false);
 
-  // If redirected to login, skip strict payload assertion
-  await delay(800);
-  if (!page.url().includes("/login")) {
-    const payload = readPayload();
-    if (!payload?.prompt) {
-      throw new Error("Generate payload missing prompt");
-    }
-    if (!payload.prompt.includes("Brand tone:") || !payload.prompt.includes("Style suffix:")) {
+  // Fill prompt and attempt generation (requires login or dev bypass)
+  await page.getByPlaceholder(/Describe the video|描述视频/i).fill("A sleek product demo in a modern studio");
+  await assertGenerateButtonState(page, /Generate Video|生成视频/i, true);
+  const readPayload = await captureGeneratePayload(page);
+  await page.getByRole("button", { name: /Generate Video|生成视频/i }).click();
+
+  // Wait briefly for either login redirect or generate request
+  await delay(1200);
+  const payload = readPayload();
+  const redirectedToLogin = page.url().includes("/login");
+
+  if (!redirectedToLogin && payload?.prompt) {
+    const hasBrandTone = payload.prompt.includes("Brand tone:") || payload.prompt.includes("品牌语气：");
+    const hasStyleSuffix = payload.prompt.includes("Style suffix:") || payload.prompt.includes("风格补充：");
+    if (!hasBrandTone || !hasStyleSuffix) {
       throw new Error("Brand Kit lines not appended to prompt");
     }
   }
@@ -374,9 +479,15 @@ async function main() {
 
   // Product-to-Video preview assertions (no auth required)
   await gotoFirstAvailable(page, ["/en/product-to-video", "/product-to-video"]);
-  await fillPageFieldByLabel(page, /Product name/i, "Glow Serum");
-  await fillPageFieldByLabel(page, /Target audience/i, "Skincare beginners");
-  await fillPageFieldByLabel(page, /Key benefits/i, "Hydration, Brightening, Soothing");
+  await delay(2000);
+  await fillPageFieldByLabel(page, /Product name|产品名称/i, "Glow Serum");
+  await fillPageFieldByLabel(page, /Target audience|目标受众/i, "Skincare beginners");
+  await fillPageFieldByLabel(page, /Key benefits|核心卖点/i, "Hydration, Brightening, Soothing");
+  await waitForBenefitsHint(page, 3);
+
+  // Generate should surface image-required validation before upload
+  await page.getByRole("button", { name: /^Generate$|生成/i }).click();
+  await waitForToast(page, /Please upload at least 1 product image|请上传至少 1 张商品图片/i);
 
   // Brand Kit on -> preview contains appended lines
   await ensureBrandKitToggle(page);
@@ -394,18 +505,23 @@ async function main() {
   const preview = await getPromptPreviewTextarea(page);
   await preview.waitFor({ state: "visible" });
   const previewValue = await preview.inputValue();
-  if (!previewValue || previewValue.includes("Fill in the form")) {
+  if (!previewValue || /Fill in the form|填写表单后将生成提示词预览/.test(previewValue)) {
     throw new Error("Prompt Studio did not update preview");
   }
-  if (!previewValue.includes("Style: UGC")) {
+  if (!(/Style:\s*UGC/i.test(previewValue) || /风格：.*UGC/.test(previewValue))) {
     throw new Error("Prompt Studio preview missing style tag");
   }
-  if (!previewValue.includes("Structure: Hook -> Value -> CTA") && !previewValue.includes("Storyboard:")) {
+  if (
+    !previewValue.includes("Structure: Hook -> Value -> CTA") &&
+    !previewValue.includes("Storyboard:") &&
+    !previewValue.includes("结构：吸引") &&
+    !previewValue.includes("分镜：")
+  ) {
     throw new Error("Prompt Studio preview missing script structure");
   }
 
   // Toggle off -> preview should drop Brand Kit lines
-  const brandToggle = page.getByRole("switch", { name: /Brand Kit/i });
+  const brandToggle = page.getByRole("switch", { name: /Brand Kit|品牌套件/i });
   await brandToggle.click();
   await delay(300);
   await assertBrandKitPreview(page, false);

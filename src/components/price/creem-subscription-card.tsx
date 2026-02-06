@@ -1,13 +1,13 @@
 "use client";
 
 import { useEffect, useState, useTransition } from "react";
-import Link from "next/link";
 import { useTranslations } from "next-intl";
 
 import { creem } from "@/lib/auth/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import * as Icons from "@/components/ui/icons";
+import { LocaleLink } from "@/i18n/navigation";
 import { toast } from "sonner";
 
 interface CreemSubscriptionCardProps {
@@ -101,7 +101,7 @@ export function CreemSubscriptionCard({ dict }: CreemSubscriptionCardProps) {
           </Button>
         ) : (
           <Button asChild>
-            <Link href="/pricing">{dict.upgrade}</Link>
+            <LocaleLink href="/pricing">{dict.upgrade}</LocaleLink>
           </Button>
         )}
       </CardFooter>

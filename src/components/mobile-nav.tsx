@@ -1,5 +1,5 @@
 import * as React from "react";
-import Link from "next/link";
+import { LocaleLink } from "@/i18n/navigation";
 
 import { cn } from "@/components/ui";
 import * as Icons from "@/components/ui/icons";
@@ -16,6 +16,8 @@ interface MobileNavProps {
 
 export function MobileNav({ items, children, menuItemClick }: MobileNavProps) {
   useLockBody();
+  const isExternal = (href: string) =>
+    href.startsWith("http") || href.startsWith("mailto:") || href.startsWith("#");
   return (
     <div
       className={cn(
@@ -23,24 +25,35 @@ export function MobileNav({ items, children, menuItemClick }: MobileNavProps) {
       )}
     >
       <div className="relative z-20 grid gap-6 rounded-md bg-popover p-4 text-popover-foreground shadow-md">
-        <Link href="/" className="flex items-center space-x-2">
+        <LocaleLink href="/" className="flex items-center space-x-2">
           <Icons.Logo />
           <span className="font-bold">{siteConfig.name}</span>
-        </Link>
+        </LocaleLink>
         <nav className="grid grid-flow-row auto-rows-max text-sm">
-          {items.map((item, index) => (
-            <Link
-              key={index}
-              href={item.disabled ? "#" : item.href}
-              className={cn(
+          {items.map((item, index) => {
+            const href = item.disabled ? "#" : item.href;
+            const sharedProps = {
+              className: cn(
                 "flex w-full items-center rounded-md p-2 text-sm font-medium hover:underline",
                 item.disabled && "cursor-not-allowed opacity-60",
-              )}
-              onClick={menuItemClick}
-            >
-              {item.title}
-            </Link>
-          ))}
+              ),
+              onClick: menuItemClick,
+            };
+
+            if (isExternal(href)) {
+              return (
+                <a key={index} href={href} {...sharedProps}>
+                  {item.title}
+                </a>
+              );
+            }
+
+            return (
+              <LocaleLink key={index} href={href} {...sharedProps}>
+                {item.title}
+              </LocaleLink>
+            );
+          })}
         </nav>
         {children}
       </div>

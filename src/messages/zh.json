@@ -60,8 +60,8 @@
   "Hero": {
     "badge": "支持 Sora 2、Veo 3.1 等模型",
     "title": "将您的想法转化为精彩视频",
-    "subtitle": "使用 AI",
-    "description": "在几分钟内创建专业的 AI 生成视频。支持文本转视频、图片转视频，或增强现有素材。",
+    "subtitle": "用 AI 轻松创作",
+    "description": "在几分钟内创建专业的 AI 生成视频。支持文本转视频、图片转视频，也可增强现有素材。",
     "startCreating": "免费开始创作",
     "viewExamples": "查看示例",
     "features": {
@@ -86,7 +86,7 @@
   "Marketing": {
     "typicalGenerationTime": "2-5 分钟",
     "qualityNote": "最高可达 1080p（视模型而定）",
-    "freeCreditsNote": "50 免费积分 - 无需信用卡"
+    "freeCreditsNote": "50 个免费积分 · 无需信用卡"
   },
   "models": {
     "sora2": {
@@ -122,9 +122,9 @@
     "resultTitle": "结果",
     "newGeneration": "新建生成",
     "exploreTitle": "探索示例",
-    "exploreSubtitle": "暂无社区内容，先从你的创作开始",
+    "exploreSubtitle": "暂无社区内容，从你的创作开始吧",
     "emptyTitle": "预览会出现在这里",
-    "emptySubtitle": "在左侧发起生成后即可显示",
+    "emptySubtitle": "在左侧发起生成后显示",
     "unauthPreview": {
       "title": "详细预览",
       "description": "登录后即可生成并查看高质量 AI 视频。"
@@ -300,7 +300,7 @@
       "rating": "平均评分"
     },
     "cta": {
-      "text": "准备好开始创作了吗？立即注册并开用！",
+      "text": "准备好开始创作了吗？立即注册并开始使用！",
       "button": "免费开始"
     }
   },
@@ -1238,7 +1238,7 @@
       "title": "创建账户",
       "subtitle": "请输入邮箱以创建账户",
       "loginLink": "登录",
-      "termsNotice": "点击继续即表示你同意我们的{terms}和{privacy}。"
+      "termsNotice": "点击继续即表示你同意我们的<terms>服务条款</terms>和<privacy>隐私政策</privacy>。"
     },
     "form": {
       "emailLabel": "邮箱",
@@ -1248,7 +1248,7 @@
       "continueGoogle": "使用 Google 继续",
       "invalidEmail": "请输入有效的邮箱地址。",
       "magicLinkSentTitle": "请检查邮箱",
-      "magicLinkSentDescription": "我们已发送登录链接，请留意垃圾箱。",
+      "magicLinkSentDescription": "我们已发送登录链接，请检查垃圾邮件。",
       "errorTitle": "出错了",
       "errorDescription": "登录请求失败，请稍后再试。"
     }

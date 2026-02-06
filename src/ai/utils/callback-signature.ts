@@ -3,9 +3,9 @@ import crypto from "node:crypto";
 const SIGNATURE_EXPIRY_MS = 24 * 60 * 60 * 1000; // 24 hours
 
 function getCallbackSecret(): string {
-  const secret = process.env.CALLBACK_HMAC_SECRET;
+  const secret = process.env.AI_CALLBACK_SECRET ?? process.env.CALLBACK_HMAC_SECRET;
   if (!secret) {
-    throw new Error("CALLBACK_HMAC_SECRET environment variable is not set");
+    throw new Error("AI_CALLBACK_SECRET or CALLBACK_HMAC_SECRET is not set");
   }
   return secret;
 }

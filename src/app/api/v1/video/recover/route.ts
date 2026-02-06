@@ -16,7 +16,8 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const secret = searchParams.get("secret");
 
-    if (secret !== process.env.CALLBACK_HMAC_SECRET) {
+    const expectedSecret = process.env.AI_CALLBACK_SECRET ?? process.env.CALLBACK_HMAC_SECRET;
+    if (!expectedSecret || secret !== expectedSecret) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -67,7 +68,8 @@ export async function POST(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const secret = searchParams.get("secret");
 
-    if (secret !== process.env.CALLBACK_HMAC_SECRET) {
+    const expectedSecret = process.env.AI_CALLBACK_SECRET ?? process.env.CALLBACK_HMAC_SECRET;
+    if (!expectedSecret || secret !== expectedSecret) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 

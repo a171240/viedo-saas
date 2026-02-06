@@ -92,7 +92,6 @@ export const referenceToVideoConfig: ToolPageConfig = {
 
     supportedModels: [
       { name: "Wan 2.6", provider: "Alibaba", color: "#8b5cf6" },
-      { name: "Seedance 1.5", provider: "ByteDance", color: "#ec4899" },
     ],
   },
 

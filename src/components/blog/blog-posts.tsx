@@ -1,10 +1,11 @@
 "use client";
 
+import type { ReactNode } from "react";
 import Image from "next/image";
-import Link from "next/link";
 import Balancer from "react-wrap-balancer";
 import { useTranslations } from "next-intl";
 
+import { LocaleLink } from "@/i18n/navigation";
 import { formatDate } from "@/lib/utils";
 
 interface Post {
@@ -24,6 +25,23 @@ interface BlogPostsProps {
 
 export function BlogPosts({ posts }: BlogPostsProps) {
   const t = useTranslations("BlogPosts");
+  const isExternal = (href: string) => href.startsWith("http") || href.startsWith("mailto:");
+
+  const renderLink = (href: string, className?: string, children?: ReactNode) => {
+    if (isExternal(href)) {
+      return (
+        <a href={href} className={className}>
+          {children}
+        </a>
+      );
+    }
+    return (
+      <LocaleLink href={href} className={className}>
+        {children}
+      </LocaleLink>
+    );
+  };
+
   return (
     <div className="container space-y-10 py-6 md:py-10">
       <section>
@@ -49,9 +67,11 @@ export function BlogPosts({ posts }: BlogPostsProps) {
                 <Balancer>{posts[0]?.description}</Balancer>
               </p>
             )}
-            <Link href={posts[0]?.slug ?? "/#"} className="absolute inset-0">
+            {renderLink(
+              posts[0]?.slug ?? "/#",
+              "absolute inset-0",
               <span className="sr-only">{t("viewArticle")}</span>
-            </Link>
+            )}
           </div>
         </article>
       </section>
@@ -86,9 +106,11 @@ export function BlogPosts({ posts }: BlogPostsProps) {
                   {formatDate(post.date)}
                 </p>
               )}
-              <Link href={post.slug} className="absolute inset-0">
+              {renderLink(
+                post.slug,
+                "absolute inset-0",
                 <span className="sr-only">{t("viewArticle")}</span>
-              </Link>
+              )}
             </article>
           ))}
         </div>
