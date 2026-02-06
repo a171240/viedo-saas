@@ -4,6 +4,16 @@ function uniq(items) {
   return [...new Set(items.filter(Boolean))];
 }
 
+function isConnIssue(error) {
+  const msg = String(error?.message ?? "");
+  return (
+    msg.includes("ERR_CONNECTION_REFUSED") ||
+    msg.includes("ECONNREFUSED") ||
+    msg.includes("ERR_CONNECTION_RESET") ||
+    msg.includes("net::ERR_FAILED")
+  );
+}
+
 async function resolveBaseURL() {
   const candidates = uniq([
     process.env.BASE_URL,
@@ -19,7 +29,7 @@ async function resolveBaseURL() {
 
   for (const baseURL of candidates) {
     try {
-      const resp = await page.goto(`${baseURL}/zh`, { waitUntil: "domcontentloaded", timeout: 15000 });
+      const resp = await page.goto(`${baseURL}/zh`, { waitUntil: "domcontentloaded", timeout: 45000 });
       const status = resp?.status() ?? 0;
       if (status && status !== 404) {
         await browser.close();
@@ -94,13 +104,14 @@ async function main() {
   for (const path of paths) {
     const url = `${baseURL}${path}`;
     let resp = null;
-    for (let attempt = 0; attempt < 2; attempt += 1) {
+    for (let attempt = 0; attempt < 4; attempt += 1) {
       try {
         resp = await page.goto(url, { waitUntil: "domcontentloaded" });
         break;
       } catch (error) {
-        if (attempt === 0) {
-          await page.waitForTimeout(300);
+        if (attempt < 3 && isConnIssue(error)) {
+          // Next dev may auto-restart on memory pressure; give it time.
+          await page.waitForTimeout(2000);
           continue;
         }
         throw error;
