@@ -54,7 +54,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: pnpm
 
       - name: Enable Corepack
         run: corepack enable
@@ -70,4 +69,3 @@ jobs:
 
       - name: Run Regressions
         run: corepack pnpm regress
-
