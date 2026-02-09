@@ -30,6 +30,37 @@ const legacyRedirects: Record<string, string> = {
 export default function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
+  // Locale aliases / common typos.
+  // Users sometimes type or link to "/zn" when they mean Chinese ("/zh").
+  // Also normalize a couple of common Chinese locale variants.
+  const localeAliases: Record<string, string> = {
+    zn: "zh",
+    cn: "zh",
+    "zh-CN": "zh",
+    "zh-cn": "zh",
+  };
+  const firstSegment = pathname.split("/")[1] ?? "";
+  const aliasedLocale = localeAliases[firstSegment];
+  if (aliasedLocale) {
+    const rest = pathname.slice(`/${firstSegment}`.length);
+    const url = request.nextUrl.clone();
+    url.pathname = `/${aliasedLocale}${rest}`;
+    return NextResponse.redirect(url);
+  }
+
+  // Collapse duplicated locale prefixes (e.g. "/en/en", "/zh/zh").
+  // This can happen if a locale-prefixed path is passed into `next-intl` navigation.
+  const segments = pathname.split("/");
+  const maybeLocale1 = segments[1] ?? "";
+  const maybeLocale2 = segments[2] ?? "";
+  const locales = routing.locales as readonly string[];
+  if (locales.includes(maybeLocale1) && locales.includes(maybeLocale2)) {
+    const rest = pathname.slice(`/${maybeLocale1}/${maybeLocale2}`.length);
+    const url = request.nextUrl.clone();
+    url.pathname = `/${maybeLocale1}${rest}`;
+    return NextResponse.redirect(url);
+  }
+
   const hasLocalePrefix = routing.locales.some(
     (locale) => pathname === `/${locale}` || pathname.startsWith(`/${locale}/`)
   );

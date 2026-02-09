@@ -4,6 +4,7 @@ import * as React from "react";
 import { useLocalePathname, useLocaleRouter } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 
+import { stripLocalePrefix } from "@/i18n/strip-locale-prefix";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -26,7 +27,7 @@ export function LocaleChange() {
   };
 
   function onClick(locale: string) {
-    router.push(pathname, { locale });
+    router.push(stripLocalePrefix(pathname), { locale });
   }
 
   return (

@@ -5,6 +5,7 @@ import { useLocalePathname, useLocaleRouter } from "@/i18n/navigation";
 import { Gem, Globe, Menu } from "lucide-react";
 import { useTranslations } from "next-intl";
 
+import { stripLocalePrefix } from "@/i18n/strip-locale-prefix";
 import { authClient, type User } from "@/lib/auth/client";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/components/ui";
@@ -45,7 +46,7 @@ export function HeaderSimple({
   const currentLocale = lang || "en";
 
   const switchLocale = (nextLocale: string) => {
-    router.push(pathname, { locale: nextLocale });
+    router.push(stripLocalePrefix(pathname), { locale: nextLocale });
   };
 
   const menuLabelMap: Record<string, string> = {
@@ -146,7 +147,8 @@ export function HeaderSimple({
                   className="cursor-pointer text-destructive"
                   onSelect={async () => {
                     await authClient.signOut();
-                    router.push(`/${lang}`);
+                    // `useLocaleRouter` expects an unprefixed pathname.
+                    router.push("/", { locale: lang });
                     router.refresh();
                   }}
                 >

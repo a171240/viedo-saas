@@ -139,8 +139,14 @@ corepack pnpm regress
 # P0-01/P0-02：营销页路由 + 根路径重定向
 node scripts/p0-01-routes-smoke.mjs
 
+# P0-04：Pricing（Subscription vs Credit Packs + 套餐权益展示）
+BASE_URL=http://localhost:3002 node scripts/p0-04-pricing-smoke.mjs
+
 # P0-06：/zh 文案泄漏冒烟
 BASE_URL=http://localhost:3002 node scripts/p0-06-zh-smoke.mjs
+
+# P0-09：Cookie Consent（拒绝/接受后 AnalyticsGate 状态切换）
+BASE_URL=http://localhost:3002 node scripts/p0-09-cookie-consent-smoke.mjs
 
 # P0-08：模型能力矩阵（配置驱动）一致性校验
 ./node_modules/.bin/tsx scripts/p0-08-model-capabilities-check.ts

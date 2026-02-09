@@ -49,7 +49,9 @@ async function waitForServer(baseURL, timeoutMs = 180000) {
   const started = Date.now();
   while (Date.now() - started < timeoutMs) {
     try {
-      const resp = await fetchWithTimeout(`${baseURL}/en`, { redirect: "manual" }, 8000);
+      // Probe the root path; it should redirect to /en via middleware once the dev server is listening.
+      // Individual smoke tests have their own timeouts/retries for heavy page compilation.
+      const resp = await fetchWithTimeout(`${baseURL}/`, { redirect: "manual" }, 15000);
       const status = resp.status;
       if (status && status !== 404) return true;
     } catch {
@@ -127,7 +129,9 @@ async function main() {
 
   const steps = [
     { name: "P0-01/P0-02 routes smoke", cmd: "node", args: ["scripts/p0-01-routes-smoke.mjs"] },
+    { name: "P0-04 pricing smoke", cmd: "node", args: ["scripts/p0-04-pricing-smoke.mjs"] },
     { name: "P0-06 zh i18n smoke", cmd: "node", args: ["scripts/p0-06-zh-smoke.mjs"] },
+    { name: "P0-09 cookie consent smoke", cmd: "node", args: ["scripts/p0-09-cookie-consent-smoke.mjs"] },
     { name: "P0-08 model capabilities check", cmd: tsx, args: ["scripts/p0-08-model-capabilities-check.ts"] },
     { name: "P1-01 UI/flow regression", cmd: "node", args: ["scripts/p1-01-ui-flow.mjs"] },
     { name: "P1-02 template build check", cmd: tsx, args: ["scripts/p1-02-template-build-check.ts"] },

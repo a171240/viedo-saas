@@ -31,6 +31,8 @@ export function AnalyticsGate() {
 
   return (
     <>
+      {/* Deterministic marker for local Playwright smoke tests. */}
+      <span data-analytics-gate="enabled" hidden aria-hidden="true" />
       <Analytics />
       <SpeedInsights />
     </>

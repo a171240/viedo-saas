@@ -5,6 +5,7 @@ import { Menu, Globe } from "lucide-react";
 import { useLocalePathname, useLocaleRouter } from "@/i18n/navigation";
 import { useTranslations, useLocale } from "next-intl";
 
+import { stripLocalePrefix } from "@/i18n/strip-locale-prefix";
 import { Button } from "@/components/ui/button";
 import {
   NavigationMenu,
@@ -63,7 +64,8 @@ export function LandingHeader({ user }: { user?: User | null }) {
 
   const handleSignOut = async () => {
     await authClient.signOut();
-    router.push(`/${locale}`);
+    // `useLocaleRouter` expects an unprefixed pathname.
+    router.push("/", { locale });
     router.refresh();
   };
 
@@ -76,7 +78,7 @@ export function LandingHeader({ user }: { user?: User | null }) {
   // Language switcher function
   const switchLocale = (newLocale: string) => {
     startTransition(() => {
-      router.push(pathname, { locale: newLocale });
+      router.push(stripLocalePrefix(pathname), { locale: newLocale });
     });
   };
 

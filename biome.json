@@ -10,6 +10,7 @@
     "ignore": [
       ".claude/**",
       ".next/**",
+      ".next.bak*/**",
       ".contentlayer/**",
       "apps/**",
       "packages/**",
