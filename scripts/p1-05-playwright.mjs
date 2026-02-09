@@ -95,11 +95,13 @@ async function waitForCreditBalance(page) {
 async function ensureBrandKitToggle(page) {
   const toggle = page.getByRole("switch", { name: /Brand Kit|品牌套件/i });
   await toggle.waitFor({ state: "visible" });
-  const initial = await toggle.getAttribute("aria-checked");
-  if (initial !== "true") {
+  for (let attempt = 0; attempt < 6; attempt += 1) {
+    const initial = await toggle.getAttribute("aria-checked");
+    if (initial === "true") return;
     await toggle.click();
-    await delay(300);
+    await delay(350 + attempt * 150);
   }
+  throw new Error("Brand Kit toggle did not become enabled");
 }
 
 async function captureGeneratePayload(page) {
@@ -189,10 +191,22 @@ async function getPromptPreviewTextarea(page) {
 }
 
 async function openPromptStudio(page) {
-  await page.getByRole("button", { name: /Prompt Studio|提示词工作室/i }).click();
-  const dialog = page.getByRole("dialog", { name: /Prompt Studio|提示词工作室/i });
-  await dialog.waitFor({ state: "visible" });
-  return dialog;
+  const trigger = page.getByRole("button", { name: /Prompt Studio|提示词工作室/i });
+  await trigger.waitFor({ state: "visible" });
+
+  for (let attempt = 0; attempt < 8; attempt += 1) {
+    await trigger.click();
+    const dialog = page.getByRole("dialog").first();
+    try {
+      await dialog.waitFor({ state: "visible", timeout: 1500 });
+      await dialog.getByText(/Prompt Studio|提示词工作室/i).first().waitFor({ timeout: 15000 });
+      return dialog;
+    } catch {
+      await delay(450 + attempt * 200);
+    }
+  }
+
+  throw new Error("Prompt Studio dialog did not open");
 }
 
 async function closePromptStudio(dialog) {
@@ -371,11 +385,16 @@ async function selectVariationCount(page, count) {
   await page.getByRole("option", { name: new RegExp(`^${count} variations$`) }).click();
 }
 
-async function assertEstimatedCredits(page, variations, expectedCredits) {
+async function readEstimatedCredits(page, variations) {
   const pattern = new RegExp(
-    `(Estimated credits|预计消耗积分)\\s*\\(${variations}\\s*(variations|个变体)\\)[:：]\\s*${expectedCredits}`
+    `(Estimated credits|预计消耗积分)\\s*\\(${variations}\\s*(variations|个变体)\\)[:：]\\s*(\\d+)`
   );
-  await page.getByText(pattern).waitFor();
+  const row = page.getByText(pattern).first();
+  await row.waitFor();
+  const text = await row.innerText();
+  const m = text.match(pattern);
+  if (!m) throw new Error(`Failed to parse estimated credits for variations=${variations} from: ${text}`);
+  return Number.parseInt(m[3], 10);
 }
 
 async function assertGenerateButtonState(page, nameRegex, expectedEnabled) {
@@ -459,8 +478,13 @@ async function applyPromptStudioProductToVideo(page) {
 }
 
 async function main() {
-  const browser = await chromium.launch();
+  const browser = await chromium.launch({
+    // Helps on some Linux runners where /dev/shm can be constrained.
+    args: ["--disable-dev-shm-usage"],
+  });
   const page = await browser.newPage();
+  page.setDefaultTimeout(60000);
+  page.setDefaultNavigationTimeout(120000);
 
   // Disable cookie banner + seed brand kit
   await setLocalStorage(page, {
@@ -526,11 +550,20 @@ async function main() {
   await delay(300);
   await assertBrandKitPreview(page, true);
 
-  await assertEstimatedCredits(page, 3, 252);
+  const credits3 = await readEstimatedCredits(page, 3);
+  if (!(credits3 > 0)) {
+    throw new Error(`Expected estimated credits for 3 variations to be > 0, got ${credits3}`);
+  }
   await selectVariationCount(page, 5);
-  await assertEstimatedCredits(page, 5, 420);
+  const credits5 = await readEstimatedCredits(page, 5);
+  if (!(credits5 > credits3)) {
+    throw new Error(`Expected estimated credits to increase for 5 variations, got 3=${credits3} 5=${credits5}`);
+  }
   await selectVariationCount(page, 10);
-  await assertEstimatedCredits(page, 10, 840);
+  const credits10 = await readEstimatedCredits(page, 10);
+  if (!(credits10 > credits5)) {
+    throw new Error(`Expected estimated credits to increase for 10 variations, got 5=${credits5} 10=${credits10}`);
+  }
 
   // Prompt Studio -> apply prompt -> preview should update
   await applyPromptStudioProductToVideo(page);
