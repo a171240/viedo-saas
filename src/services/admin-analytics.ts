@@ -145,7 +145,18 @@ export async function getVideoAnalyticsSummary(options?: {
     .where(baseWhere)
     .groupBy(videos.provider, videos.model);
 
-  const hydrateRows = (rows: typeof byModelRaw): AnalyticsRow[] =>
+  type RawAnalyticsRow = {
+    provider: string | null;
+    model: string | null;
+    total: unknown;
+    completed: unknown;
+    failed: unknown;
+    avgLatencySeconds: unknown;
+    avgCredits: unknown;
+    totalCredits: unknown;
+  };
+
+  const hydrateRows = (rows: RawAnalyticsRow[]): AnalyticsRow[] =>
     rows.map((row) => ({
       provider: row.provider,
       model: row.model,

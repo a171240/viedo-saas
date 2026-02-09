@@ -50,6 +50,7 @@ export interface SubscriptionProductConfig {
   enabled: boolean;
   features?: string[];
   parallelTasks?: number;
+  priorityQueue?: boolean;
   commercialUse?: boolean;
   noWatermark?: boolean;
 }
@@ -66,6 +67,7 @@ export interface CreditPackageConfig {
   allowFreeUser?: boolean;
   features?: string[];
   parallelTasks?: number;
+  priorityQueue?: boolean;
   commercialUse?: boolean;
   noWatermark?: boolean;
 }

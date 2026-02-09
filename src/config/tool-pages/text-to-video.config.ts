@@ -68,17 +68,14 @@ export const textToVideoConfig: ToolPageConfig = {
 
     examples: [
       {
-        thumbnail: "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=600&q=80",
         title: "Cinematic Mountain Scene",
         prompt: "A majestic mountain range at golden hour, camera slowly flying through valleys",
       },
       {
-        thumbnail: "https://images.unsplash.com/photo-1480714378408-67cf0d13bc1b?w=600&q=80",
         title: "Urban City Timelapse",
         prompt: "New York City timelapse at night, cars leaving light trails, buildings glowing",
       },
       {
-        thumbnail: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=600&q=80",
         title: "Ocean Sunset",
         prompt: "Calm ocean waves at sunset, camera slowly zooming out, peaceful atmosphere",
       },

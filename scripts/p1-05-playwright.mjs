@@ -142,7 +142,6 @@ async function gotoFirstAvailable(page, paths) {
         lastError = error;
         if (attempt === 0) {
           await delay(300);
-          continue;
         }
       }
     }
@@ -157,8 +156,7 @@ async function assertBrandKitPreview(page, expectBrandKit) {
   if (expectBrandKit) {
     await page.waitForFunction(
       (el) =>
-        el &&
-        el.value &&
+        el?.value &&
         (el.value.includes("Brand tone:") ||
           el.value.includes("Style suffix:") ||
           el.value.includes("Avoid words:") ||

@@ -403,7 +403,6 @@ export function ToolPageLayout({
     // 检查积分
     const requiredCredits = data.estimatedCredits || 0;
     const availableCredits = balance?.availableCredits ?? 0;
-    const isBatch = Boolean(data.batch && data.batch.total > 1);
 
     if (availableCredits < requiredCredits) {
       // 打开升级弹窗
@@ -497,8 +496,8 @@ export function ToolPageLayout({
       const result = await response.json();
       const videoUuid = result.data.videoUuid as string;
 
-      if (isBatch) {
-        if (data.batch?.index === data.batch.total - 1) {
+      if (data.batch && data.batch.total > 1) {
+        if (data.batch.index === data.batch.total - 1) {
           toast.success(tTool("toast.batchQueued", { count: data.batch.total }));
         }
       } else {

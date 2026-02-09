@@ -29,9 +29,8 @@ export const siteConfig: SiteConfig = {
   url: process.env.NEXT_PUBLIC_APP_URL || "https://videofly.app",
   ogImage: "",
   supportEmail: "support@videofly.app",
-  links: {
-    github: "https://github.com/your-org/videofly",
-  },
+  // Keep social links optional; show nothing if not configured.
+  links: {},
   auth: {
     enableGoogleLogin: true,
     enableMagicLinkLogin: true,

@@ -64,9 +64,8 @@ const creemPlanFromProductId = (productId: string): SubscriptionPlan => {
 
 const isCreemSubscriptionActive = (status: string | null, end: Date | null) => {
   const normalizedStatus = status ? status.toLowerCase() : "";
-  const isStatusActive = normalizedStatus
-    ? USAGE_LIMITS.creemActiveStatuses.includes(normalizedStatus)
-    : false;
+  const activeStatuses = new Set<string>(USAGE_LIMITS.creemActiveStatuses);
+  const isStatusActive = normalizedStatus ? activeStatuses.has(normalizedStatus) : false;
   const graceMs = USAGE_LIMITS.subscriptionGraceDays * 24 * 60 * 60 * 1000;
   const isWithinPeriod = end ? end.getTime() + graceMs > Date.now() : true;
   return isStatusActive && isWithinPeriod;

@@ -68,17 +68,14 @@ export const imageToVideoConfig: ToolPageConfig = {
 
     examples: [
       {
-        thumbnail: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=600&q=80",
         title: "Photo to Living Scene",
         prompt: "A girl walking on the beach, hair flowing in the wind, golden sunset",
       },
       {
-        thumbnail: "https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=600&q=80",
         title: "Product Animation",
         prompt: "Smartphone rotating on white background with floating particles",
       },
       {
-        thumbnail: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=600&q=80",
         title: "Abstract Art Animation",
         prompt: "Swirling colors and shapes morphing smoothly, psychedelic style",
       },

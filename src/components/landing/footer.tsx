@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 
 import { LocaleLink } from "@/i18n/navigation";
 import { footerNavigation } from "@/config/navigation";
+import { siteConfig } from "@/config/site";
 
 export function LandingFooter() {
   const t = useTranslations("Footer");
@@ -18,18 +19,13 @@ export function LandingFooter() {
     })),
   }));
 
-
   const socialLinks = [
-    {
-      name: "GitHub",
-      href: "https://github.com/videofly/videofly",
-      icon: Github,
-    },
-    {
-      name: "Twitter",
-      href: "https://twitter.com/videofly",
-      icon: Twitter,
-    },
+    ...(siteConfig.links.github
+      ? [{ name: "GitHub", href: siteConfig.links.github, icon: Github }]
+      : []),
+    ...(siteConfig.links.twitter
+      ? [{ name: "Twitter", href: siteConfig.links.twitter, icon: Twitter }]
+      : []),
   ];
 
   return (
@@ -49,22 +45,24 @@ export function LandingFooter() {
               {t("tagline")}
             </p>
             {/* Social Links */}
-            <div className="flex items-center gap-3">
-              {socialLinks.map((link) => {
-                const Icon = link.icon;
-                return (
-                  <a
-                    key={link.name}
-                    href={link.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="h-9 w-9 flex items-center justify-center rounded-full border border-border hover:bg-muted hover:text-foreground transition-colors"
-                  >
-                    <Icon className="h-4 w-4" />
-                  </a>
-                );
-              })}
-            </div>
+            {socialLinks.length > 0 && (
+              <div className="flex items-center gap-3">
+                {socialLinks.map((link) => {
+                  const Icon = link.icon;
+                  return (
+                    <a
+                      key={link.name}
+                      href={link.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="h-9 w-9 flex items-center justify-center rounded-full border border-border hover:bg-muted hover:text-foreground transition-colors"
+                    >
+                      <Icon className="h-4 w-4" />
+                    </a>
+                  );
+                })}
+              </div>
+            )}
           </div>
 
           {/* Footer Links */}

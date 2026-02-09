@@ -268,11 +268,9 @@ export function ProductToVideoPage({ locale }: { locale: string }) {
     setIsSubmitting(true);
     try {
       const session = await authClient.getSession();
-      let activeUser = session?.data?.user ?? null;
-      if (!activeUser && isDevBypassEnabled()) {
-        activeUser = await fetchDevBypassUser();
-      }
-      if (!activeUser) {
+      const devUser = isDevBypassEnabled() ? await fetchDevBypassUser() : null;
+      const activeUserId = session?.data?.user?.id ?? devUser?.id ?? null;
+      if (!activeUserId) {
         router.push(`/${locale}/login?from=/${locale}/product-to-video`);
         return;
       }
@@ -351,11 +349,9 @@ export function ProductToVideoPage({ locale }: { locale: string }) {
     setIsSubmitting(true);
     try {
       const session = await authClient.getSession();
-      let activeUser = session?.data?.user ?? null;
-      if (!activeUser && isDevBypassEnabled()) {
-        activeUser = await fetchDevBypassUser();
-      }
-      if (!activeUser) {
+      const devUser = isDevBypassEnabled() ? await fetchDevBypassUser() : null;
+      const activeUserId = session?.data?.user?.id ?? devUser?.id ?? null;
+      if (!activeUserId) {
         router.push(`/${locale}/login?from=/${locale}/product-to-video`);
         return;
       }

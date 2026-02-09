@@ -66,17 +66,14 @@ export const referenceToVideoConfig: ToolPageConfig = {
 
     examples: [
       {
-        thumbnail: "https://images.unsplash.com/photo-1536240478700-b869070f9279?w=600&q=80",
         title: "Style Transfer",
         prompt: "Transform the image into anime style with vibrant colors",
       },
       {
-        thumbnail: "https://images.unsplash.com/photo-1518676590629-3dcbd9c5a5c9?w=600&q=80",
         title: "Add Weather Effects",
         prompt: "Add rain and fog atmosphere to the scene",
       },
       {
-        thumbnail: "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=600&q=80",
         title: "Change Season",
         prompt: "Convert summer scene to winter with snow",
       },

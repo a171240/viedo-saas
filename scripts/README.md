@@ -123,3 +123,41 @@ pnpm install
 ```
 
 这会自动安装 `tsx` 运行时。
+
+---
+
+## UI/回归脚本（Playwright）
+
+这些脚本用于本地快速回归关键 UI/流程（不依赖 Playwright MCP）。
+
+```bash
+# P0-01/P0-02：营销页路由 + 根路径重定向
+node scripts/p0-01-routes-smoke.mjs
+
+# P0-06：/zh 文案泄漏冒烟
+BASE_URL=http://localhost:3002 node scripts/p0-06-zh-smoke.mjs
+
+# P0-08：模型能力矩阵（配置驱动）一致性校验
+./node_modules/.bin/tsx scripts/p0-08-model-capabilities-check.ts
+
+# P1-01：Prompt Studio 批量排队 + image-to-video 上传/生成链路
+BASE_URL=http://localhost:3002 node scripts/p1-01-ui-flow.mjs
+
+# P1-02：Prompt Studio 模板 build 校验
+./node_modules/.bin/tsx scripts/p1-02-template-build-check.ts
+
+# P1-05：Brand Kit 自动化回归
+BASE_URL=http://localhost:3002 node scripts/p1-05-playwright.mjs
+
+# P2-03/P2-04：并发/反滥用 UI 提示与升级弹窗校验
+BASE_URL=http://localhost:3002 node scripts/p2-03-04-safeguards-ui.mjs
+
+# P2-01：Stuck Recovery（鉴权 + dry-run）
+./node_modules/.bin/tsx scripts/p2-01-recovery-smoke.ts
+
+# P2-02：可观测/成本报表（成本估算一致性）
+./node_modules/.bin/tsx scripts/p2-02-admin-analytics-check.ts
+
+# P0-10：AI 回调验签 + 幂等（webhook_events 去重）
+./node_modules/.bin/tsx scripts/p0-10-callback-smoke.ts
+```

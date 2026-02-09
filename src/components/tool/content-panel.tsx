@@ -3,22 +3,23 @@
 import { ArrowRight, Check, Play, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
+import { cn } from "@/components/ui";
 
 interface ContentPanelProps {
   lang?: string;
 }
 
-const exampleThumbnails = [
-  "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=600&q=80",
-  "https://images.unsplash.com/photo-1480714378408-67cf0d13bc1b?w=600&q=80",
-  "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=600&q=80",
+const exampleGradients = [
+  "from-blue-500/30 to-cyan-500/10",
+  "from-purple-500/30 to-pink-500/10",
+  "from-emerald-500/30 to-teal-500/10",
 ];
 
 export function ContentPanel({ lang = "en" }: ContentPanelProps) {
   const t = useTranslations("ContentPanel");
-  const exampleVideos = exampleThumbnails.map((thumbnail, index) => ({
+  const exampleVideos = exampleGradients.map((gradient, index) => ({
     id: index,
-    thumbnail,
+    gradient,
     title: t(`examples.items.${index}`),
   }));
   const features = [
@@ -44,11 +45,20 @@ export function ContentPanel({ lang = "en" }: ContentPanelProps) {
               key={video.id}
               className="group relative aspect-video bg-muted rounded-lg overflow-hidden cursor-pointer"
             >
-              <img
-                src={video.thumbnail}
-                alt={video.title}
-                className="w-full h-full object-cover transition-transform group-hover:scale-105"
-              />
+              <div
+                aria-label={video.title}
+                className={cn(
+                  "absolute inset-0 transition-transform group-hover:scale-105",
+                  "bg-gradient-to-br",
+                  video.gradient
+                )}
+              >
+                <div
+                  className="absolute inset-0 opacity-[0.14] mix-blend-overlay"
+                  style={{ backgroundImage: "url(/images/noise.webp)" }}
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-black/10 to-transparent" />
+              </div>
               <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                 <div className="w-10 h-10 rounded-full bg-white/20 backdrop-blur flex items-center justify-center">
                   <Play className="h-5 w-5 text-white fill-white" />

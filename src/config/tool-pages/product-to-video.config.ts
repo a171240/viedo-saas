@@ -56,17 +56,14 @@ export const productToVideoConfig: ToolPageConfig = {
     },
     examples: [
       {
-        thumbnail: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600&q=80",
         title: "Minimal Watch Ad",
         prompt: "Clean product shots, smooth rotations, crisp lighting",
       },
       {
-        thumbnail: "https://images.unsplash.com/photo-1512436991641-6745cdb1723f?w=600&q=80",
         title: "Streetwear Drop",
         prompt: "UGC style, fast cuts, bold lifestyle scenes",
       },
       {
-        thumbnail: "https://images.unsplash.com/photo-1503602642458-232111445657?w=600&q=80",
         title: "Skincare Highlight",
         prompt: "Soft light, close-up texture, clean packshot",
       },

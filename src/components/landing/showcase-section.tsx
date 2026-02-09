@@ -8,6 +8,7 @@ import { BlurFade } from "@/components/magicui/blur-fade";
 import { BorderBeam } from "@/components/magicui/border-beam";
 import { ShimmerButton } from "@/components/magicui/shimmer-button";
 import { LocaleLink } from "@/i18n/navigation";
+import { cn } from "@/components/ui";
 
 /**
  * Showcase Section - 视频示例展示区域
@@ -26,7 +27,6 @@ const showcaseVideos = [
     title: "Cinematic Nature",
     description: "A stunning landscape video",
     tag: "Text to Video",
-    thumbnail: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80",
     gradient: "from-blue-500 to-cyan-500",
   },
   {
@@ -34,7 +34,6 @@ const showcaseVideos = [
     title: "Product Animation",
     description: "Smooth product showcase",
     tag: "Image to Video",
-    thumbnail: "https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=800&q=80",
     gradient: "from-purple-500 to-pink-500",
   },
   {
@@ -42,7 +41,6 @@ const showcaseVideos = [
     title: "Abstract Art",
     description: "Creative AI-generated visuals",
     tag: "AI Creative",
-    thumbnail: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800&q=80",
     gradient: "from-orange-500 to-red-500",
   },
   {
@@ -50,7 +48,6 @@ const showcaseVideos = [
     title: "Urban Scene",
     description: "City life in motion",
     tag: "Text to Video",
-    thumbnail: "https://images.unsplash.com/photo-1480714378408-67cf0d13bc1b?w=800&q=80",
     gradient: "from-green-500 to-emerald-500",
   },
   {
@@ -58,7 +55,6 @@ const showcaseVideos = [
     title: "Character Animation",
     description: "Bringing characters to life",
     tag: "Character",
-    thumbnail: "https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=800&q=80",
     gradient: "from-indigo-500 to-purple-500",
   },
   {
@@ -66,7 +62,6 @@ const showcaseVideos = [
     title: "Space Journey",
     description: "Explore the cosmos",
     tag: "Text to Video",
-    thumbnail: "https://images.unsplash.com/photo-1462331940025-496dfbfc7564?w=800&q=80",
     gradient: "from-teal-500 to-cyan-500",
   },
 ];
@@ -164,11 +159,21 @@ export function ShowcaseSection() {
 
                   {/* 缩略图 */}
                   <div className="relative aspect-video overflow-hidden">
-                    <motion.img
-                      src={video.thumbnail}
-                      alt={video.title}
-                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                    />
+                    <motion.div
+                      aria-label={video.title}
+                      className={cn(
+                        "w-full h-full transition-transform duration-500 group-hover:scale-110",
+                        "bg-gradient-to-br",
+                        video.gradient
+                      )}
+                    >
+                      {/* Texture overlay to avoid stock placeholder assets */}
+                      <div
+                        className="absolute inset-0 opacity-[0.14] mix-blend-overlay"
+                        style={{ backgroundImage: "url(/images/noise.webp)" }}
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-black/10 to-transparent" />
+                    </motion.div>
 
                     {/* 悬停时的遮罩 */}
                     <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors duration-300" />

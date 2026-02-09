@@ -79,7 +79,7 @@ export interface ToolLandingConfig {
 
   // 示例视频
   examples: Array<{
-    thumbnail: string;
+    thumbnail?: string;
     title: string;
     prompt: string;
     videoUrl?: string; // 可选的实际视频 URL

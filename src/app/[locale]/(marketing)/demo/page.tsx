@@ -120,8 +120,9 @@ export default function DemoPage() {
       <div
         className="relative pt-20 pb-32"
         style={{
+          // Avoid stock placeholder assets on the demo page.
           backgroundImage:
-            "linear-gradient(to bottom, rgba(0,0,0,0.7), rgba(0,0,0,0.9)), url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1920')",
+            "radial-gradient(1200px circle at 20% 10%, rgba(59,130,246,0.22), transparent 45%), radial-gradient(900px circle at 85% 20%, rgba(168,85,247,0.20), transparent 50%), linear-gradient(to bottom, rgba(0,0,0,0.70), rgba(0,0,0,0.92))",
           backgroundSize: "cover",
           backgroundPosition: "center",
         }}

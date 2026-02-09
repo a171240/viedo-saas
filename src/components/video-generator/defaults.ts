@@ -371,32 +371,27 @@ export const DEFAULT_PROMPT_TEMPLATES: PromptTemplate[] = [
   {
     id: "1",
     text: "Cozy Christmas Room",
-    image: "https://images.unsplash.com/photo-1543589077-47d81606c1bf?w=100",
   },
   { id: "2", text: "workaholic" },
   {
     id: "3",
     text: "Quiet Resolve",
-    image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=100",
   },
   { id: "4", text: "Cinematic Drama" },
   { id: "5", text: "Nature Documentary" },
   {
     id: "6",
     text: "Urban Street Photography",
-    image: "https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=100",
   },
   { id: "7", text: "Ethereal Fantasy World" },
   {
     id: "8",
     text: "Retro 80s Aesthetic",
-    image: "https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=100",
   },
   { id: "9", text: "Minimalist Product Shot" },
   {
     id: "10",
     text: "Epic Landscape View",
-    image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=100",
   },
 ];
 
@@ -404,32 +399,27 @@ const DEFAULT_PROMPT_TEMPLATES_ZH: PromptTemplate[] = [
   {
     id: "1",
     text: "温馨的圣诞客厅",
-    image: "https://images.unsplash.com/photo-1543589077-47d81606c1bf?w=100",
   },
   { id: "2", text: "工作狂" },
   {
     id: "3",
     text: "安静的决心",
-    image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=100",
   },
   { id: "4", text: "电影感戏剧" },
   { id: "5", text: "自然纪录片" },
   {
     id: "6",
     text: "都市街拍",
-    image: "https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=100",
   },
   { id: "7", text: "空灵奇幻世界" },
   {
     id: "8",
     text: "复古 80s 美学",
-    image: "https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=100",
   },
   { id: "9", text: "极简产品特写" },
   {
     id: "10",
     text: "史诗级风景镜头",
-    image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=100",
   },
 ];
 

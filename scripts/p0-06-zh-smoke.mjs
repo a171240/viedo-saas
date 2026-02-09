@@ -103,14 +103,15 @@ async function main() {
 
   for (const path of paths) {
     const url = `${baseURL}${path}`;
-    let resp = null;
-    for (let attempt = 0; attempt < 4; attempt += 1) {
-      try {
-        resp = await page.goto(url, { waitUntil: "domcontentloaded" });
-        break;
-      } catch (error) {
-        if (attempt < 3 && isConnIssue(error)) {
-          // Next dev may auto-restart on memory pressure; give it time.
+      let resp = null;
+      for (let attempt = 0; attempt < 4; attempt += 1) {
+        try {
+        // In Next dev, some pages can keep the main thread busy; "commit" is enough for HTML text checks.
+        resp = await page.goto(url, { waitUntil: "commit", timeout: 120000 });
+          break;
+        } catch (error) {
+          if (attempt < 3 && isConnIssue(error)) {
+            // Next dev may auto-restart on memory pressure; give it time.
           await page.waitForTimeout(2000);
           continue;
         }
@@ -122,16 +123,38 @@ async function main() {
       throw new Error(`Expected route to exist but got status=${status} for ${url}`);
     }
 
-    // Let client hydration finish enough for translated strings to appear.
-    await page.waitForTimeout(600);
+    // Let dev streaming/hydration finish enough for translated strings to appear.
+    // In Next dev, some routes may stream slowly; waiting on innerText length is more reliable than a fixed delay.
+    try {
+      await page.waitForFunction(
+        () => (document.body?.innerText || "").trim().length > 80,
+        null,
+        { timeout: 60000 }
+      );
+    } catch {
+      // fall back to fixed delay + second pass below
+      await page.waitForTimeout(1200);
+    }
     let text = await page.evaluate(() => document.body?.innerText || "");
+
+    // If we captured an empty document (streaming not finished), retry with domcontentloaded once.
+    let { han, latin, englishWords } = analyzeText(text);
+    if (han === 0 && latin === 0) {
+      try {
+        await page.goto(url, { waitUntil: "domcontentloaded", timeout: 120000 });
+        await page.waitForTimeout(800);
+        text = await page.evaluate(() => document.body?.innerText || "");
+      } catch {
+        // keep the original text for diagnostics below
+      }
+    }
 
     const banned = findBannedPhrase(text);
     if (banned) {
       throw new Error(`Found banned English phrase "${banned}" on ${path}`);
     }
 
-    let { han, latin, englishWords } = analyzeText(text);
+    ({ han, latin, englishWords } = analyzeText(text));
     if (han < 20) {
       // Occasionally hydration lags in dev; retry once before failing hard.
       await page.waitForTimeout(1200);

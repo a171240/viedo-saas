@@ -88,6 +88,13 @@ export function ToolLandingPage({
   const localizedFeatures =
     featureItems && featureItems.length > 0 ? featureItems : landing.features;
 
+  const exampleGradients = [
+    "from-blue-500/30 to-cyan-500/10",
+    "from-purple-500/30 to-pink-500/10",
+    "from-emerald-500/30 to-teal-500/10",
+    "from-orange-500/30 to-red-500/10",
+  ];
+
   return (
     <div className={cn("h-full overflow-y-auto", className)}>
       <div className="max-w-4xl mx-auto p-6 md:p-8 space-y-12">
@@ -169,11 +176,28 @@ export function ToolLandingPage({
                     transition={{ duration: 0.5, delay: 0.1 + index * 0.05 }}
                     className="group relative aspect-video rounded-xl overflow-hidden border border-border bg-muted cursor-pointer"
                   >
-                    <img
-                      src={example.thumbnail}
-                      alt={example.title}
-                      className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-                    />
+                    {example.thumbnail ? (
+                      <img
+                        src={example.thumbnail}
+                        alt={example.title}
+                        className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                      />
+                    ) : (
+                      <div
+                        aria-label={example.title}
+                        className={cn(
+                          "absolute inset-0",
+                          "bg-gradient-to-br",
+                          exampleGradients[index % exampleGradients.length]!
+                        )}
+                      >
+                        <div
+                          className="absolute inset-0 opacity-[0.14] mix-blend-overlay"
+                          style={{ backgroundImage: "url(/images/noise.webp)" }}
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-black/10 to-transparent" />
+                      </div>
+                    )}
                     <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors duration-300 flex items-center justify-center">
                       <div className="w-12 h-12 rounded-full bg-white/90 dark:bg-black/80 backdrop-blur-sm flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                         <Play className="h-5 w-5 text-foreground fill-foreground ml-0.5" />
