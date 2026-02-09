@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useRef } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { Play, ArrowRight, Sparkles } from "lucide-react";
 import { motion } from "framer-motion";
 import { useTranslations } from "next-intl";
@@ -8,6 +8,13 @@ import { useTranslations } from "next-intl";
 import { BlurFade } from "@/components/magicui/blur-fade";
 import { BorderBeam } from "@/components/magicui/border-beam";
 import { ShimmerButton } from "@/components/magicui/shimmer-button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { LocaleLink } from "@/i18n/navigation";
 import { cn } from "@/components/ui";
 
@@ -82,6 +89,8 @@ const showcaseVideos = [
 export function ShowcaseSection() {
   const t = useTranslations("Showcase");
   const videoRefs = useRef<Record<number, HTMLVideoElement | null>>({});
+  const [detailOpen, setDetailOpen] = useState(false);
+  const [activeVideoId, setActiveVideoId] = useState<number | null>(null);
 
   const startPreview = useCallback((id: number) => {
     const video = videoRefs.current[id];
@@ -116,6 +125,26 @@ export function ShowcaseSection() {
     description: localizedItems?.[index]?.description ?? video.description,
     tag: localizedItems?.[index]?.tag ?? video.tag,
   }));
+
+  const activeVideo = useMemo(() => {
+    if (activeVideoId == null) return null;
+    return localizedVideos.find((v) => v.id === activeVideoId) ?? null;
+  }, [activeVideoId, localizedVideos]);
+
+  const openDetail = useCallback(
+    (id: number) => {
+      // Avoid playing audio-less previews behind the modal.
+      stopPreview(id);
+      setActiveVideoId(id);
+      setDetailOpen(true);
+    },
+    [stopPreview],
+  );
+
+  const onDetailOpenChange = useCallback((open: boolean) => {
+    setDetailOpen(open);
+    if (!open) setActiveVideoId(null);
+  }, []);
 
   return (
     <section className="relative py-24 md:py-32 overflow-hidden">
@@ -181,7 +210,12 @@ export function ShowcaseSection() {
                 className="group relative"
               >
                 {/* 视频卡片 */}
-                <div className="relative rounded-2xl overflow-hidden border border-border bg-background shadow-lg hover:shadow-2xl transition-all duration-300 cursor-pointer">
+                <button
+                  type="button"
+                  className="relative w-full text-left rounded-2xl overflow-hidden border border-border bg-background shadow-lg hover:shadow-2xl transition-all duration-300 cursor-pointer"
+                  aria-label={`${video.title}: ${video.description}`}
+                  onClick={() => openDetail(video.id)}
+                >
                   {/* 边框光效 - 仅第一个大卡片 */}
                   {index === 0 && (
                     <BorderBeam
@@ -270,11 +304,40 @@ export function ShowcaseSection() {
                     </h3>
                     <p className="text-sm text-muted-foreground">{video.description}</p>
                   </div>
-                </div>
+                </button>
               </motion.div>
             </BlurFade>
           ))}
         </div>
+
+        {/* 视频详情弹窗（移动端/无 hover 环境可点击查看） */}
+        <Dialog open={detailOpen} onOpenChange={onDetailOpenChange}>
+          <DialogContent className="p-0 overflow-hidden md:max-w-4xl">
+            {activeVideo ? (
+              <div className="grid gap-0">
+                <div className="relative aspect-video bg-black">
+                  <video
+                    key={activeVideo.videoSrc}
+                    className="absolute inset-0 h-full w-full object-contain"
+                    src={activeVideo.videoSrc}
+                    poster={activeVideo.posterSrc}
+                    controls
+                    autoPlay
+                    muted
+                    playsInline
+                    preload="auto"
+                  />
+                </div>
+                <div className="p-6">
+                  <DialogHeader>
+                    <DialogTitle>{activeVideo.title}</DialogTitle>
+                    <DialogDescription>{activeVideo.description}</DialogDescription>
+                  </DialogHeader>
+                </div>
+              </div>
+            ) : null}
+          </DialogContent>
+        </Dialog>
 
         {/* 底部 CTA */}
         <BlurFade delay={0.4} inView>
