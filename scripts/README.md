@@ -130,6 +130,11 @@ pnpm install
 
 这些脚本用于本地快速回归关键 UI/流程（不依赖 Playwright MCP）。
 
+一键运行（推荐）：
+```bash
+corepack pnpm regress
+```
+
 ```bash
 # P0-01/P0-02：营销页路由 + 根路径重定向
 node scripts/p0-01-routes-smoke.mjs
