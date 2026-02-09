@@ -4,17 +4,12 @@ import { requireAuth } from "@/lib/auth";
 import { HeaderSimple } from "@/components/layout/header-simple";
 import { Sidebar } from "@/components/layout/sidebar";
 import { UpgradeModal } from "@/components/upgrade/upgrade-modal";
-import { i18n } from "@/config/i18n-config";
 
 interface DashboardLayoutProps {
   children?: React.ReactNode;
   params: Promise<{
     locale: string;
   }>;
-}
-
-export function generateStaticParams() {
-  return i18n.locales.map((locale) => ({ locale }));
 }
 
 export default async function DashboardLayout({

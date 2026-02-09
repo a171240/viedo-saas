@@ -1,6 +1,5 @@
 import { MobileMenuProvider } from "@/components/layout/mobile-menu-context";
 import { ToolLayoutContent } from "@/components/layout/tool-layout-content";
-import { i18n } from "@/config/i18n-config";
 import { getCurrentUser } from "@/lib/auth";
 
 interface ToolLayoutProps {
@@ -8,10 +7,6 @@ interface ToolLayoutProps {
   params: Promise<{
     locale: string;
   }>;
-}
-
-export function generateStaticParams() {
-  return i18n.locales.map((locale) => ({ locale }));
 }
 
 export default async function ToolLayout({

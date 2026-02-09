@@ -1,20 +1,15 @@
 import { Inter as FontSans } from "next/font/google";
 import localFont from "next/font/local";
-import { getLocale, getMessages } from "next-intl/server";
 
 import "@/styles/globals.css";
 
-import { NextIntlClientProvider } from "next-intl";
-
 import { AnalyticsGate } from "@/components/analytics-gate";
-import { CookieConsentBanner } from "@/components/cookie-consent-banner";
 import { cn } from "@/components/ui";
 import { Toaster } from "@/components/ui/sonner";
 import { QueryProvider } from "@/components/query-provider";
 
 import { TailwindIndicator } from "@/components/tailwind-indicator";
 import { ThemeProvider } from "@/components/theme-provider";
-import { i18n } from "@/config/i18n-config";
 import { siteConfig } from "@/config/site";
 
 const fontSans = FontSans({
@@ -29,10 +24,6 @@ const fontHeading = localFont({
 });
 
 
-
-export function generateStaticParams() {
-  return i18n.locales.map((locale) => ({ locale }));
-}
 
 export const metadata = {
   title: {
@@ -78,11 +69,8 @@ interface RootLayoutProps {
 export default async function RootLayout({
   children,
 }: RootLayoutProps) {
-  const locale = await getLocale();
-  const messages = await getMessages();
-
   return (
-    <html lang={locale} suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning>
       <head />
       <body
         suppressHydrationWarning
@@ -97,15 +85,12 @@ export default async function RootLayout({
           defaultTheme="dark"
           enableSystem={false}
         >
-          <NextIntlClientProvider messages={messages}>
-            <QueryProvider>
-              {children}
-              <AnalyticsGate />
-              <Toaster richColors position="top-right" />
-              <CookieConsentBanner />
-              <TailwindIndicator />
-            </QueryProvider>
-          </NextIntlClientProvider>
+          <QueryProvider>
+            {children}
+            <AnalyticsGate />
+            <Toaster richColors position="top-right" />
+            <TailwindIndicator />
+          </QueryProvider>
         </ThemeProvider>
       </body>
     </html>
