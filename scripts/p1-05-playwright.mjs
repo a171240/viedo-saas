@@ -13,6 +13,34 @@ function uniq(items) {
   return [...new Set(items.filter(Boolean))];
 }
 
+function isConnIssue(error) {
+  const msg = String(error?.message ?? "");
+  return (
+    msg.includes("ERR_CONNECTION_REFUSED") ||
+    msg.includes("ECONNREFUSED") ||
+    msg.includes("ERR_CONNECTION_RESET") ||
+    msg.includes("net::ERR_FAILED") ||
+    msg.includes("Target page, context or browser has been closed")
+  );
+}
+
+async function gotoWithRetries(page, url, options = {}, attempts = 6) {
+  let lastError = null;
+  for (let attempt = 0; attempt < attempts; attempt += 1) {
+    try {
+      return await page.goto(url, options);
+    } catch (error) {
+      lastError = error;
+      if (attempt < attempts - 1 && isConnIssue(error)) {
+        await delay(1200 + attempt * 600);
+        continue;
+      }
+      throw error;
+    }
+  }
+  throw lastError ?? new Error(`Failed to navigate: ${url}`);
+}
+
 function ensureTestImage() {
   const filePath = path.join(os.tmpdir(), "vf-playwright-test.png");
   if (!fs.existsSync(filePath)) {
@@ -35,7 +63,10 @@ async function resolveBaseURL(page) {
   for (const candidate of candidates) {
     for (const testPath of testPaths) {
       try {
-        const resp = await page.goto(`${candidate}${testPath}`, { waitUntil: "domcontentloaded", timeout: 45000 });
+        const resp = await gotoWithRetries(page, `${candidate}${testPath}`, {
+          waitUntil: "domcontentloaded",
+          timeout: 45000,
+        });
         const status = resp?.status() ?? 0;
         if (status && status !== 404) return candidate;
       } catch {
@@ -134,7 +165,7 @@ async function gotoFirstAvailable(page, paths) {
   for (const path of paths) {
     for (let attempt = 0; attempt < 2; attempt += 1) {
       try {
-        const response = await page.goto(`${baseURL}${path}`, { waitUntil: "domcontentloaded" });
+        const response = await gotoWithRetries(page, `${baseURL}${path}`, { waitUntil: "domcontentloaded" });
         const status = response?.status() ?? 0;
         if (status && status !== 404) {
           return path;
@@ -142,7 +173,7 @@ async function gotoFirstAvailable(page, paths) {
         if (status === 404) break;
       } catch (error) {
         lastError = error;
-        if (attempt === 0) {
+        if (attempt === 0 && isConnIssue(error)) {
           await delay(300);
         }
       }
@@ -502,6 +533,13 @@ async function main() {
   baseURL = await resolveBaseURL(page);
   await gotoFirstAvailable(page, ["/en/text-to-video", "/text-to-video"]);
   await waitForCreditBalance(page);
+  // In dev-bypass mode, auth/credits queries can remount parts of the page; wait briefly for stability.
+  try {
+    await page.waitForResponse((resp) => resp.url().includes("/api/v1/user/me"), { timeout: 15000 });
+  } catch {
+    // ignore if bypass is disabled
+  }
+  await delay(600);
 
   // Prompt Studio button availability
   await page.getByRole("button", { name: /Prompt Studio|提示词工作室/i }).waitFor();
