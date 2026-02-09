@@ -30,8 +30,12 @@ jobs:
       NEXT_PUBLIC_APP_URL: http://localhost:3002
       BASE_URL: http://localhost:3002
       BETTER_AUTH_SECRET: ci_test_better_auth_secret
+      GOOGLE_CLIENT_ID: ci_test_google_client_id
+      GOOGLE_CLIENT_SECRET: ci_test_google_client_secret
       STRIPE_API_KEY: sk_test_ci_dummy
       STRIPE_WEBHOOK_SECRET: whsec_ci_dummy
+      RESEND_API_KEY: re_ci_dummy
+      RESEND_FROM: noreply@example.com
 
       # DB + dev-bypass (used by UI regression scripts)
       DATABASE_URL: postgresql://postgres:postgres@localhost:5432/videofly
