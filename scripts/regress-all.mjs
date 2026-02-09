@@ -129,13 +129,17 @@ async function main() {
 
   const steps = [
     { name: "P0-01/P0-02 routes smoke", cmd: "node", args: ["scripts/p0-01-routes-smoke.mjs"] },
+    { name: "P0-03 credibility smoke", cmd: "node", args: ["scripts/p0-03-credibility-smoke.mjs"] },
     { name: "P0-04 pricing smoke", cmd: "node", args: ["scripts/p0-04-pricing-smoke.mjs"] },
     { name: "P0-06 zh i18n smoke", cmd: "node", args: ["scripts/p0-06-zh-smoke.mjs"] },
+    { name: "P0-05 reference consistency smoke", cmd: "node", args: ["scripts/p0-05-reference-consistency-smoke.mjs"] },
+    { name: "P0-07 credits breakdown smoke", cmd: "node", args: ["scripts/p0-07-credits-breakdown-smoke.mjs"] },
     { name: "P0-09 cookie consent smoke", cmd: "node", args: ["scripts/p0-09-cookie-consent-smoke.mjs"] },
     { name: "P0-08 model capabilities check", cmd: tsx, args: ["scripts/p0-08-model-capabilities-check.ts"] },
     { name: "P1-01 UI/flow regression", cmd: "node", args: ["scripts/p1-01-ui-flow.mjs"] },
     { name: "P1-02 template build check", cmd: tsx, args: ["scripts/p1-02-template-build-check.ts"] },
     { name: "P1-05 brand kit regression", cmd: "node", args: ["scripts/p1-05-playwright.mjs"] },
+    { name: "P1-06 share/remix regression", cmd: tsx, args: ["scripts/p1-06-share-remix.ts"] },
     { name: "P2-03/P2-04 safeguards UI", cmd: "node", args: ["scripts/p2-03-04-safeguards-ui.mjs"] },
     { name: "P2-01 recovery smoke", cmd: tsx, args: ["scripts/p2-01-recovery-smoke.ts"] },
     { name: "P2-02 admin analytics cost check", cmd: tsx, args: ["scripts/p2-02-admin-analytics-check.ts"] },

@@ -94,11 +94,20 @@ jobs:
       - name: P0-01/P0-02 Routes Smoke
         run: node scripts/p0-01-routes-smoke.mjs
 
+      - name: P0-03 Credibility Smoke
+        run: node scripts/p0-03-credibility-smoke.mjs
+
       - name: P0-04 Pricing Smoke
         run: node scripts/p0-04-pricing-smoke.mjs
 
       - name: P0-06 ZH i18n Smoke
         run: node scripts/p0-06-zh-smoke.mjs
+
+      - name: P0-05 Reference Consistency Smoke
+        run: node scripts/p0-05-reference-consistency-smoke.mjs
+
+      - name: P0-07 Credits Breakdown Smoke
+        run: node scripts/p0-07-credits-breakdown-smoke.mjs
 
       - name: P0-09 Cookie Consent Smoke
         run: node scripts/p0-09-cookie-consent-smoke.mjs
@@ -114,6 +123,9 @@ jobs:
 
       - name: P1-05 Brand Kit Regression
         run: node scripts/p1-05-playwright.mjs
+
+      - name: P1-06 Share/Remix Regression
+        run: corepack pnpm exec tsx scripts/p1-06-share-remix.ts
 
       - name: P2-03/P2-04 Safeguards UI
         run: node scripts/p2-03-04-safeguards-ui.mjs
