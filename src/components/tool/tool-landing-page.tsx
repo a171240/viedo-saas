@@ -15,6 +15,7 @@
 
 "use client";
 
+import { useCallback, useRef } from "react";
 import { Play, ArrowRight, Sparkles, Check, Users, Video } from "lucide-react";
 import Link from "next/link";
 import { motion } from "framer-motion";
@@ -72,6 +73,27 @@ export function ToolLandingPage({
   const { landing, i18nPrefix } = config;
   const tCommon = useTranslations("ToolLanding");
   const tLanding = useTranslations(i18nPrefix);
+  const videoRefs = useRef<Record<number, HTMLVideoElement | null>>({});
+
+  const startPreview = useCallback((index: number) => {
+    const video = videoRefs.current[index];
+    if (!video) return;
+    const res = video.play();
+    if (res && typeof (res as Promise<void>).catch === "function") {
+      (res as Promise<void>).catch(() => {});
+    }
+  }, []);
+
+  const stopPreview = useCallback((index: number) => {
+    const video = videoRefs.current[index];
+    if (!video) return;
+    video.pause();
+    try {
+      video.currentTime = 0;
+    } catch {
+      // Some browsers can throw if metadata isn't loaded yet.
+    }
+  }, []);
 
   const exampleItems = tLanding.raw("examples.items") as Array<{
     title: string;
@@ -175,29 +197,45 @@ export function ToolLandingPage({
                     viewport={{ once: true }}
                     transition={{ duration: 0.5, delay: 0.1 + index * 0.05 }}
                     className="group relative aspect-video rounded-xl overflow-hidden border border-border bg-muted cursor-pointer"
+                    onPointerEnter={() => startPreview(index)}
+                    onPointerLeave={() => stopPreview(index)}
                   >
-                    {example.thumbnail ? (
+                    {/* Fallback gradient background */}
+                    <div
+                      aria-label={example.title}
+                      className={cn(
+                        "absolute inset-0",
+                        "bg-gradient-to-br",
+                        exampleGradients[index % exampleGradients.length]!
+                      )}
+                    >
+                      <div
+                        className="absolute inset-0 opacity-[0.14] mix-blend-overlay"
+                        style={{ backgroundImage: "url(/images/noise.webp)" }}
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-black/10 to-transparent" />
+                    </div>
+
+                    {example.videoUrl ? (
+                      <video
+                        ref={(el) => {
+                          videoRefs.current[index] = el;
+                        }}
+                        className="absolute inset-0 h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                        src={example.videoUrl}
+                        poster={example.thumbnail}
+                        muted
+                        loop
+                        playsInline
+                        preload="metadata"
+                      />
+                    ) : example.thumbnail ? (
                       <img
                         src={example.thumbnail}
                         alt={example.title}
-                        className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                        className="absolute inset-0 h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
                       />
-                    ) : (
-                      <div
-                        aria-label={example.title}
-                        className={cn(
-                          "absolute inset-0",
-                          "bg-gradient-to-br",
-                          exampleGradients[index % exampleGradients.length]!
-                        )}
-                      >
-                        <div
-                          className="absolute inset-0 opacity-[0.14] mix-blend-overlay"
-                          style={{ backgroundImage: "url(/images/noise.webp)" }}
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-black/10 to-transparent" />
-                      </div>
-                    )}
+                    ) : null}
                     <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors duration-300 flex items-center justify-center">
                       <div className="w-12 h-12 rounded-full bg-white/90 dark:bg-black/80 backdrop-blur-sm flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                         <Play className="h-5 w-5 text-foreground fill-foreground ml-0.5" />

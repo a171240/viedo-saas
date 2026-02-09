@@ -70,14 +70,20 @@ export const imageToVideoConfig: ToolPageConfig = {
       {
         title: "Photo to Living Scene",
         prompt: "A girl walking on the beach, hair flowing in the wind, golden sunset",
+        thumbnail: "/images/showcase/nature.jpg",
+        videoUrl: "/videos/showcase/nature.mp4",
       },
       {
         title: "Product Animation",
         prompt: "Smartphone rotating on white background with floating particles",
+        thumbnail: "/images/showcase/product.jpg",
+        videoUrl: "/videos/showcase/product.mp4",
       },
       {
         title: "Abstract Art Animation",
         prompt: "Swirling colors and shapes morphing smoothly, psychedelic style",
+        thumbnail: "/images/showcase/abstract.jpg",
+        videoUrl: "/videos/showcase/abstract.mp4",
       },
     ],
 

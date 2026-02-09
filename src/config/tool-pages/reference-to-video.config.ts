@@ -68,14 +68,20 @@ export const referenceToVideoConfig: ToolPageConfig = {
       {
         title: "Style Transfer",
         prompt: "Transform the image into anime style with vibrant colors",
+        thumbnail: "/images/showcase/abstract.jpg",
+        videoUrl: "/videos/showcase/abstract.mp4",
       },
       {
         title: "Add Weather Effects",
         prompt: "Add rain and fog atmosphere to the scene",
+        thumbnail: "/images/showcase/urban.jpg",
+        videoUrl: "/videos/showcase/urban.mp4",
       },
       {
         title: "Change Season",
         prompt: "Convert summer scene to winter with snow",
+        thumbnail: "/images/showcase/nature.jpg",
+        videoUrl: "/videos/showcase/nature.mp4",
       },
     ],
 

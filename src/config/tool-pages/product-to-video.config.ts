@@ -58,14 +58,20 @@ export const productToVideoConfig: ToolPageConfig = {
       {
         title: "Minimal Watch Ad",
         prompt: "Clean product shots, smooth rotations, crisp lighting",
+        thumbnail: "/images/showcase/product.jpg",
+        videoUrl: "/videos/showcase/product.mp4",
       },
       {
         title: "Streetwear Drop",
         prompt: "UGC style, fast cuts, bold lifestyle scenes",
+        thumbnail: "/images/showcase/urban.jpg",
+        videoUrl: "/videos/showcase/urban.mp4",
       },
       {
         title: "Skincare Highlight",
         prompt: "Soft light, close-up texture, clean packshot",
+        thumbnail: "/images/showcase/character.jpg",
+        videoUrl: "/videos/showcase/character.mp4",
       },
     ],
     features: [

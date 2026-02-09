@@ -70,14 +70,20 @@ export const textToVideoConfig: ToolPageConfig = {
       {
         title: "Cinematic Mountain Scene",
         prompt: "A majestic mountain range at golden hour, camera slowly flying through valleys",
+        thumbnail: "/images/showcase/nature.jpg",
+        videoUrl: "/videos/showcase/nature.mp4",
       },
       {
         title: "Urban City Timelapse",
         prompt: "New York City timelapse at night, cars leaving light trails, buildings glowing",
+        thumbnail: "/images/showcase/urban.jpg",
+        videoUrl: "/videos/showcase/urban.mp4",
       },
       {
         title: "Ocean Sunset",
         prompt: "Calm ocean waves at sunset, camera slowly zooming out, peaceful atmosphere",
+        thumbnail: "/images/showcase/space.jpg",
+        videoUrl: "/videos/showcase/space.mp4",
       },
     ],
 
