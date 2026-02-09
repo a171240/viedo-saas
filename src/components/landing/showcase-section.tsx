@@ -1,5 +1,6 @@
 "use client";
 
+import { useCallback, useRef } from "react";
 import { Play, ArrowRight, Sparkles } from "lucide-react";
 import { motion } from "framer-motion";
 import { useTranslations } from "next-intl";
@@ -28,6 +29,8 @@ const showcaseVideos = [
     description: "A stunning landscape video",
     tag: "Text to Video",
     gradient: "from-blue-500 to-cyan-500",
+    videoSrc: "/videos/showcase/nature.mp4",
+    posterSrc: "/images/showcase/nature.jpg",
   },
   {
     id: 2,
@@ -35,6 +38,8 @@ const showcaseVideos = [
     description: "Smooth product showcase",
     tag: "Image to Video",
     gradient: "from-purple-500 to-pink-500",
+    videoSrc: "/videos/showcase/product.mp4",
+    posterSrc: "/images/showcase/product.jpg",
   },
   {
     id: 3,
@@ -42,6 +47,8 @@ const showcaseVideos = [
     description: "Creative AI-generated visuals",
     tag: "AI Creative",
     gradient: "from-orange-500 to-red-500",
+    videoSrc: "/videos/showcase/abstract.mp4",
+    posterSrc: "/images/showcase/abstract.jpg",
   },
   {
     id: 4,
@@ -49,6 +56,8 @@ const showcaseVideos = [
     description: "City life in motion",
     tag: "Text to Video",
     gradient: "from-green-500 to-emerald-500",
+    videoSrc: "/videos/showcase/urban.mp4",
+    posterSrc: "/images/showcase/urban.jpg",
   },
   {
     id: 5,
@@ -56,6 +65,8 @@ const showcaseVideos = [
     description: "Bringing characters to life",
     tag: "Character",
     gradient: "from-indigo-500 to-purple-500",
+    videoSrc: "/videos/showcase/character.mp4",
+    posterSrc: "/images/showcase/character.jpg",
   },
   {
     id: 6,
@@ -63,11 +74,37 @@ const showcaseVideos = [
     description: "Explore the cosmos",
     tag: "Text to Video",
     gradient: "from-teal-500 to-cyan-500",
+    videoSrc: "/videos/showcase/space.mp4",
+    posterSrc: "/images/showcase/space.jpg",
   },
 ];
 
 export function ShowcaseSection() {
   const t = useTranslations("Showcase");
+  const videoRefs = useRef<Record<number, HTMLVideoElement | null>>({});
+
+  const startPreview = useCallback((id: number) => {
+    const video = videoRefs.current[id];
+    if (!video) return;
+    // iOS/Safari may reject autoplay; ignore and keep poster visible.
+    const res = video.play();
+    if (res && typeof (res as Promise<void>).catch === "function") {
+      (res as Promise<void>).catch(() => {});
+    }
+  }, []);
+
+  const stopPreview = useCallback((id: number) => {
+    const video = videoRefs.current[id];
+    if (!video) return;
+    video.pause();
+    // Reset to the poster frame so users don't see a random paused frame.
+    try {
+      video.currentTime = 0;
+    } catch {
+      // Some browsers can throw if metadata isn't loaded yet.
+    }
+  }, []);
+
   const localizedItems = t.raw("items") as Array<{
     title?: string;
     description?: string;
@@ -158,25 +195,42 @@ export function ShowcaseSection() {
                   )}
 
                   {/* 缩略图 */}
-                  <div className="relative aspect-video overflow-hidden">
+                  <div
+                    className="relative aspect-video overflow-hidden"
+                    onPointerEnter={() => startPreview(video.id)}
+                    onPointerLeave={() => stopPreview(video.id)}
+                  >
+                    {/* Fallback background (shows instantly while the poster/video loads) */}
                     <motion.div
                       aria-label={video.title}
                       className={cn(
-                        "w-full h-full transition-transform duration-500 group-hover:scale-110",
-                        "bg-gradient-to-br",
+                        "absolute inset-0 bg-gradient-to-br transition-transform duration-500 group-hover:scale-110",
                         video.gradient
                       )}
-                    >
-                      {/* Texture overlay to avoid stock placeholder assets */}
-                      <div
-                        className="absolute inset-0 opacity-[0.14] mix-blend-overlay"
-                        style={{ backgroundImage: "url(/images/noise.webp)" }}
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-black/10 to-transparent" />
-                    </motion.div>
+                    />
+
+                    <video
+                      ref={(el) => {
+                        videoRefs.current[video.id] = el;
+                      }}
+                      className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
+                      src={video.videoSrc}
+                      poster={video.posterSrc}
+                      muted
+                      loop
+                      playsInline
+                      preload="metadata"
+                    />
+
+                    {/* Texture + cinematic overlay */}
+                    <div
+                      className="absolute inset-0 opacity-[0.14] mix-blend-overlay pointer-events-none"
+                      style={{ backgroundImage: "url(/images/noise.webp)" }}
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-black/10 to-transparent pointer-events-none" />
 
                     {/* 悬停时的遮罩 */}
-                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors duration-300" />
+                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors duration-300 pointer-events-none" />
 
                     {/* 播放按钮 */}
                     <motion.div
