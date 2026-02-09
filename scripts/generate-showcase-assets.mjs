@@ -110,13 +110,13 @@ run([
   "-f",
   "lavfi",
   "-i",
-  `color=c=black@0.0:s=${S}:r=${R}:d=${D}`,
+  `color=c=black@0.0:s=${S}:r=${R}:d=${D},format=rgba`,
   "-filter_complex",
   "[1:v]format=rgba,"
-    + "drawbox=x=w/2-90+250*sin(2*PI*t/4):y=h/2-90+140*cos(2*PI*t/4):w=180:h=180:color=#22c55e@1.0:t=fill,"
-    + "drawbox=x=w/2-90+250*sin(2*PI*t/4)+18:y=h/2-90+140*cos(2*PI*t/4)-18:w=180:h=180:color=#a855f7@0.65:t=fill,"
+    + "drawbox=x=iw/2-90+250*sin(2*PI*t/4):y=ih/2-90+140*cos(2*PI*t/4):w=180:h=180:color=0x22c55e@1.0:t=fill:replace=1,"
+    + "drawbox=x=iw/2-90+250*sin(2*PI*t/4)+18:y=ih/2-90+140*cos(2*PI*t/4)-18:w=180:h=180:color=0xa855f7@0.65:t=fill:replace=1,"
     + "gblur=sigma=22:steps=2[blob];"
-    + "[0:v][blob]overlay=shortest=1,"
+    + "[0:v][blob]overlay=shortest=1:format=auto,"
     + "vignette=a=PI/4,noise=alls=2:allf=t+u,eq=contrast=1.08:saturation=1.25,format=yuv420p[v]",
   "-map",
   "[v]",
