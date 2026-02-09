@@ -28,6 +28,7 @@ jobs:
     env:
       # App runtime (required by src/env.mjs)
       NEXT_PUBLIC_APP_URL: http://localhost:3002
+      BASE_URL: http://localhost:3002
       BETTER_AUTH_SECRET: ci_test_better_auth_secret
       STRIPE_API_KEY: sk_test_ci_dummy
       STRIPE_WEBHOOK_SECRET: whsec_ci_dummy
@@ -67,5 +68,70 @@ jobs:
       - name: Apply DB Schema (Drizzle)
         run: corepack pnpm db:push
 
-      - name: Run Regressions
-        run: corepack pnpm regress
+      - name: Start Dev Server
+        run: |
+          nohup corepack pnpm dev > dev-server.log 2>&1 &
+          echo $! > dev-server.pid
+
+      - name: Wait For Dev Server
+        run: |
+          for i in $(seq 1 90); do
+            if curl -fsS -o /dev/null -I "http://localhost:3002/"; then
+              echo "dev server ready"
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "dev server did not become ready"
+          tail -n 200 dev-server.log || true
+          exit 1
+
+      - name: P0-01/P0-02 Routes Smoke
+        run: node scripts/p0-01-routes-smoke.mjs
+
+      - name: P0-04 Pricing Smoke
+        run: node scripts/p0-04-pricing-smoke.mjs
+
+      - name: P0-06 ZH i18n Smoke
+        run: node scripts/p0-06-zh-smoke.mjs
+
+      - name: P0-09 Cookie Consent Smoke
+        run: node scripts/p0-09-cookie-consent-smoke.mjs
+
+      - name: P0-08 Model Capabilities Check
+        run: corepack pnpm exec tsx scripts/p0-08-model-capabilities-check.ts
+
+      - name: P1-01 UI/Flow Regression
+        run: node scripts/p1-01-ui-flow.mjs
+
+      - name: P1-02 Template Build Check
+        run: corepack pnpm exec tsx scripts/p1-02-template-build-check.ts
+
+      - name: P1-05 Brand Kit Regression
+        run: node scripts/p1-05-playwright.mjs
+
+      - name: P2-03/P2-04 Safeguards UI
+        run: node scripts/p2-03-04-safeguards-ui.mjs
+
+      - name: P2-01 Recovery Smoke
+        run: corepack pnpm exec tsx scripts/p2-01-recovery-smoke.ts
+
+      - name: P2-02 Admin Analytics Cost Check
+        run: corepack pnpm exec tsx scripts/p2-02-admin-analytics-check.ts
+
+      - name: P0-10 Callback Smoke
+        run: corepack pnpm exec tsx scripts/p0-10-callback-smoke.ts
+
+      - name: Typecheck
+        run: corepack pnpm typecheck
+
+      - name: Lint
+        run: corepack pnpm lint
+
+      - name: Stop Dev Server
+        if: always()
+        run: |
+          if [ -f dev-server.pid ]; then
+            kill "$(cat dev-server.pid)" || true
+          fi
+          tail -n 200 dev-server.log || true
