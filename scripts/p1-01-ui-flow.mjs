@@ -13,6 +13,34 @@ function uniq(items) {
   return [...new Set(items.filter(Boolean))];
 }
 
+function isConnIssue(error) {
+  const msg = String(error?.message ?? "");
+  return (
+    msg.includes("ERR_CONNECTION_REFUSED") ||
+    msg.includes("ECONNREFUSED") ||
+    msg.includes("ERR_CONNECTION_RESET") ||
+    msg.includes("net::ERR_FAILED")
+  );
+}
+
+async function gotoWithRetries(page, url, options, attempts = 8) {
+  let lastError = null;
+  for (let attempt = 0; attempt < attempts; attempt += 1) {
+    try {
+      return await page.goto(url, options);
+    } catch (error) {
+      lastError = error;
+      if (attempt < attempts - 1 && isConnIssue(error)) {
+        // Next dev can restart under memory pressure; wait and retry.
+        await delay(1500 + attempt * 700);
+        continue;
+      }
+      throw error;
+    }
+  }
+  throw lastError ?? new Error(`Failed to navigate: ${url}`);
+}
+
 function ensureTestImage() {
   const filePath = path.join(os.tmpdir(), "vf-playwright-test.png");
   if (!fs.existsSync(filePath)) {
@@ -33,7 +61,7 @@ async function resolveBaseURL(page) {
 
   for (const candidate of candidates) {
     try {
-      const resp = await page.goto(`${candidate}/en`, { waitUntil: "domcontentloaded", timeout: 15000 });
+      const resp = await gotoWithRetries(page, `${candidate}/en`, { waitUntil: "domcontentloaded", timeout: 15000 });
       const status = resp?.status() ?? 0;
       if (status && status !== 404) return candidate;
     } catch {
@@ -323,7 +351,7 @@ async function main() {
   baseURL = await resolveBaseURL(page);
 
   // 1) text-to-video: Prompt Studio batch queue -> 3 tasks -> prompts differ
-  await page.goto(`${baseURL}/en/text-to-video`, { waitUntil: "domcontentloaded", timeout: 120000 });
+  await gotoWithRetries(page, `${baseURL}/en/text-to-video`, { waitUntil: "domcontentloaded", timeout: 120000 });
   await page.getByRole("button", { name: /Prompt Studio|提示词工作室/i }).waitFor();
   // In dev-bypass mode, the layout can switch from unauth -> auth after /api/v1/user/me resolves,
   // which remounts the generator and clears any early typing. Wait a bit to avoid flakiness.
@@ -373,7 +401,7 @@ async function main() {
   await assertBatchQueuePrompts(page, payloads, 3);
 
   // 2) image-to-video: requires image upload and generates with imageUrl
-  await page.goto(`${baseURL}/en/image-to-video`, { waitUntil: "domcontentloaded", timeout: 120000 });
+  await gotoWithRetries(page, `${baseURL}/en/image-to-video`, { waitUntil: "domcontentloaded", timeout: 120000 });
   const imagePrompt = page.getByPlaceholder(/Describe the video|描述视频/i);
   await imagePrompt.waitFor({ state: "visible" });
   await ensureGeneratorHydrated(page);

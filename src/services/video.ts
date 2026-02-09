@@ -8,6 +8,7 @@ import { creditService } from "./credit";
 import { generateSignedCallbackUrl } from "@/ai/utils/callback-signature";
 import { emitVideoEvent } from "@/lib/video-events";
 import { releaseWebhookEvent, reserveWebhookEvent } from "@/lib/webhook-events";
+import { ApiError } from "@/lib/api/error";
 
 export interface GenerateVideoParams {
   userId: string;
@@ -258,7 +259,7 @@ export class VideoService {
       .limit(1);
 
     if (!video) {
-      throw new Error("Video not found");
+      throw new ApiError("Video not found", 404);
     }
 
     if (video.status === VideoStatus.COMPLETED || video.status === VideoStatus.FAILED) {
@@ -321,7 +322,7 @@ export class VideoService {
       .limit(1);
 
     if (!video) {
-      throw new Error("Video not found");
+      throw new ApiError("Video not found", 404);
     }
 
     return this.refreshStatus(video.uuid, userId);
