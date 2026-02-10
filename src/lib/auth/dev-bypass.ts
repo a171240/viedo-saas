@@ -41,7 +41,18 @@ export async function getDevBypassUser() {
       name: "Dev User",
       emailVerified: true,
     })
+    // Next.js can prerender multiple pages concurrently in CI, which can race on dev user creation.
+    // Make the insert idempotent and fall back to selecting the existing user.
+    .onConflictDoNothing({ target: users.email })
     .returning();
 
-  return created ?? null;
+  if (created) return created;
+
+  const [afterConflict] = await db
+    .select()
+    .from(users)
+    .where(eq(users.email, email))
+    .limit(1);
+
+  return afterConflict ?? null;
 }
