@@ -135,6 +135,15 @@ pnpm install
 corepack pnpm regress
 ```
 
+线上一键验收（不启动本地 dev，跑安全子集）：
+```bash
+# 默认会尝试从 .vercel/project.json 推断 https://<projectName>.vercel.app
+corepack pnpm accept:prod
+
+# 或显式指定线上域名
+BASE_URL=https://viedo-saas.vercel.app corepack pnpm accept:prod
+```
+
 ```bash
 # P0-01/P0-02：营销页路由 + 根路径重定向
 node scripts/p0-01-routes-smoke.mjs

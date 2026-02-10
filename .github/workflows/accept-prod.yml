@@ -1,0 +1,44 @@
+name: Prod Acceptance
+
+on:
+  workflow_dispatch:
+    inputs:
+      base_url:
+        description: "Base URL to accept (e.g. https://viedo-saas.vercel.app)"
+        required: false
+        default: "https://viedo-saas.vercel.app"
+
+permissions: read-all
+
+concurrency:
+  group: prod-acceptance
+  cancel-in-progress: false
+
+jobs:
+  accept:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Enable Corepack
+        run: corepack enable
+
+      - name: Install Dependencies
+        run: corepack pnpm install --frozen-lockfile
+
+      - name: Install Playwright (Chromium)
+        run: corepack pnpm exec playwright install --with-deps chromium
+
+      - name: Run Prod Acceptance
+        env:
+          ACCEPT_BASE_URL: ${{ inputs.base_url }}
+        run: corepack pnpm accept:prod
+
