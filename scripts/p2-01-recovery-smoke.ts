@@ -11,6 +11,41 @@ function uniq(items: Array<string | undefined | null>) {
   return [...new Set(items.filter(Boolean))] as string[];
 }
 
+function isRetryableError(error: unknown) {
+  const msg = String((error as { message?: string })?.message ?? error);
+  return (
+    msg.includes("fetch failed") ||
+    msg.includes("ECONNREFUSED") ||
+    msg.includes("ECONNRESET") ||
+    msg.includes("socket hang up") ||
+    msg.includes("UND_ERR_CONNECT_TIMEOUT") ||
+    msg.includes("UND_ERR_SOCKET")
+  );
+}
+
+async function fetchWithRetries(url: string, init: RequestInit, attempts = 6) {
+  let lastError: unknown = null;
+  for (let attempt = 0; attempt < attempts; attempt += 1) {
+    try {
+      const resp = await fetch(url, init);
+      // When Next dev restarts, we can transiently see 502/503.
+      if ([502, 503, 504].includes(resp.status) && attempt < attempts - 1) {
+        await new Promise((r) => setTimeout(r, 800 + attempt * 600));
+        continue;
+      }
+      return resp;
+    } catch (error) {
+      lastError = error;
+      if (attempt < attempts - 1 && isRetryableError(error)) {
+        await new Promise((r) => setTimeout(r, 800 + attempt * 600));
+        continue;
+      }
+      throw error;
+    }
+  }
+  throw lastError ?? new Error(`Failed to fetch: ${url}`);
+}
+
 async function resolveBaseURL() {
   const candidates = uniq([
     process.env.BASE_URL,
@@ -57,14 +92,17 @@ async function main() {
 
   // Unauthorized
   {
-    const resp = await fetch(`${endpoint}?secret=wrong_secret`, { redirect: "manual" });
+    const resp = await fetchWithRetries(`${endpoint}?secret=wrong_secret`, { redirect: "manual" });
     assert(resp.status === 401, `Expected unauthorized recover to return 401 but got ${resp.status}`);
     console.log("P2-01 ok: unauthorized blocked");
   }
 
   // Authorized (dry-run)
   {
-    const resp = await fetch(`${endpoint}?secret=${encodeURIComponent(secret)}&limit=1`, { redirect: "manual" });
+    const resp = await fetchWithRetries(
+      `${endpoint}?secret=${encodeURIComponent(secret)}&limit=1`,
+      { redirect: "manual" }
+    );
     assert(resp.status === 200, `Expected authorized recover to return 200 but got ${resp.status}`);
     const json = (await resp.json()) as { success?: boolean; dryRun?: boolean };
     assert(json.success === true, "Expected success=true for authorized recover");
