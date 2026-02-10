@@ -595,6 +595,9 @@ async function main() {
   // Generate button should be disabled without prompt or image
   await assertGenerateButtonState(page, /Generate Video|生成视频/i, false);
 
+  // Prompt Studio (text-to-video) flow does not require auth; run it before any Generate clicks that may redirect.
+  await runPromptStudioTextToVideo(page);
+
   // Fill prompt and attempt generation (requires login or dev bypass)
   await page.getByPlaceholder(/Describe the video|描述视频/i).fill("A sleek product demo in a modern studio");
   await assertGenerateButtonState(page, /Generate Video|生成视频/i, true);
@@ -626,17 +629,6 @@ async function main() {
       throw new Error("Brand Kit seeded values missing from generate payload");
     }
   }
-
-  if (redirectedToLogin) {
-    console.warn(
-      `P1-05: redirected to login after clicking Generate (${page.url()}). Returning to tool page to continue UI checks.`
-    );
-    await gotoFirstAvailable(page, ["/en/text-to-video", "/text-to-video"]);
-    await delay(900);
-    await page.getByRole("button", { name: /Prompt Studio|提示词工作室/i }).waitFor();
-  }
-
-  await runPromptStudioTextToVideo(page);
 
   // Product-to-Video preview assertions (no auth required)
   await gotoFirstAvailable(page, ["/en/product-to-video", "/product-to-video"]);
