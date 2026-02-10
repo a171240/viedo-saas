@@ -27,7 +27,7 @@ async function resolveBaseURL(page) {
 }
 
 async function ensureHydrated(page) {
-  const prompt = page.getByPlaceholder(/Describe the video|描述视频/i);
+  const prompt = page.getByPlaceholder(/Describe the video|描述视频/i).first();
   const generate = page.getByRole("button", { name: /Generate Video|生成视频/i }).first();
 
   await prompt.waitFor({ state: "visible" });
@@ -56,7 +56,17 @@ async function main() {
     );
   });
 
-  // Keep tests independent from DB/auth: stub dev bypass user + credits.
+  // Keep tests independent from DB/auth: stub session + user + credits.
+  await page.route("**/api/auth/get-session", async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({
+        user: { id: "dev_user", email: "dev@example.com", name: "Dev User" },
+      }),
+    });
+  });
+
   await page.route("**/api/v1/user/me", async (route) => {
     await route.fulfill({
       status: 200,

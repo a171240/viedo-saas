@@ -113,6 +113,29 @@ async function installCreditBalanceStub(page) {
   });
 }
 
+async function installAuthStubs(page) {
+  const user = { id: "dev_user", email: "dev@example.com", name: "Dev User" };
+
+  // Make UI regressions independent from real auth/dev-bypass availability. This keeps the
+  // scripts runnable against deployed environments where bypass is disabled.
+  await page.route("**/api/auth/get-session", async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      // better-auth get-session returns a session object (or null), not an envelope.
+      body: JSON.stringify({ user }),
+    });
+  });
+
+  await page.route("**/api/v1/user/me", async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({ success: true, data: user }),
+    });
+  });
+}
+
 async function installUploadStub(page) {
   await page.route("**/api/v1/upload", async (route) => {
     await route.fulfill({
@@ -344,6 +367,7 @@ async function main() {
     vf_cookie_consent: JSON.stringify({ necessary: true, analytics: false, updatedAt: new Date().toISOString() }),
   });
 
+  await installAuthStubs(page);
   await installCreditBalanceStub(page);
   await installUploadStub(page);
   const payloads = await installGenerateStub(page);

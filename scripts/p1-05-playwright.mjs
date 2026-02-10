@@ -92,6 +92,27 @@ async function setLocalStorage(page, items) {
   }, items);
 }
 
+async function installAuthStubs(page) {
+  const user = { id: "dev_user", email: "dev@example.com", name: "Dev User" };
+
+  // Keep this regression runnable against deployments where dev-bypass is disabled.
+  await page.route("**/api/auth/get-session", async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({ user }),
+    });
+  });
+
+  await page.route("**/api/v1/user/me", async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({ success: true, data: user }),
+    });
+  });
+}
+
 async function installCreditBalanceStub(page) {
   const stub = {
     success: true,
@@ -646,6 +667,7 @@ async function main() {
     }),
   });
 
+  await installAuthStubs(page);
   await installCreditBalanceStub(page);
   await installUploadStub(page);
   const generatePayloads = await installGenerateStub(page);
@@ -657,6 +679,11 @@ async function main() {
     await page.waitForResponse((resp) => resp.url().includes("/api/v1/user/me"), { timeout: 15000 });
   } catch {
     // ignore if bypass is disabled
+  }
+  try {
+    await page.waitForResponse((resp) => resp.url().includes("/api/auth/get-session"), { timeout: 15000 });
+  } catch {
+    // ignore
   }
   await delay(600);
 
