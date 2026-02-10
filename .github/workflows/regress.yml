@@ -75,7 +75,42 @@ jobs:
         run: corepack pnpm db:push
 
       - name: Build (Next.js)
-        run: corepack pnpm build
+        id: build
+        run: |
+          set +e
+          corepack pnpm build 2>&1 | tee build.log
+          echo "exit_code=${PIPESTATUS[0]}" >> "$GITHUB_OUTPUT"
+          # Don't fail this step yet; we want to post diagnostics first.
+          exit 0
+
+      - name: Post Build Failure Tail (Commit Comment)
+        if: steps.build.outputs.exit_code != '0'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+
+            const raw = fs.readFileSync('build.log', 'utf8');
+            const lines = raw.split(/\r?\n/);
+            const tail = lines.slice(-160).join('\n').slice(0, 65000);
+
+            await github.repos.createCommitComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              commit_sha: context.sha,
+              body: [
+                'CI build failed at `corepack pnpm build`.',
+                '',
+                'Tail of `build.log`:',
+                '```',
+                tail,
+                '```',
+              ].join('\\n'),
+            });
+
+      - name: Fail If Build Failed
+        if: steps.build.outputs.exit_code != '0'
+        run: exit 1
 
       - name: Start Server
         run: |
