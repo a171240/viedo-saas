@@ -175,9 +175,19 @@ BASE_URL=http://localhost:3002 node scripts/p2-03-04-safeguards-ui.mjs
 # P2-01：Stuck Recovery（鉴权 + dry-run）
 ./node_modules/.bin/tsx scripts/p2-01-recovery-smoke.ts
 
+# P2-05：Rate Limit（跨实例/DB 存储）冒烟
+./node_modules/.bin/tsx scripts/p2-05-rate-limit-smoke.ts
+
 # P2-02：可观测/成本报表（成本估算一致性）
 ./node_modules/.bin/tsx scripts/p2-02-admin-analytics-check.ts
 
+# P0-10：Stripe Webhook 验签 + 幂等 gate（不触发真实 Stripe API）
+./node_modules/.bin/tsx scripts/p0-10-stripe-webhook-gate-smoke.ts
+
 # P0-10：AI 回调验签 + 幂等（webhook_events 去重）
 ./node_modules/.bin/tsx scripts/p0-10-callback-smoke.ts
+
+# P3-01：真实生成冒烟（会调用真实 Provider，可能产生费用）
+# 只建议手动运行，且必须显式确认：
+# REAL_SMOKE_CONFIRM=true ./node_modules/.bin/tsx scripts/p3-01-real-generate-smoke.ts
 ```

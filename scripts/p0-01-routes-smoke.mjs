@@ -7,14 +7,37 @@ const candidates = [
   "http://localhost:3001",
 ].filter(Boolean);
 
-async function fetchWithTimeout(url, init = {}, timeoutMs = 45000) {
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), timeoutMs);
-  try {
-    return await fetch(url, { ...init, signal: controller.signal });
-  } finally {
-    clearTimeout(timeout);
+function isRetryableFetchError(error) {
+  const code = error?.cause?.code || error?.code;
+  if (code && ["UND_ERR_SOCKET", "ECONNRESET", "ECONNREFUSED", "EPIPE"].includes(code)) return true;
+
+  const name = String(error?.name || "");
+  if (name === "AbortError") return true;
+
+  const message = String(error?.message || "");
+  // undici wraps connection issues as `TypeError: fetch failed`
+  if (message.includes("fetch failed")) return true;
+
+  return false;
+}
+
+async function fetchWithTimeout(url, init = {}, timeoutMs = 45000, retries = 6) {
+  let lastError;
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), timeoutMs);
+    try {
+      return await fetch(url, { ...init, signal: controller.signal });
+    } catch (error) {
+      lastError = error;
+      if (attempt === retries || !isRetryableFetchError(error)) throw error;
+      // The dev server may restart while compiling pages; retry with small backoff.
+      await new Promise((r) => setTimeout(r, 500 + attempt * 500));
+    } finally {
+      clearTimeout(timeout);
+    }
   }
+  throw lastError;
 }
 
 async function resolveBaseURL() {
@@ -78,4 +101,3 @@ main().catch((error) => {
   console.error(error);
   process.exit(1);
 });
-

@@ -52,6 +52,8 @@ KIE_BASE_URL=https://api.kie.ai/api/v1
 
 # 通用
 AI_CALLBACK_URL=https://yourdomain.com/api/v1/video/callback
+CALLBACK_HMAC_SECRET=your_callback_secret
+# 兼容别名（建议只用一个）
 AI_CALLBACK_SECRET=your_callback_secret
 ```
 

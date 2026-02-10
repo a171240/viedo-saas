@@ -4,6 +4,38 @@ let baseURL = process.env.BASE_URL || process.env.NEXT_PUBLIC_APP_URL || "http:/
 
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
+function isConnIssue(error) {
+  const msg = String(error?.message ?? error);
+  return (
+    msg.includes("ERR_CONNECTION_REFUSED") ||
+    msg.includes("ECONNREFUSED") ||
+    msg.includes("ERR_CONNECTION_RESET") ||
+    msg.includes("ERR_CONNECTION_CLOSED") ||
+    msg.includes("ERR_EMPTY_RESPONSE") ||
+    msg.includes("ERR_TIMED_OUT") ||
+    msg.includes("net::ERR_FAILED") ||
+    msg.includes("Timeout")
+  );
+}
+
+async function gotoWithRetries(page, url, options, attempts = 6) {
+  let lastError = null;
+  for (let attempt = 0; attempt < attempts; attempt += 1) {
+    try {
+      return await page.goto(url, options);
+    } catch (error) {
+      lastError = error;
+      if (attempt < attempts - 1 && isConnIssue(error)) {
+        // Next dev can restart under memory pressure; wait and retry.
+        await delay(1200 + attempt * 700);
+        continue;
+      }
+      throw error;
+    }
+  }
+  throw lastError ?? new Error(`Failed to navigate: ${url}`);
+}
+
 async function resolveBaseURL(page) {
   const candidates = [
     process.env.BASE_URL,
@@ -16,7 +48,12 @@ async function resolveBaseURL(page) {
 
   for (const candidate of candidates) {
     try {
-      const resp = await page.goto(`${candidate}/en`, { waitUntil: "domcontentloaded", timeout: 20000 });
+      const resp = await gotoWithRetries(
+        page,
+        `${candidate}/en`,
+        { waitUntil: "domcontentloaded", timeout: 20000 },
+        3
+      );
       const status = resp?.status() ?? 0;
       if (status && status !== 404) return candidate;
     } catch {
@@ -136,7 +173,12 @@ async function main() {
   });
 
   baseURL = await resolveBaseURL(page);
-  await page.goto(`${baseURL}/en/text-to-video`, { waitUntil: "domcontentloaded", timeout: 120000 });
+  await gotoWithRetries(
+    page,
+    `${baseURL}/en/text-to-video`,
+    { waitUntil: "commit", timeout: 120000 },
+    6
+  );
   await ensureHydrated(page);
 
   const generate = page.getByRole("button", { name: /Generate Video|生成视频/i }).first();

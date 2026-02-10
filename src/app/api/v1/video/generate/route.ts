@@ -104,7 +104,7 @@ export async function POST(request: NextRequest) {
       const rateConfig = usage.isPaid
         ? USAGE_LIMITS.paid.rateLimit
         : USAGE_LIMITS.free.rateLimit;
-      const rate = rateLimit(
+      const rate = await rateLimit(
         `video_generate:${user.id}:${ip}`,
         rateConfig
       );
@@ -130,7 +130,7 @@ export async function POST(request: NextRequest) {
       }
 
       if (!usage.isPaid) {
-        const ipRate = rateLimit(
+        const ipRate = await rateLimit(
           `video_generate:ip:${ip}`,
           USAGE_LIMITS.free.ipRateLimit
         );
@@ -155,7 +155,7 @@ export async function POST(request: NextRequest) {
           );
         }
       } else {
-        const paidIpRate = rateLimit(
+        const paidIpRate = await rateLimit(
           `video_generate:ip:${ip}`,
           USAGE_LIMITS.paid.ipRateLimit
         );

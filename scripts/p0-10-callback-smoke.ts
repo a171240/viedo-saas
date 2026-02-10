@@ -30,9 +30,9 @@ function isConnIssue(error: unknown): boolean {
 
   const cause = err?.cause as { code?: string; errors?: Array<{ code?: string }> } | null;
   const code = cause?.code;
-  if (code && ["ECONNREFUSED", "ECONNRESET", "EPIPE"].includes(code)) return true;
+  if (code && ["ECONNREFUSED", "ECONNRESET", "EPIPE", "UND_ERR_SOCKET"].includes(code)) return true;
   const nested = Array.isArray(cause?.errors) ? cause?.errors : [];
-  return nested.some((e) => e?.code && ["ECONNREFUSED", "ECONNRESET", "EPIPE"].includes(e.code));
+  return nested.some((e) => e?.code && ["ECONNREFUSED", "ECONNRESET", "EPIPE", "UND_ERR_SOCKET"].includes(e.code));
 }
 
 async function fetchJson<T>(

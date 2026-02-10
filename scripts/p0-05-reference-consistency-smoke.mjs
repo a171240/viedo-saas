@@ -17,6 +17,9 @@ function isConnIssue(error) {
     msg.includes("ERR_CONNECTION_REFUSED") ||
     msg.includes("ECONNREFUSED") ||
     msg.includes("ERR_CONNECTION_RESET") ||
+    msg.includes("ERR_CONNECTION_CLOSED") ||
+    msg.includes("ERR_EMPTY_RESPONSE") ||
+    msg.includes("ERR_TIMED_OUT") ||
     msg.includes("net::ERR_FAILED")
   );
 }

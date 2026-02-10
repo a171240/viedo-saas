@@ -289,8 +289,14 @@ jobs:
       - name: P2-01 Recovery Smoke
         run: corepack pnpm exec tsx scripts/p2-01-recovery-smoke.ts
 
+      - name: P2-05 Rate Limit Smoke
+        run: corepack pnpm exec tsx scripts/p2-05-rate-limit-smoke.ts
+
       - name: P2-02 Admin Analytics Cost Check
         run: corepack pnpm exec tsx scripts/p2-02-admin-analytics-check.ts
+
+      - name: P0-10 Stripe Webhook Gate Smoke
+        run: corepack pnpm exec tsx scripts/p0-10-stripe-webhook-gate-smoke.ts
 
       - name: P0-10 Callback Smoke
         run: corepack pnpm exec tsx scripts/p0-10-callback-smoke.ts

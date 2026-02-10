@@ -313,6 +313,20 @@ export const webhookEvents = pgTable(
   })
 );
 
+export const rateLimitBuckets = pgTable(
+  "rate_limit_buckets",
+  {
+    bucketKey: text("bucket_key").primaryKey(),
+    count: integer("count").notNull(),
+    resetAt: timestamp("reset_at").notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  },
+  (table) => ({
+    resetAtIdx: index("rate_limit_buckets_reset_at_idx").on(table.resetAt),
+  })
+);
+
 export const videos = pgTable(
   "videos",
   {
@@ -354,6 +368,7 @@ export type CreditPackage = typeof creditPackages.$inferSelect;
 export type CreditHold = typeof creditHolds.$inferSelect;
 export type CreditTransaction = typeof creditTransactions.$inferSelect;
 export type WebhookEvent = typeof webhookEvents.$inferSelect;
+export type RateLimitBucket = typeof rateLimitBuckets.$inferSelect;
 export type Video = typeof videos.$inferSelect;
 
 export const SubscriptionPlan = {

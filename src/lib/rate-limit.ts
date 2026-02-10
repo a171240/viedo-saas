@@ -1,4 +1,7 @@
 import type { NextRequest } from "next/server";
+import { lt, sql } from "drizzle-orm";
+
+import { db, rateLimitBuckets } from "@/db";
 
 type RateLimitOptions = {
   windowMs: number;
@@ -12,12 +15,10 @@ type RateLimitResult = {
   retryAfter: number;
 };
 
-type Bucket = {
-  count: number;
-  reset: number;
-};
+const CLEANUP_INTERVAL_MS = 6 * 60 * 60 * 1000; // 6h
+const CLEANUP_OLDER_THAN_MS = 24 * 60 * 60 * 1000; // 24h
 
-const buckets = new Map<string, Bucket>();
+let lastCleanupAtMs = 0;
 
 export function getRequestIp(request: NextRequest) {
   const forwarded = request.headers.get("x-forwarded-for");
@@ -34,44 +35,58 @@ export function getRequestIp(request: NextRequest) {
   return directIp ?? "unknown";
 }
 
-export function rateLimit(
+async function maybeCleanup(nowMs: number) {
+  if (nowMs - lastCleanupAtMs < CLEANUP_INTERVAL_MS) return;
+  lastCleanupAtMs = nowMs;
+
+  try {
+    const cutoff = new Date(nowMs - CLEANUP_OLDER_THAN_MS);
+    await db.delete(rateLimitBuckets).where(lt(rateLimitBuckets.resetAt, cutoff));
+  } catch {
+    // Cleanup is best-effort; don't block user requests on DB maintenance.
+  }
+}
+
+export async function rateLimit(
   key: string,
   options: RateLimitOptions
-): RateLimitResult {
-  const now = Date.now();
-  const bucket = buckets.get(key);
+): Promise<RateLimitResult> {
+  const nowMs = Date.now();
+  const nextResetAt = new Date(nowMs + options.windowMs);
+  const nextResetAtIso = nextResetAt.toISOString();
 
-  if (!bucket || bucket.reset <= now) {
-    const reset = now + options.windowMs;
-    buckets.set(key, { count: 1, reset });
-    return {
-      allowed: true,
-      remaining: options.max - 1,
-      reset,
-      retryAfter: Math.ceil(options.windowMs / 1000),
-    };
-  }
+  const [row] = await db
+    .insert(rateLimitBuckets)
+    .values({
+      bucketKey: key,
+      count: 1,
+      resetAt: nextResetAt,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    })
+    .onConflictDoUpdate({
+      target: rateLimitBuckets.bucketKey,
+      set: {
+        count: sql`CASE WHEN ${rateLimitBuckets.resetAt} <= NOW() THEN 1 ELSE ${rateLimitBuckets.count} + 1 END`,
+        resetAt: sql`CASE WHEN ${rateLimitBuckets.resetAt} <= NOW() THEN ${nextResetAtIso}::timestamp ELSE ${rateLimitBuckets.resetAt} END`,
+        updatedAt: sql`NOW()`,
+      },
+    })
+    .returning({ count: rateLimitBuckets.count, resetAt: rateLimitBuckets.resetAt });
 
-  bucket.count += 1;
-  buckets.set(key, bucket);
+  const count = Number(row?.count ?? 0);
+  const resetMs = row?.resetAt ? new Date(row.resetAt).getTime() : nowMs + options.windowMs;
 
-  const remaining = Math.max(0, options.max - bucket.count);
-  const allowed = bucket.count <= options.max;
-  const retryAfter = Math.max(0, Math.ceil((bucket.reset - now) / 1000));
+  const remaining = Math.max(0, options.max - count);
+  const allowed = count <= options.max;
+  const retryAfter = Math.max(0, Math.ceil((resetMs - nowMs) / 1000));
 
-  if (!allowed) {
-    return {
-      allowed: false,
-      remaining,
-      reset: bucket.reset,
-      retryAfter,
-    };
-  }
+  await maybeCleanup(nowMs);
 
   return {
-    allowed: true,
+    allowed,
     remaining,
-    reset: bucket.reset,
+    reset: resetMs,
     retryAfter,
   };
 }

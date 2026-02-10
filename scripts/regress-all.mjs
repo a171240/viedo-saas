@@ -63,9 +63,18 @@ async function waitForServer(baseURL, timeoutMs = 180000) {
 }
 
 function startDevServer(port) {
+  const maxOldSpaceFlag = "--max-old-space-size=6144";
+  const nodeOptions = (() => {
+    const existing = String(process.env.NODE_OPTIONS || "").trim();
+    if (existing.includes("--max-old-space-size=")) return existing;
+    return `${existing} ${maxOldSpaceFlag}`.trim();
+  })();
+
   const env = {
     ...process.env,
     PORT: String(port),
+    NODE_OPTIONS: nodeOptions,
+    NEXT_TELEMETRY_DISABLED: "1",
   };
 
   const child = spawn("corepack", ["pnpm", "dev"], {
@@ -142,7 +151,9 @@ async function main() {
     { name: "P1-06 share/remix regression", cmd: tsx, args: ["scripts/p1-06-share-remix.ts"] },
     { name: "P2-03/P2-04 safeguards UI", cmd: "node", args: ["scripts/p2-03-04-safeguards-ui.mjs"] },
     { name: "P2-01 recovery smoke", cmd: tsx, args: ["scripts/p2-01-recovery-smoke.ts"] },
+    { name: "P2-05 rate limit smoke", cmd: tsx, args: ["scripts/p2-05-rate-limit-smoke.ts"] },
     { name: "P2-02 admin analytics cost check", cmd: tsx, args: ["scripts/p2-02-admin-analytics-check.ts"] },
+    { name: "P0-10 stripe webhook gate smoke", cmd: tsx, args: ["scripts/p0-10-stripe-webhook-gate-smoke.ts"] },
     { name: "P0-10 callback smoke", cmd: tsx, args: ["scripts/p0-10-callback-smoke.ts"] },
     { name: "typecheck", cmd: "corepack", args: ["pnpm", "typecheck"] },
     { name: "lint", cmd: "corepack", args: ["pnpm", "lint"] },
