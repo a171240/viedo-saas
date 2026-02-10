@@ -250,7 +250,17 @@ async function getPromptPreviewTextarea(page) {
 
 async function openPromptStudio(page) {
   const trigger = page.getByRole("button", { name: /Prompt Studio|提示词工作室/i });
-  await trigger.waitFor({ state: "visible" });
+  try {
+    await trigger.waitFor({ state: "visible", timeout: 15000 });
+  } catch {
+    // On mobile layouts, generation can switch to the Result tab and hide the generator panel.
+    // Bring the Generator tab back before retrying.
+    const generatorTab = page.getByRole("button", { name: /Generator|生成器/i }).first();
+    if ((await generatorTab.count()) > 0) {
+      await generatorTab.click();
+    }
+    await trigger.waitFor({ state: "visible" });
+  }
 
   for (let attempt = 0; attempt < 8; attempt += 1) {
     await trigger.click();
@@ -545,7 +555,10 @@ async function main() {
     // Helps on some Linux runners where /dev/shm can be constrained.
     args: ["--disable-dev-shm-usage"],
   });
-  const page = await browser.newPage();
+  const page = await browser.newPage({
+    // Force desktop breakpoints so generator panel stays visible after generation state changes.
+    viewport: { width: 1280, height: 800 },
+  });
   page.setDefaultTimeout(60000);
   page.setDefaultNavigationTimeout(120000);
 
@@ -612,6 +625,15 @@ async function main() {
     ) {
       throw new Error("Brand Kit seeded values missing from generate payload");
     }
+  }
+
+  if (redirectedToLogin) {
+    console.warn(
+      `P1-05: redirected to login after clicking Generate (${page.url()}). Returning to tool page to continue UI checks.`
+    );
+    await gotoFirstAvailable(page, ["/en/text-to-video", "/text-to-video"]);
+    await delay(900);
+    await page.getByRole("button", { name: /Prompt Studio|提示词工作室/i }).waitFor();
   }
 
   await runPromptStudioTextToVideo(page);
