@@ -93,34 +93,26 @@ async function setLocalStorage(page, items) {
 }
 
 async function installCreditBalanceStub(page) {
-  let balanceResponse = null;
+  const stub = {
+    success: true,
+    data: {
+      totalCredits: 9999,
+      usedCredits: 0,
+      frozenCredits: 0,
+      availableCredits: 9999,
+      expiringSoon: 0,
+    },
+  };
   await page.route("**/api/v1/credit/balance", async (route) => {
-    try {
-      balanceResponse = await route.fetch();
-      if (balanceResponse.ok()) {
-        await route.fulfill({ response: balanceResponse });
-        return;
-      }
-    } catch {
-      // If dev server is restarting or flaky, still return a stable balance for UI assertions.
-    }
-
     await route.fulfill({
       status: 200,
       contentType: "application/json",
       body: JSON.stringify({
-        success: true,
-        data: {
-          totalCredits: 9999,
-          usedCredits: 0,
-          frozenCredits: 0,
-          availableCredits: 9999,
-          expiringSoon: 0,
-        },
+        ...stub,
       }),
     });
   });
-  return () => balanceResponse;
+  return () => stub;
 }
 
 async function installUploadStub(page) {
