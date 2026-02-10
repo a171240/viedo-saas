@@ -81,7 +81,7 @@ function FeaturePreview({
     <div
       className={cn(
         "relative rounded-2xl overflow-hidden border border-border bg-background shadow-xl",
-        "aspect-video"
+        "w-full aspect-video"
       )}
       onPointerEnter={startPreview}
       onPointerLeave={stopPreview}
@@ -200,9 +200,7 @@ export function FeaturesSection() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ duration: 0.6, delay: index * 0.1 }}
-                  className={`grid md:grid-cols-2 gap-8 md:gap-16 items-center ${
-                    isEven ? "" : "md:flex md:flex-row-reverse"
-                  }`}
+                  className="grid md:grid-cols-2 gap-8 md:gap-16 items-center"
                 >
                   {/* 左侧/右侧 - 图片 */}
                   <motion.div
@@ -210,7 +208,7 @@ export function FeaturesSection() {
                     whileInView={{ opacity: 1, x: 0 }}
                     viewport={{ once: true }}
                     transition={{ duration: 0.6, delay: 0.2 }}
-                    className="relative"
+                    className={cn("relative", !isEven && "md:order-2")}
                   >
                     {/* 装饰光晕 */}
                     <div
@@ -235,7 +233,7 @@ export function FeaturesSection() {
                     whileInView={{ opacity: 1, x: 0 }}
                     viewport={{ once: true }}
                     transition={{ duration: 0.6, delay: 0.3 }}
-                    className="space-y-6"
+                    className={cn("space-y-6", !isEven && "md:order-1")}
                   >
                     {/* 图标 */}
                     <div
