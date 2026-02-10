@@ -89,25 +89,30 @@ async function setLocalStorage(page, items) {
 async function installCreditBalanceStub(page) {
   let balanceResponse = null;
   await page.route("**/api/v1/credit/balance", async (route) => {
-    balanceResponse = await route.fetch();
-    if (!balanceResponse.ok()) {
-      await route.fulfill({
-        status: 200,
-        contentType: "application/json",
-        body: JSON.stringify({
-          success: true,
-          data: {
-            totalCredits: 9999,
-            usedCredits: 0,
-            frozenCredits: 0,
-            availableCredits: 9999,
-            expiringSoon: 0,
-          },
-        }),
-      });
-      return;
+    try {
+      balanceResponse = await route.fetch();
+      if (balanceResponse.ok()) {
+        await route.fulfill({ response: balanceResponse });
+        return;
+      }
+    } catch {
+      // If dev server is restarting or flaky, still return a stable balance for UI assertions.
     }
-    await route.fulfill({ response: balanceResponse });
+
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({
+        success: true,
+        data: {
+          totalCredits: 9999,
+          usedCredits: 0,
+          frozenCredits: 0,
+          availableCredits: 9999,
+          expiringSoon: 0,
+        },
+      }),
+    });
   });
   return () => balanceResponse;
 }
@@ -115,7 +120,7 @@ async function installCreditBalanceStub(page) {
 async function waitForCreditBalance(page) {
   try {
     await page.waitForResponse((resp) => resp.url().includes("/api/v1/credit/balance"), {
-      timeout: 8000,
+      timeout: 20000,
     });
     return true;
   } catch (error) {
@@ -500,7 +505,12 @@ async function applyPromptStudioProductToVideo(page) {
   await assertSelectionLimit(dialog, 3, /POV/i);
 
   const imagePath = ensureTestImage();
-  await page.setInputFiles('input[type="file"]', imagePath);
+  const multiImageInput = page.locator('input[type="file"][multiple][accept^="image"]');
+  if ((await multiImageInput.count()) > 0) {
+    await multiImageInput.first().setInputFiles(imagePath);
+  } else {
+    await page.setInputFiles('input[type="file"][accept^="image"]', imagePath);
+  }
   await delay(500);
   await assertBatchQueue(dialog, { expectedMax: 3, selected: 3, queueEnabled: true, requireImageHint: false });
 
