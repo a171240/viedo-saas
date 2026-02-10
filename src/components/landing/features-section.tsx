@@ -1,5 +1,6 @@
 "use client";
 
+import { useCallback, useRef } from "react";
 import { Video, Image, Wand2, Zap, Shield, Clock } from "lucide-react";
 import { motion } from "framer-motion";
 import { useTranslations } from "next-intl";
@@ -24,24 +25,67 @@ const features = [
     titleKey: "textToVideo.title",
     descKey: "textToVideo.description",
     gradient: "from-blue-500 to-cyan-500",
+    videoSrc: "/videos/showcase/nature.mp4",
+    posterSrc: "/images/showcase/nature.jpg",
   },
   {
     icon: Image,
     titleKey: "imageToVideo.title",
     descKey: "imageToVideo.description",
     gradient: "from-purple-500 to-pink-500",
+    videoSrc: "/videos/showcase/product.mp4",
+    posterSrc: "/images/showcase/product.jpg",
   },
   {
     icon: Wand2,
     titleKey: "enhancement.title",
     descKey: "enhancement.description",
     gradient: "from-orange-500 to-red-500",
+    videoSrc: "/videos/showcase/urban.mp4",
+    posterSrc: "/images/showcase/urban.jpg",
   },
 ];
 
-function FeaturePreview({ gradient }: { gradient: string }) {
+function FeaturePreview({
+  gradient,
+  videoSrc,
+  posterSrc,
+}: {
+  gradient: string;
+  videoSrc: string;
+  posterSrc: string;
+}) {
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+
+  const startPreview = useCallback(() => {
+    const video = videoRef.current;
+    if (!video) return;
+    const res = video.play();
+    if (res && typeof (res as Promise<void>).catch === "function") {
+      (res as Promise<void>).catch(() => {});
+    }
+  }, []);
+
+  const stopPreview = useCallback(() => {
+    const video = videoRef.current;
+    if (!video) return;
+    video.pause();
+    try {
+      video.currentTime = 0;
+    } catch {
+      // Some browsers can throw if metadata isn't loaded yet.
+    }
+  }, []);
+
   return (
-    <div className="relative rounded-2xl overflow-hidden border border-border bg-background shadow-xl">
+    <div
+      className={cn(
+        "relative rounded-2xl overflow-hidden border border-border bg-background shadow-xl",
+        "aspect-video"
+      )}
+      onPointerEnter={startPreview}
+      onPointerLeave={stopPreview}
+    >
       {/* Background layers (no external placeholder assets) */}
       <div
         className={cn(
@@ -50,42 +94,31 @@ function FeaturePreview({ gradient }: { gradient: string }) {
           gradient
         )}
       />
+      <video
+        ref={videoRef}
+        className="absolute inset-0 h-full w-full object-cover"
+        src={videoSrc}
+        poster={posterSrc}
+        muted
+        loop
+        playsInline
+        preload="metadata"
+      />
       <div
         className="absolute inset-0 opacity-[0.10] mix-blend-overlay"
         style={{ backgroundImage: "url(/images/noise.webp)" }}
       />
 
-      {/* Faux UI preview */}
-      <div className="relative p-6">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="h-2 w-2 rounded-full bg-red-500/60" />
-            <div className="h-2 w-2 rounded-full bg-yellow-500/60" />
-            <div className="h-2 w-2 rounded-full bg-green-500/60" />
-          </div>
-          <div className="h-7 w-24 rounded-full border border-border bg-muted/30" />
-        </div>
-
-        <div className="mt-6 space-y-3">
-          <div className="h-3 w-2/3 rounded bg-muted/40" />
-          <div className="h-3 w-1/2 rounded bg-muted/30" />
-          <div className="h-3 w-3/4 rounded bg-muted/30" />
-        </div>
-
-        <div className="mt-6 rounded-xl border border-border bg-muted/20 p-4">
-          <div className="flex items-center justify-between gap-3">
-            <div className="h-8 w-28 rounded-full border border-border bg-background/60" />
-            <div className="h-8 w-24 rounded-full border border-primary/30 bg-primary/15" />
-          </div>
-          <div className="mt-4 h-20 rounded-lg border border-border bg-background/50" />
-          <div className="mt-4 flex justify-end">
-            <div className="h-10 w-36 rounded-xl border border-primary/35 bg-primary/20" />
-          </div>
-        </div>
-      </div>
-
       {/* Subtle mask for depth */}
       <div className="absolute inset-0 bg-gradient-to-t from-background/70 to-transparent" />
+
+      {/* Small "window chrome" so it still reads like a product preview */}
+      <div className="absolute left-4 top-4 flex items-center gap-2">
+        <div className="h-2 w-2 rounded-full bg-red-500/70" />
+        <div className="h-2 w-2 rounded-full bg-yellow-500/70" />
+        <div className="h-2 w-2 rounded-full bg-green-500/70" />
+      </div>
+      <div className="absolute right-4 top-4 h-7 w-24 rounded-full border border-white/15 bg-black/20 backdrop-blur-sm" />
     </div>
   );
 }
@@ -189,7 +222,11 @@ export function FeaturesSection() {
                   />
 
                     {/* Visual preview (no stock placeholder images) */}
-                    <FeaturePreview gradient={feature.gradient} />
+                    <FeaturePreview
+                      gradient={feature.gradient}
+                      videoSrc={feature.videoSrc}
+                      posterSrc={feature.posterSrc}
+                    />
                   </motion.div>
 
                   {/* 右侧/左侧 - 内容 */}

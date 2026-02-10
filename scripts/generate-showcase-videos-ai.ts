@@ -67,6 +67,50 @@ const runFfmpeg = (args: string[]) => {
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
+function parseCliArgs(argv: string[]) {
+  const args = new Map<string, string | true>();
+  for (let i = 0; i < argv.length; i++) {
+    const raw = argv[i]!;
+    if (!raw.startsWith("--")) continue;
+    const [k, v] = raw.split("=", 2) as [string, string | undefined];
+    if (v !== undefined) {
+      args.set(k, v);
+      continue;
+    }
+    const next = argv[i + 1];
+    if (next && !next.startsWith("--")) {
+      args.set(k, next);
+      i++;
+      continue;
+    }
+    args.set(k, true);
+  }
+
+  const only = args.get("--only");
+  const force = args.get("--force") === true;
+  const timeoutMinutesRaw =
+    args.get("--timeout-minutes") ??
+    args.get("--timeoutMinutes") ??
+    args.get("--timeout");
+  const timeoutMinutes =
+    typeof timeoutMinutesRaw === "string" && timeoutMinutesRaw.trim().length > 0
+      ? Math.max(1, Number.parseInt(timeoutMinutesRaw, 10) || 0)
+      : 20;
+  const onlySet =
+    typeof only === "string" && only.trim().length > 0
+      ? new Set(only.split(",").map((s) => s.trim()).filter(Boolean))
+      : null;
+
+  return { onlySet, force, timeoutMinutes };
+}
+
+function formatProgress(value: unknown): string {
+  if (typeof value !== "number" || Number.isNaN(value)) return "";
+  if (value <= 1) return ` progress=${Math.round(value * 100)}%`;
+  if (value <= 100) return ` progress=${Math.round(value)}%`;
+  return ` progress=${Math.round(value)}%`;
+}
+
 async function downloadToFile(url: string, filePath: string) {
   const res = await fetch(url);
   if (!res.ok || !res.body) {
@@ -82,8 +126,30 @@ async function downloadToFile(url: string, filePath: string) {
 async function generateOne(
   provider: EvolinkProvider,
   spec: ShowcaseSpec,
-  options: { model: string; duration: number; aspectRatio: string; quality: string }
+  options: {
+    model: string;
+    duration: number;
+    aspectRatio: string;
+    quality: string;
+    force?: boolean;
+    timeoutMinutes: number;
+  }
 ) {
+  // Skip if outputs already exist (supports resume).
+  if (!options.force) {
+    try {
+      // eslint-disable-next-line no-await-in-loop
+      const [v, p] = await Promise.all([stat(outVideo(spec.name)), stat(outPoster(spec.name))]);
+      // If both exist and look sane, skip.
+      if (v.size > 80_000 && p.size > 3_000) {
+        console.log(`\n==> Skipping ${spec.name} (already exists)`);
+        return;
+      }
+    } catch {
+      // missing: continue
+    }
+  }
+
   console.log(`\n==> Generating ${spec.name} ...`);
 
   const task = await provider.createTask({
@@ -114,14 +180,14 @@ async function generateOne(
     }
 
     const elapsed = Math.round((Date.now() - startedAt) / 1000);
-    const progress = status.progress != null ? ` progress=${Math.round(status.progress * 100)}%` : "";
+    const progress = formatProgress(status.progress);
     const nextWaitMs = Math.min(15_000, 2_500 + attempt * 750);
     console.log(`... ${spec.name} status=${status.status}${progress} elapsed=${elapsed}s (wait ${Math.round(nextWaitMs / 1000)}s)`);
     await sleep(nextWaitMs);
     attempt++;
 
-    if (elapsed > 10 * 60) {
-      throw new Error(`Task timeout (>10min): ${task.taskId}`);
+    if (elapsed > options.timeoutMinutes * 60) {
+      throw new Error(`Task timeout (>${options.timeoutMinutes}min): ${task.taskId}`);
     }
   }
 
@@ -183,10 +249,11 @@ async function generateOne(
 }
 
 async function main() {
+  const { onlySet, force, timeoutMinutes } = parseCliArgs(process.argv.slice(2));
   const apiKey = process.env.EVOLINK_API_KEY;
   if (!apiKey || apiKey.startsWith("sk-") === false) {
     throw new Error(
-      "Missing/invalid EVOLINK_API_KEY. Put it in .env.local and run: dotenv -e .env.local -- tsx scripts/generate-showcase-videos-ai.ts"
+      "Missing/invalid EVOLINK_API_KEY. Put it in .env.local and run: corepack pnpm exec dotenv -e .env.local -- tsx scripts/generate-showcase-videos-ai.ts"
     );
   }
 
@@ -233,7 +300,15 @@ async function main() {
 
   // Generate sequentially to reduce provider rate-limit risk.
   for (const spec of specs) {
-    await generateOne(provider, spec, { model, duration, aspectRatio, quality });
+    if (onlySet && !onlySet.has(spec.name)) continue;
+    await generateOne(provider, spec, {
+      model,
+      duration,
+      aspectRatio,
+      quality,
+      force,
+      timeoutMinutes,
+    });
   }
 
   console.log("\nAll showcase videos generated.");
