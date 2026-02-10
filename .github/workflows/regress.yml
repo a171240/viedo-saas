@@ -98,7 +98,7 @@ jobs:
             const lines = raw.split(/\r?\n/);
             const tail = lines.slice(-160).join('\n').slice(0, 65000);
 
-            await github.repos.createCommitComment({
+            await github.rest.repos.createCommitComment({
               owner: context.repo.owner,
               repo: context.repo.repo,
               commit_sha: context.sha,
