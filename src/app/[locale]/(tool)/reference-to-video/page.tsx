@@ -1,6 +1,7 @@
 import { getToolPageConfig } from "@/config/tool-pages";
 import { ToolPageLayout } from "@/components/tool/tool-page-layout";
 import type { Locale } from "@/config/i18n-config";
+import { Suspense } from "react";
 
 interface ReferenceToVideoPageProps {
   params: Promise<{
@@ -12,10 +13,13 @@ export default async function ReferenceToVideoPage({ params }: ReferenceToVideoP
   const config = getToolPageConfig("reference-to-video");
   const { locale } = await params;
   return (
-    <ToolPageLayout
-      config={config}
-      locale={locale}
-      toolRoute="reference-to-video"
-    />
+    // ToolPageLayout uses `useSearchParams`, which requires a Suspense boundary for prerender.
+    <Suspense fallback={null}>
+      <ToolPageLayout
+        config={config}
+        locale={locale}
+        toolRoute="reference-to-video"
+      />
+    </Suspense>
   );
 }
