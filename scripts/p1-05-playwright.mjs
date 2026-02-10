@@ -9,6 +9,12 @@ const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 const TEST_IMAGE_BASE64 =
   "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR4nGMAAQAABQABDQottAAAAABJRU5ErkJggg==";
 
+const SEEDED_BRAND_KIT = {
+  brandTone: "Premium and confident",
+  styleSuffix: "cinematic lighting",
+  bannedWords: "cheap, boring",
+};
+
 function uniq(items) {
   return [...new Set(items.filter(Boolean))];
 }
@@ -213,6 +219,22 @@ async function assertBrandKitPreview(page, expectBrandKit) {
   }
   if (!expectBrandKit && (hasBrandTone || hasStyleSuffix || hasAvoidWords)) {
     throw new Error("Brand Kit lines still present after toggle off");
+  }
+
+  // Deeper assertions: ensure seeded values are present (English or Chinese).
+  if (expectBrandKit) {
+    const expectEn =
+      value.includes(`Brand tone: ${SEEDED_BRAND_KIT.brandTone}`) &&
+      value.includes(`Style suffix: ${SEEDED_BRAND_KIT.styleSuffix}`) &&
+      value.includes("Avoid words: cheap, boring");
+    const expectZh =
+      value.includes(`品牌语气：${SEEDED_BRAND_KIT.brandTone}`) &&
+      value.includes(`风格补充：${SEEDED_BRAND_KIT.styleSuffix}`) &&
+      (value.includes("避免用词：cheap、boring") || value.includes("避免用词：cheap、 boring"));
+
+    if (!expectEn && !expectZh) {
+      throw new Error("Brand Kit preview does not include seeded values");
+    }
   }
 }
 
@@ -532,9 +554,9 @@ async function main() {
     vf_cookie_consent: JSON.stringify({ necessary: true, analytics: false, updatedAt: new Date().toISOString() }),
     videofly_brand_kit: JSON.stringify({
       enabled: true,
-      brandTone: "Premium and confident",
-      styleSuffix: "cinematic lighting",
-      bannedWords: "cheap, boring",
+      brandTone: SEEDED_BRAND_KIT.brandTone,
+      styleSuffix: SEEDED_BRAND_KIT.styleSuffix,
+      bannedWords: SEEDED_BRAND_KIT.bannedWords,
       defaultAspectRatio: "",
     }),
   });
@@ -574,8 +596,21 @@ async function main() {
   if (!redirectedToLogin && payload?.prompt) {
     const hasBrandTone = payload.prompt.includes("Brand tone:") || payload.prompt.includes("品牌语气：");
     const hasStyleSuffix = payload.prompt.includes("Style suffix:") || payload.prompt.includes("风格补充：");
+    const hasAvoidWords = payload.prompt.includes("Avoid words:") || payload.prompt.includes("避免用词：");
     if (!hasBrandTone || !hasStyleSuffix) {
       throw new Error("Brand Kit lines not appended to prompt");
+    }
+    if (!hasAvoidWords) {
+      throw new Error("Brand Kit banned words not appended to prompt");
+    }
+
+    // Value check (English-only here since we are on /en routes).
+    if (
+      !payload.prompt.includes(`Brand tone: ${SEEDED_BRAND_KIT.brandTone}`) ||
+      !payload.prompt.includes(`Style suffix: ${SEEDED_BRAND_KIT.styleSuffix}`) ||
+      !payload.prompt.includes("Avoid words: cheap, boring")
+    ) {
+      throw new Error("Brand Kit seeded values missing from generate payload");
     }
   }
 
