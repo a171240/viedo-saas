@@ -5,10 +5,17 @@ import { db, users } from "@/db";
 const DEFAULT_DEV_EMAIL = "dev@example.com";
 
 export function isDevBypassEnabled(): boolean {
-  return (
-    process.env.NODE_ENV !== "production" &&
-    process.env.DEV_BYPASS_AUTH === "true"
-  );
+  if (process.env.DEV_BYPASS_AUTH !== "true") return false;
+
+  // Default: never allow bypass in production runtime (e.g. Vercel).
+  // Exception: CI can explicitly opt-in so regression runs can use `next start`.
+  const allowProdBypass =
+    process.env.NODE_ENV === "production" &&
+    process.env.CI === "true" &&
+    process.env.DEV_BYPASS_AUTH_ALLOW_PROD === "true" &&
+    process.env.VERCEL !== "1";
+
+  return process.env.NODE_ENV !== "production" || allowProdBypass;
 }
 
 export async function getDevBypassUser() {

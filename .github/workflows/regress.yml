@@ -40,6 +40,7 @@ jobs:
       # DB + dev-bypass (used by UI regression scripts)
       DATABASE_URL: postgresql://postgres:postgres@localhost:5432/videofly
       DEV_BYPASS_AUTH: "true"
+      DEV_BYPASS_AUTH_ALLOW_PROD: "true"
       DEV_BYPASS_USER_EMAIL: dev@example.com
       NEXT_PUBLIC_DEV_BYPASS_AUTH: "true"
       PORT: "3002"
@@ -73,22 +74,30 @@ jobs:
       - name: Apply DB Schema (Drizzle)
         run: corepack pnpm db:push
 
-      - name: Start Dev Server
-        run: |
-          nohup corepack pnpm dev > dev-server.log 2>&1 &
-          echo $! > dev-server.pid
+      - name: Build (Next.js)
+        run: corepack pnpm build
 
-      - name: Wait For Dev Server
+      - name: Start Server
+        run: |
+          # Next.js `output: standalone` requires static assets + public to be co-located.
+          mkdir -p .next/standalone/.next
+          cp -R .next/static .next/standalone/.next/
+          cp -R public .next/standalone/
+
+          nohup node .next/standalone/server.js > app-server.log 2>&1 &
+          echo $! > app-server.pid
+
+      - name: Wait For Server
         run: |
           for i in $(seq 1 90); do
             if curl -fsS -o /dev/null -I "http://localhost:3002/"; then
-              echo "dev server ready"
+              echo "server ready"
               exit 0
             fi
             sleep 2
           done
-          echo "dev server did not become ready"
-          tail -n 200 dev-server.log || true
+          echo "server did not become ready"
+          tail -n 200 app-server.log || true
           exit 1
 
       - name: P0-01/P0-02 Routes Smoke
@@ -148,7 +157,7 @@ jobs:
       - name: Stop Dev Server
         if: always()
         run: |
-          if [ -f dev-server.pid ]; then
-            kill "$(cat dev-server.pid)" || true
+          if [ -f app-server.pid ]; then
+            kill "$(cat app-server.pid)" || true
           fi
-          tail -n 200 dev-server.log || true
+          tail -n 200 app-server.log || true
