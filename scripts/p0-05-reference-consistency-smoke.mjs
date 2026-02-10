@@ -97,9 +97,18 @@ async function assertReferencePage(page, locale) {
 
   const titleRegex =
     locale === "zh"
-      ? /参考图生成视频/
+      ? /参考图(生成|转)视频/
       : /Turn Reference Images into Videos/i;
-  await page.getByText(titleRegex).first().waitFor({ timeout: 60000 });
+  try {
+    await page.getByText(titleRegex).first().waitFor({ timeout: 60000 });
+  } catch (error) {
+    // Helpful diagnostics for CI flakes (locale mismatch, auth redirect, hydration error, etc.)
+    const url = page.url();
+    const bodyText = await page.evaluate(() => document.body?.innerText || "");
+    console.error(`P0-05 debug: url=${url}`);
+    console.error(`P0-05 debug body (first 400 chars): ${bodyText.slice(0, 400)}`);
+    throw error;
+  }
 
   const bodyText = await page.evaluate(() => document.body?.innerText || "");
   assert(
