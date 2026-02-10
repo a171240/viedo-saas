@@ -80,13 +80,15 @@ jobs:
         id: build
         run: |
           set +e
+          set -o pipefail
           corepack pnpm build 2>&1 | tee build.log
-          echo "exit_code=${PIPESTATUS[0]}" >> "$GITHUB_OUTPUT"
+          echo "exit_code=$?" >> "$GITHUB_OUTPUT"
           # Don't fail this step yet; we want to post diagnostics first.
           exit 0
 
       - name: Post Build Failure Tail (Commit Comment)
         if: steps.build.outputs.exit_code != '0'
+        continue-on-error: true
         uses: actions/github-script@v7
         with:
           script: |
