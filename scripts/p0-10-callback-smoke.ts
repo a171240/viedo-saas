@@ -13,10 +13,50 @@ type ApiResponse<T> =
   | { success: true; data: T }
   | { success: false; error: { message: string; details?: unknown } };
 
-async function fetchJson<T>(url: string, init?: RequestInit): Promise<{ status: number; json: ApiResponse<T> }> {
-  const resp = await fetch(url, init);
-  const json = (await resp.json()) as ApiResponse<T>;
-  return { status: resp.status, json };
+const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+function isConnIssue(error: unknown): boolean {
+  const err = error as { message?: string; cause?: unknown } | null;
+  const msg = String(err?.message ?? "");
+  if (
+    msg.includes("ECONNREFUSED") ||
+    msg.includes("ECONNRESET") ||
+    msg.includes("ERR_CONNECTION_REFUSED") ||
+    msg.includes("ERR_CONNECTION_RESET") ||
+    msg.includes("fetch failed")
+  ) {
+    return true;
+  }
+
+  const cause = err?.cause as { code?: string; errors?: Array<{ code?: string }> } | null;
+  const code = cause?.code;
+  if (code && ["ECONNREFUSED", "ECONNRESET", "EPIPE"].includes(code)) return true;
+  const nested = Array.isArray(cause?.errors) ? cause?.errors : [];
+  return nested.some((e) => e?.code && ["ECONNREFUSED", "ECONNRESET", "EPIPE"].includes(e.code));
+}
+
+async function fetchJson<T>(
+  url: string,
+  init?: RequestInit,
+  attempts = 6
+): Promise<{ status: number; json: ApiResponse<T> }> {
+  let lastError: unknown = null;
+  for (let attempt = 0; attempt < attempts; attempt += 1) {
+    try {
+      const resp = await fetch(url, init);
+      const json = (await resp.json()) as ApiResponse<T>;
+      return { status: resp.status, json };
+    } catch (error) {
+      lastError = error;
+      if (attempt < attempts - 1 && isConnIssue(error)) {
+        // Next dev can auto-restart under memory pressure; wait and retry.
+        await delay(900 + attempt * 700);
+        continue;
+      }
+      throw error;
+    }
+  }
+  throw lastError ?? new Error(`fetchJson failed: ${url}`);
 }
 
 function uniq(items: Array<string | undefined | null>) {
