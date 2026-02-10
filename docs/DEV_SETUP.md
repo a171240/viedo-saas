@@ -31,12 +31,12 @@
   - Remix：将参数写入 `sessionStorage`（key：`videofly_tool_prefill`），跳转到工具页回填
 
 ### 未确认/待复核（请以提交历史与页面表现为准）
-- P0-01 ~ P0-10：未在此文档内逐项确认（请按回归清单验证）
-- P1-01 / P1-02：需复核当前实现是否满足最新要求（Prompt Studio 模板/入口是否已补齐）
+- P0-01 ~ P2-04：已有自动化回归脚本覆盖；若要人工验收请按回归清单逐项点检
+- P1-01 / P1-02：建议仍做一次人工回归（入口/批量排队/回填路径）
 
 ### 当前验证状态
-- 自动化验证：P1-05 的 Playwright 脚本未完全跑通（Cookie Consent 弹窗遮挡、credit/balance 加载时机影响点击）
-- 手工验证可用：/en/text-to-video、/en/image-to-video、/en/product-to-video
+- 自动化回归：本地 `corepack pnpm regress` 全绿（包含 P0/P1/P2 冒烟 + typecheck/lint + callback/幂等校验）
+- 线上验收：`corepack pnpm accept:prod`（安全子集，不启动本地 dev；默认用 `.vercel/project.json` 推断域名，可用 `BASE_URL` 覆盖）
 
 ## 接下来要做的任务（建议顺序）
 > 说明：以下为当前剩余/待复核项，按优先级排序。

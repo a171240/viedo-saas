@@ -19,6 +19,15 @@ pnpm db:migrate
 pnpm dev
 ```
 
+## 回归/验收
+```bash
+# 本地一键回归（会自动启动 dev）
+corepack pnpm regress
+
+# 线上一键验收（不启动本地 dev，跑安全子集）
+BASE_URL=https://viedo-saas.vercel.app corepack pnpm accept:prod
+```
+
 ## 技术栈（摘要）
 - Next.js 15 / React 19
 - TypeScript
