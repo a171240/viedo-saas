@@ -4,6 +4,15 @@ function uniq(items) {
   return [...new Set(items.filter(Boolean))];
 }
 
+function isProtectedPath(path) {
+  return (
+    path.startsWith("/zh/settings") ||
+    path.startsWith("/zh/my-creations") ||
+    path.startsWith("/zh/credits") ||
+    path.startsWith("/zh/admin")
+  );
+}
+
 function isConnIssue(error) {
   const msg = String(error?.message ?? "");
   return (
@@ -59,6 +68,8 @@ function findBannedPhrase(text) {
     "Continue with Email",
     "Continue with Google",
     "or continue with",
+    "Create an account",
+    "Already have an account",
     // Cookie consent
     "Cookie preferences",
     "Necessary cookies",
@@ -90,6 +101,15 @@ async function main() {
   const paths = [
     "/zh",
     "/zh/pricing",
+    "/zh/about",
+    "/zh/contact",
+    "/zh/demo",
+    "/zh/blog",
+    "/zh/careers",
+    "/zh/sora-2",
+    "/zh/veo-3-1",
+    "/zh/wan-2-6",
+    "/zh/seedance-1-5",
     "/zh/text-to-video",
     "/zh/image-to-video",
     "/zh/reference-to-video",
@@ -99,19 +119,25 @@ async function main() {
     "/zh/cookies",
     "/zh/privacy",
     "/zh/terms",
+    "/zh/settings",
+    "/zh/my-creations",
+    "/zh/credits",
+    "/zh/admin/users",
+    "/zh/admin/settings",
+    "/zh/admin/analytics",
   ];
 
   for (const path of paths) {
     const url = `${baseURL}${path}`;
-      let resp = null;
-      for (let attempt = 0; attempt < 4; attempt += 1) {
-        try {
+    let resp = null;
+    for (let attempt = 0; attempt < 4; attempt += 1) {
+      try {
         // In Next dev, some pages can keep the main thread busy; "commit" is enough for HTML text checks.
         resp = await page.goto(url, { waitUntil: "commit", timeout: 120000 });
-          break;
-        } catch (error) {
-          if (attempt < 3 && isConnIssue(error)) {
-            // Next dev may auto-restart on memory pressure; give it time.
+        break;
+      } catch (error) {
+        if (attempt < 3 && isConnIssue(error)) {
+          // Next dev may auto-restart on memory pressure; give it time.
           await page.waitForTimeout(2000);
           continue;
         }
@@ -121,6 +147,33 @@ async function main() {
     const status = resp?.status() ?? 0;
     if (!status || status === 404) {
       throw new Error(`Expected route to exist but got status=${status} for ${url}`);
+    }
+
+    // Protected routes may redirect to /login if dev-bypass or auth is not available.
+    const finalUrl = page.url();
+    const finalPathname = (() => {
+      try {
+        return new URL(finalUrl).pathname;
+      } catch {
+        return finalUrl;
+      }
+    })();
+    const normalizePath = (value) => (value.length > 1 ? value.replace(/\/$/, "") : value);
+    const expectedPath = normalizePath(path);
+    const actualPath = normalizePath(finalPathname);
+
+    // Locale safety: don't silently accept landing on /en for a /zh probe.
+    if (!actualPath.startsWith("/zh")) {
+      throw new Error(`Expected /zh locale but landed on ${finalPathname} for ${path} (${finalUrl})`);
+    }
+
+    const redirectedToLogin = actualPath.endsWith("/login") && actualPath !== expectedPath;
+    if (isProtectedPath(path) && actualPath !== expectedPath) {
+      console.log(`P0-06 zh smoke skipped (auth): ${path} -> ${finalPathname}`);
+      continue;
+    }
+    if (redirectedToLogin && !isProtectedPath(path)) {
+      throw new Error(`Unexpected redirect to /login for public route ${path} (${finalUrl})`);
     }
 
     // Let dev streaming/hydration finish enough for translated strings to appear.
