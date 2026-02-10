@@ -136,10 +136,18 @@ async function main() {
     await page.getByText(scenario.toast).first().waitFor({ timeout: 15000 });
 
     if (scenario.expectModal) {
-      const modal = page.getByRole("dialog");
-      await modal.getByText(/Upgrade Your Plan|升级/i).first().waitFor({ timeout: 15000 });
-      await modal.getByRole("button", { name: /Close|关闭/i }).first().click();
-      await modal.waitFor({ state: "hidden" });
+      const modal = page.getByRole("dialog").filter({ hasText: /Upgrade Your Plan|升级/i }).first();
+      await modal.waitFor({ state: "visible", timeout: 15000 });
+      const close = modal.getByRole("button", { name: /Close|关闭/i }).first();
+      await close.waitFor({ state: "visible", timeout: 15000 });
+      await close.click();
+      try {
+        await modal.waitFor({ state: "hidden", timeout: 15000 });
+      } catch {
+        // Some runs leave the dialog mounted briefly; ESC is a reliable fallback for Radix dialogs.
+        await page.keyboard.press("Escape");
+        await modal.waitFor({ state: "hidden", timeout: 15000 });
+      }
     }
   }
 
