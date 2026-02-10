@@ -123,6 +123,21 @@ async function installCreditBalanceStub(page) {
   return () => balanceResponse;
 }
 
+async function installUploadStub(page) {
+  await page.route("**/api/v1/upload", async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({
+        success: true,
+        data: {
+          publicUrl: "https://example.com/vf-playwright-test.png",
+        },
+      }),
+    });
+  });
+}
+
 async function waitForCreditBalance(page) {
   try {
     await page.waitForResponse((resp) => resp.url().includes("/api/v1/credit/balance"), {
@@ -146,21 +161,27 @@ async function ensureBrandKitToggle(page) {
   throw new Error("Brand Kit toggle did not become enabled");
 }
 
-async function captureGeneratePayload(page) {
-  let payload = null;
+async function installGenerateStub(page) {
+  const payloads = [];
+  let counter = 0;
   await page.route("**/api/v1/video/generate", async (route) => {
     const body = route.request().postData();
     if (body) {
-      payload = JSON.parse(body);
+      try {
+        payloads.push(JSON.parse(body));
+      } catch {
+        // ignore
+      }
     }
+    counter += 1;
     await route.fulfill({
       status: 200,
       contentType: "application/json",
       body: JSON.stringify({
         success: true,
         data: {
-          videoUuid: "vid_test",
-          taskId: "task_test",
+          videoUuid: `vid_test_${counter}`,
+          taskId: `task_test_${counter}`,
           provider: "evolink",
           status: "PENDING",
           creditsUsed: 1,
@@ -168,7 +189,7 @@ async function captureGeneratePayload(page) {
       }),
     });
   });
-  return () => payload;
+  return payloads;
 }
 
 async function gotoFirstAvailable(page, paths) {
@@ -447,6 +468,14 @@ async function assertCalendarStageAngles(dialog, label, minCount = 4) {
   }
 }
 
+function parseVariationAngle(prompt) {
+  if (!prompt) return null;
+  const en = /(?:Variation angle:|Angle\/Hook:)\s*([^\n.]+)/i.exec(prompt);
+  if (en?.[1]) return en[1].trim();
+  const zh = /(?:变体角度：|角度\/钩子：)\s*([^\n。]+)/.exec(prompt);
+  return zh?.[1]?.trim() ?? null;
+}
+
 async function selectVariationCount(page, count) {
   const combo = page.getByRole("combobox").filter({ hasText: /variations/i }).first();
   await combo.click();
@@ -477,6 +506,57 @@ async function assertGenerateButtonState(page, nameRegex, expectedEnabled) {
 async function waitForToast(page, messageRegex) {
   const toast = page.getByText(messageRegex).first();
   await toast.waitFor({ state: "visible" });
+}
+
+async function waitForGeneratePayloads(payloads, expectedCount, timeoutMs = 20000) {
+  const started = Date.now();
+  while (payloads.length < expectedCount) {
+    if (Date.now() - started > timeoutMs) {
+      throw new Error(`Timed out waiting for ${expectedCount} generate calls, got ${payloads.length}`);
+    }
+    await delay(200);
+  }
+}
+
+async function waitForGenerateOrLogin(page, payloads, beforeCount, timeoutMs = 15000) {
+  const started = Date.now();
+  while (Date.now() - started < timeoutMs) {
+    if (page.url().includes("/login")) return "login";
+    if (payloads.length > beforeCount) return "payload";
+    await delay(200);
+  }
+  if (page.url().includes("/login")) return "login";
+  return null;
+}
+
+function assertBrandKitInPrompt(prompt, expectBrandKit) {
+  const value = String(prompt ?? "");
+  const hasBrandTone = value.includes("Brand tone:") || value.includes("品牌语气：");
+  const hasStyleSuffix = value.includes("Style suffix:") || value.includes("风格补充：");
+  const hasAvoidWords = value.includes("Avoid words:") || value.includes("避免用词：");
+
+  if (expectBrandKit && (!hasBrandTone || !hasStyleSuffix || !hasAvoidWords)) {
+    throw new Error("Brand Kit lines missing from generate prompt");
+  }
+  if (!expectBrandKit && (hasBrandTone || hasStyleSuffix || hasAvoidWords)) {
+    throw new Error("Brand Kit lines unexpectedly present in generate prompt");
+  }
+
+  if (!expectBrandKit) return;
+
+  const expectEn =
+    value.includes(`Brand tone: ${SEEDED_BRAND_KIT.brandTone}`) &&
+    value.includes(`Style suffix: ${SEEDED_BRAND_KIT.styleSuffix}`) &&
+    value.includes("Avoid words: cheap, boring");
+
+  const expectZh =
+    value.includes(`品牌语气：${SEEDED_BRAND_KIT.brandTone}`) &&
+    value.includes(`风格补充：${SEEDED_BRAND_KIT.styleSuffix}`) &&
+    (value.includes("避免用词：cheap、boring") || value.includes("避免用词：cheap、 boring"));
+
+  if (!expectEn && !expectZh) {
+    throw new Error("Brand Kit seeded values missing from generate prompt");
+  }
 }
 
 async function runPromptStudioTextToVideo(page) {
@@ -575,6 +655,8 @@ async function main() {
   });
 
   await installCreditBalanceStub(page);
+  await installUploadStub(page);
+  const generatePayloads = await installGenerateStub(page);
   baseURL = await resolveBaseURL(page);
   await gotoFirstAvailable(page, ["/en/text-to-video", "/text-to-video"]);
   await waitForCreditBalance(page);
@@ -601,33 +683,20 @@ async function main() {
   // Fill prompt and attempt generation (requires login or dev bypass)
   await page.getByPlaceholder(/Describe the video|描述视频/i).fill("A sleek product demo in a modern studio");
   await assertGenerateButtonState(page, /Generate Video|生成视频/i, true);
-  const readPayload = await captureGeneratePayload(page);
+  const beforeTextGenerate = generatePayloads.length;
   await page.getByRole("button", { name: /Generate Video|生成视频/i }).click();
 
-  // Wait briefly for either login redirect or generate request
-  await delay(1200);
-  const payload = readPayload();
-  const redirectedToLogin = page.url().includes("/login");
-
-  if (!redirectedToLogin && payload?.prompt) {
-    const hasBrandTone = payload.prompt.includes("Brand tone:") || payload.prompt.includes("品牌语气：");
-    const hasStyleSuffix = payload.prompt.includes("Style suffix:") || payload.prompt.includes("风格补充：");
-    const hasAvoidWords = payload.prompt.includes("Avoid words:") || payload.prompt.includes("避免用词：");
-    if (!hasBrandTone || !hasStyleSuffix) {
-      throw new Error("Brand Kit lines not appended to prompt");
+  const textOutcome = await waitForGenerateOrLogin(page, generatePayloads, beforeTextGenerate);
+  if (textOutcome === "payload") {
+    await waitForGeneratePayloads(generatePayloads, beforeTextGenerate + 1);
+    const payload = generatePayloads[generatePayloads.length - 1];
+    if (payload?.prompt) {
+      assertBrandKitInPrompt(payload.prompt, true);
     }
-    if (!hasAvoidWords) {
-      throw new Error("Brand Kit banned words not appended to prompt");
-    }
-
-    // Value check (English-only here since we are on /en routes).
-    if (
-      !payload.prompt.includes(`Brand tone: ${SEEDED_BRAND_KIT.brandTone}`) ||
-      !payload.prompt.includes(`Style suffix: ${SEEDED_BRAND_KIT.styleSuffix}`) ||
-      !payload.prompt.includes("Avoid words: cheap, boring")
-    ) {
-      throw new Error("Brand Kit seeded values missing from generate payload");
-    }
+  } else if (textOutcome === "login") {
+    console.log("P1-05 text-to-video generate skipped (auth): redirected to login");
+  } else {
+    throw new Error("Text-to-video generate produced no request and no login redirect");
   }
 
   // Product-to-Video preview assertions (no auth required)
@@ -682,11 +751,69 @@ async function main() {
     throw new Error("Prompt Studio preview missing script structure");
   }
 
+  // Product-to-Video generation: variationCount=3 -> 3 queued tasks with unique prompts/angles.
+  await selectVariationCount(page, 3);
+  const beforeProductGenerate = generatePayloads.length;
+  await page.getByRole("button", { name: /^Generate$|生成/i }).click();
+  const productOutcome = await waitForGenerateOrLogin(page, generatePayloads, beforeProductGenerate, 20000);
+  if (productOutcome === "payload") {
+    await waitForGeneratePayloads(generatePayloads, beforeProductGenerate + 3, 25000);
+    const newPayloads = generatePayloads.slice(beforeProductGenerate);
+    if (newPayloads.length !== 3) {
+      throw new Error(`Expected 3 product-to-video generate calls, got ${newPayloads.length}`);
+    }
+    const prompts = newPayloads.map((p) => p?.prompt).filter(Boolean);
+    const uniquePrompts = new Set(prompts);
+    if (uniquePrompts.size !== 3) {
+      throw new Error(`Expected 3 unique prompts for product-to-video, got ${uniquePrompts.size}`);
+    }
+    const angles = prompts.map(parseVariationAngle).filter(Boolean);
+    if (angles.length !== 3) {
+      throw new Error("Failed to parse 3 variation angles from product-to-video prompts");
+    }
+    const uniqueAngles = new Set(angles);
+    if (uniqueAngles.size !== 3) {
+      throw new Error(`Expected 3 unique variation angles, got ${uniqueAngles.size}`);
+    }
+    for (const payload of newPayloads) {
+      if (payload?.mode !== "product-to-video") {
+        throw new Error(`Expected mode=product-to-video, got: ${JSON.stringify(payload?.mode)}`);
+      }
+      if (!payload?.imageUrl || !Array.isArray(payload?.imageUrls) || payload.imageUrls.length < 1) {
+        throw new Error("Expected imageUrl + imageUrls in product-to-video payload");
+      }
+      assertBrandKitInPrompt(payload.prompt, true);
+    }
+  } else if (productOutcome === "login") {
+    console.log("P1-05 product-to-video generate skipped (auth): redirected to login");
+  } else {
+    throw new Error("Product-to-video generate produced no request and no login redirect");
+  }
+
   // Toggle off -> preview should drop Brand Kit lines
   const brandToggle = page.getByRole("switch", { name: /Brand Kit|品牌套件/i });
   await brandToggle.click();
   await delay(300);
   await assertBrandKitPreview(page, false);
+
+  // Generate again with Brand Kit off: prompts should not include any Brand Kit markers.
+  const beforeNoBrand = generatePayloads.length;
+  await page.getByRole("button", { name: /^Generate$|生成/i }).click();
+  const noBrandOutcome = await waitForGenerateOrLogin(page, generatePayloads, beforeNoBrand, 20000);
+  if (noBrandOutcome === "payload") {
+    await waitForGeneratePayloads(generatePayloads, beforeNoBrand + 3, 25000);
+    const newPayloads = generatePayloads.slice(beforeNoBrand);
+    if (newPayloads.length !== 3) {
+      throw new Error(`Expected 3 product-to-video generate calls (no brand kit), got ${newPayloads.length}`);
+    }
+    for (const payload of newPayloads) {
+      assertBrandKitInPrompt(payload.prompt, false);
+    }
+  } else if (noBrandOutcome === "login") {
+    console.log("P1-05 product-to-video generate (no brand kit) skipped (auth): redirected to login");
+  } else {
+    throw new Error("Product-to-video generate (no brand kit) produced no request and no login redirect");
+  }
 
   console.log("P1-05 automation prep ok");
   await browser.close();
