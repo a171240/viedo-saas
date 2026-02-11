@@ -1632,6 +1632,7 @@
       "subtitle": "最多选择 {count} 个角度排队。",
       "countOption": "{count} 个任务",
       "selectedCount": "已选 {count}/{max}",
+      "directApplyHint": "角度仅用于批量排队；不选角度也可以直接应用基础提示词。",
       "disabledMissingImage": "请先上传图片再批量排队。",
       "disabledBusy": "请等待当前请求完成。",
       "actions": {

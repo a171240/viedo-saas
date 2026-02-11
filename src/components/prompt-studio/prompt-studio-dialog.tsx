@@ -333,7 +333,10 @@ export function PromptStudioDialog({
                   </Select>
                 </div>
                 <div className="flex flex-wrap items-center justify-between gap-3 text-xs text-muted-foreground">
-                  <span>{t("batch.selectedCount", { count: selectedAngles.length, max: batchCount })}</span>
+                  <div className="space-y-1">
+                    <div>{t("batch.selectedCount", { count: selectedAngles.length, max: batchCount })}</div>
+                    <div>{t("batch.directApplyHint")}</div>
+                  </div>
                   <div className="flex items-center gap-2">
                     <Button
                       type="button"

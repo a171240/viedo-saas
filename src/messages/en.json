@@ -1632,6 +1632,7 @@
       "subtitle": "Select up to {count} angles to queue.",
       "countOption": "{count} tasks",
       "selectedCount": "Selected {count}/{max}",
+      "directApplyHint": "Angles are only needed for batch queue. You can still apply the base prompt directly.",
       "disabledMissingImage": "Add an image to queue prompts for this tool.",
       "disabledBusy": "Please wait for the current request to finish.",
       "actions": {
